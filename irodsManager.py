@@ -24,11 +24,44 @@ class manager:
         def printName(self):
             print(self.name)
         
-        def create():
-            print("To be implemented")
+        def create(self, lpath, create_intermediates):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'create',
+                'lpath': lpath,
+                'create-intermediates': create_intermediates
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + ']')
         
-        def remove():
-            print("To be implemented")
+        def remove(self, lpath, recurse, no_trash):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'remove',
+                'lpath': lpath,
+                'recurse': recurse,
+                'no-trash': no_trash
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + ']')
         
         def stat(self, lpath):
             headers = {
@@ -67,57 +100,3 @@ class manager:
         
         def touch():
             print("To be implemented")
-
-
-    #create instances of inner classes
-    
-
-
-
-
-
-#division as child classes
-class collections_manager(manager):
-    def create():
-        print("To be implemented")
-    
-    def remove():
-        print("To be implemented")
-    
-    def stat(self, lpath):
-        headers = {
-            'Authorization': 'Bearer ' + self.token,
-        }
-
-        params = {
-            'op': 'stat',
-            'lpath': lpath,
-        }
-
-        r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
-
-        if (r.status_code == 200):
-            return(r.json())
-        else:
-            return('Error: [' + str(r.status_code) + ']')
-    
-    def list():
-        print("To be implemented")
-    
-    def set_permission():
-        print("To be implemented")
-    
-    def set_inheritance():
-        print("To be implemented")
-    
-    def modify_permissions():
-        print("To be implemented")
-    
-    def modify_metadata():
-        print("To be implemented")
-    
-    def rename():
-        print("To be implemented")
-    
-    def touch():
-        print("To be implemented")
