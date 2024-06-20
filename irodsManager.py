@@ -24,7 +24,7 @@ class manager:
         def printName(self):
             print(self.name)
         
-        def create(self, lpath, create_intermediates):
+        def create(self, lpath, create_intermediates=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -43,7 +43,7 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
-        def remove(self, lpath, recurse, no_trash):
+        def remove(self, lpath, recurse=0, no_trash=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -63,7 +63,7 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
-        def stat(self, lpath):
+        def stat(self, lpath, ticket=""):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
             }
@@ -71,6 +71,7 @@ class manager:
             params = {
                 'op': 'stat',
                 'lpath': lpath,
+                'ticket': ticket
             }
 
             r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
@@ -80,8 +81,24 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
-        def list():
-            print("To be implemented")
+        def list(self, lpath, recurse=0, ticket=""):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+            }
+
+            params = {
+                'op': 'list',
+                'lpath': lpath,
+                'recurse': recurse,
+                'ticket': ticket
+            }
+
+            r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + ']')
         
         def set_permission():
             print("To be implemented")
