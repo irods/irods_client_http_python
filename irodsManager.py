@@ -93,6 +93,7 @@ class manager:
 
                 return(rdict)
         
+
         # Removes an existing collection.
         # params
         # - lpath: The absolute logical path of the collection to be removed.
@@ -109,6 +110,7 @@ class manager:
                 raise Exception('recurse must be an int 1 or 0')
             if ((not no_trash == 0) and (not no_trash == 1)):
                 raise Exception('no_trash must be an int 1 or 0')
+
 
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -142,6 +144,7 @@ class manager:
 
                 return(rdict)
         
+
         # Gives information about a collection.
         # params
         # - lpath: The absolute logical path of the collection being queried.
@@ -183,6 +186,7 @@ class manager:
 
                 return(rdict)
         
+
         # Shows the contents of a collection
         # params
         # - lpath: The absolute logical path of the collection to have its contents listed.
@@ -227,6 +231,7 @@ class manager:
                 print('Error: ' + r.text)
 
                 return(rdict)
+
         
         # Sets the permission of a user for a given collection
         # params
