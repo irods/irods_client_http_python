@@ -1,4 +1,5 @@
 import requests
+import json
 
 class manager:
     def __init__(self, username, password, url_base, version):
@@ -16,13 +17,9 @@ class manager:
     #division as inner classes
     class collections_manager:
         def __init__(self, url_base, version, token):
-            self.name = 'Jebediah Dingleberry'
             self.url_base = url_base
             self.version = version
             self.token = token
-        
-        def printName(self):
-            print(self.name)
         
         def create(self, lpath, create_intermediates=0):
             headers = {
@@ -100,20 +97,132 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
-        def set_permission():
-            print("To be implemented")
+        def set_permission(self, lpath, entity_name, permission, admin=0):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'set_permission',
+                'lpath': lpath,
+                'entity-name': entity_name,
+                'permission': permission,
+                'admin': admin
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
-        def set_inheritance():
-            print("To be implemented")
+        def set_inheritance(self, lpath, enable, admin=0):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'set_inheritance',
+                'lpath': lpath,
+                'enable': enable,
+                'admin': admin
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
-        def modify_permissions():
-            print("To be implemented")
+        def modify_permissions(self, lpath, operations, admin=0):
+            for entry in operations:
+                print(str(entry)) #TODO: Add processing to simplify initial parameter passed by user
+            
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'modify_permissions',
+                'lpath': lpath,
+                'operations': json.dumps(operations),
+                'admin': admin
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
-        def modify_metadata():
-            print("To be implemented")
+        def modify_metadata(self, lpath, operations, admin=0):
+            for entry in operations:
+                print(str(entry)) #TODO: Add processing to simplify initial parameter passed by user
+            
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'modify_metadata',
+                'lpath': lpath,
+                'operations': json.dumps(operations),
+                'admin': admin
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
-        def rename():
-            print("To be implemented")
+        def rename(self, old_lpath, new_lpath):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'rename',
+                'old-lpath': old_lpath,
+                'new-lpath': new_lpath
+            }
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
-        def touch():
-            print("To be implemented")
+        def touch(self, lpath, seconds_since_epoch=-1, reference=''):
+            headers = {
+                'Authorization': 'Bearer ' + self.token,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+
+            data = {
+                'op': 'touch',
+                'lpath': lpath
+            }
+
+            if (seconds_since_epoch != -1):
+                data['seconds-since-epoch'] = seconds_since_epoch
+            
+            if (reference != ''):
+                data['reference'] = reference
+
+            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+
+            if (r.status_code == 200):
+                return(r.json())
+            else:
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
