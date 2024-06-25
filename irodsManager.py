@@ -1,20 +1,26 @@
 import requests
 import json
 
+# Manager that contains functions to access all iRODS HTTP API endpoints
 class manager:
+    # Gets the username, password, hostname, and version from the user to initialize a manager instance.
+    # Calls the authenticate endpoint and stores the token, hostname, and version for later use.
+    # Throws an error if the authentication fails.
     def __init__(self, username, password, url_base, version):
         self.url_base = url_base
-        self.version = version
+        self.version = version #consider merging with url
 
+        #TODO: Add error handling for authentication
         r = requests.post(url_base + version + '/authenticate', auth=(username, password))
         self.token = r.text
 
         self.collections = self.collections_manager(self.url_base, self.version, self.token)
     
-    def getToken(self):
+    # Prints the authentication token
+    def printToken(self):
         print("token: " + self.token)
 
-    #division as inner classes
+    # Inner class to handle collections operations
     class collections_manager:
         def __init__(self, url_base, version, token):
             self.url_base = url_base
@@ -157,6 +163,7 @@ class manager:
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
             if (r.status_code == 200):
+                #print(r.json().__class__)
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)

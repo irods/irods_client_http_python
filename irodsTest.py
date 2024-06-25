@@ -14,7 +14,7 @@ params = {
 ops_permissions = [
     {
         'entity_name': 'jebediah',
-        'acl': 'null'
+        'acl': 'read'
     },
     {
         'entity_name': 'scott',
@@ -30,11 +30,16 @@ ops_metadata = [
     }
 ]
 
-#print(rods.collections.modify_permissions('/tempZone/home/rods', ops_permissions))
-print(rods.collections.stat('/tempZone/home/rods'))
-print(rods.collections.touch('/tempZone/home/rods'))
-print(rods.collections.stat('/tempZone/home/rods'))
-print(rods.collections.touch('/tempZone/home/rods', 1000))
-print(rods.collections.stat('/tempZone/home/rods'))
-print(rods.collections.touch('/tempZone/home/rods', -1, '/tempZone/home/nyu'))
-print(rods.collections.stat('/tempZone/home/rods'))
+#rods.collections.modify_permissions('/tempZone/home/rods', ops_permissions)
+
+statDict = jeb.collections.stat('/tempZone/home/rods')
+
+print(statDict['permissions'])
+
+#print(statDict.registered)
+#print(rods.collections.touch('/tempZone/home/rods'))
+#print(rods.collections.stat('/tempZone/home/rods'))
+#print(rods.collections.touch('/tempZone/home/rods', 1000))
+#print(rods.collections.stat('/tempZone/home/rods'))
+#print(rods.collections.touch('/tempZone/home/rods', -1, '/tempZone/home/nyu'))
+#print(rods.collections.stat('/tempZone/home/rods'))
