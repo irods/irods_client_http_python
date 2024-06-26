@@ -1,7 +1,7 @@
 import requests
 import json
 
-# Manager that contains functions to access all iRODS HTTP API endpoints
+# Manager that contains functions to access all iRODS HTTP API endpoints.
 class manager:
     # Gets the username, password, hostname, and version from the user to initialize a manager instance.
     # Calls the authenticate endpoint and stores the token, hostname, and version for later use.
@@ -10,23 +10,30 @@ class manager:
         self.url_base = url_base
         self.version = version #consider merging with url
 
-        #TODO: Add error handling for authentication
+        #TODO: Add error handling for authentication.
         r = requests.post(url_base + version + '/authenticate', auth=(username, password))
         self.token = r.text
 
         self.collections = self.collections_manager(self.url_base, self.version, self.token)
     
-    # Prints the authentication token
+    # Prints the authentication token.
     def printToken(self):
         print("token: " + self.token)
 
-    # Inner class to handle collections operations
+    # Inner class to handle collections operations.
     class collections_manager:
+        # Initializes collections_manager with variables from the parent class.
         def __init__(self, url_base, version, token):
             self.url_base = url_base
             self.version = version
             self.token = token
         
+        # Creates a new collection
+        # params
+        # - lpath: The absolute logical path of the collection to be created.
+        # - create_intermediates (optional): Set to 1 to creat intermediates, otherwise set to 0. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def create(self, lpath, create_intermediates=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -46,6 +53,13 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
+        # Removes an existing collection.
+        # params
+        # - lpath: The absolute logical path of the collection to be removed.
+        # - recurse (optional): Set to 1 to remove contents of the collection, otherwise set to 0. Defaults to 0.
+        # - no_trash (optional): Set to 1 to move the collection to trash, 0 to permanently remove. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def remove(self, lpath, recurse=0, no_trash=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -66,6 +80,13 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
+        # Gives information about a collection.
+        # params
+        # - lpath: The absolute logical path of the collection being queried.
+        # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
+        # return
+        # - Status code 2XX: Dictionary containing collection information.
+        # - Other: Status code and return message.
         def stat(self, lpath, ticket=""):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -84,6 +105,14 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
+        # Shows the contents of a collection
+        # params
+        # - lpath: The absolute logical path of the collection to have its contents listed.
+        # - recurse (optional): Set to 1 to list the contents of objects in the collection, otherwise set to 0. Defaults to 0.
+        # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
+        # return
+        # - Status code 2XX: Dictionary containing collection information.
+        # - Other: Status code and return message.
         def list(self, lpath, recurse=0, ticket=""):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -103,6 +132,14 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + ']')
         
+        # Sets the permission of a user for a given collection
+        # params
+        # - lpath: The absolute logical path of the collection to have a permission set.
+        # - entity_name: The name of the user or group having its permission set.
+        # - permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
+        # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def set_permission(self, lpath, entity_name, permission, admin=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -124,6 +161,13 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
         
+        # Sets the inheritance for a collection.
+        # params
+        # - lpath: The absolute logical path of the collection to have its inheritance set.
+        # - enable: Set to 1 to enable inheritance, or 0 to disable.
+        # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def set_inheritance(self, lpath, enable, admin=0):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -144,9 +188,16 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
         
+        # Modifies permissions for multiple users or groups for a collection.
+        # params
+        # - lpath: The absolute logical path of the collection to have its inheritance set.
+        # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
+        # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def modify_permissions(self, lpath, operations, admin=0):
             for entry in operations:
-                print(str(entry)) #TODO: Add processing to simplify initial parameter passed by user
+                print(str(entry))
             
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -168,6 +219,13 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
         
+        # Modifies the metadata
+        # params
+        # - lpath: The absolute logical path of the collection to have its inheritance set.
+        # - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
+        # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+        # returns
+        # - Status code and response message.
         def modify_metadata(self, lpath, operations, admin=0):
             for entry in operations:
                 print(str(entry)) #TODO: Add processing to simplify initial parameter passed by user
@@ -191,6 +249,12 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
         
+        # Renames or moves a collection
+        # params
+        # - old_lpath: The current absolute logical path of the collection.
+        # - new_lpath: The absolute logical path of the destination for the collection.
+        # returns
+        # - Status code and response message.
         def rename(self, old_lpath, new_lpath):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -210,6 +274,13 @@ class manager:
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
         
+        # Renames or moves a collection
+        # params
+        # - lpath: The absolute logical path of the collection being touched.
+        # - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
+        # - reference (optional): The absolute logical path of the collection to use as a reference for mtime.
+        # returns
+        # - Status code and response message.
         def touch(self, lpath, seconds_since_epoch=-1, reference=''):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
