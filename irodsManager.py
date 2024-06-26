@@ -93,7 +93,6 @@ class manager:
 
                 return(rdict)
         
-
         # Removes an existing collection.
         # params
         # - lpath: The absolute logical path of the collection to be removed.
