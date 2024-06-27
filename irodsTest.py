@@ -32,4 +32,3 @@ ops_metadata = [
 ]
 
 print(api.collections.stat('/tempZone/home/rods'))
-
