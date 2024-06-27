@@ -48,10 +48,10 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
-                return(r.json())
+            if (r.status_code / 100 == 2):
+                return('Success: [' + str(r.status_code) + '] Created collection at ' + lpath)
             else:
-                return('Error: [' + str(r.status_code) + ']')
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
         # Removes an existing collection.
         # params
@@ -75,10 +75,10 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
-                return(r.json())
+            if (r.status_code / 100 == 2):
+                return('Success: [' + str(r.status_code) + '] Removed collection at ' + lpath)
             else:
-                return('Error: [' + str(r.status_code) + ']')
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
         # Gives information about a collection.
         # params
@@ -100,10 +100,10 @@ class manager:
 
             r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
-                return('Error: [' + str(r.status_code) + ']')
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
         # Shows the contents of a collection
         # params
@@ -127,10 +127,10 @@ class manager:
 
             r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
-                return('Error: [' + str(r.status_code) + ']')
+                return('Error: [' + str(r.status_code) + '] ' + r.text)
         
         # Sets the permission of a user for a given collection
         # params
@@ -156,7 +156,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
@@ -183,7 +183,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
@@ -213,7 +213,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 #print(r.json().__class__)
                 return(r.json())
             else:
@@ -244,7 +244,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
@@ -269,7 +269,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
@@ -300,7 +300,7 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            if (r.status_code == 200):
+            if (r.status_code / 100 == 2):
                 return(r.json())
             else:
                 return('Error: [' + str(r.status_code) + '] ' + r.text)
