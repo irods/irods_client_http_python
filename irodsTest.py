@@ -31,6 +31,9 @@ ops_metadata = [
     }
 ]
 
+print(rods.collections.list('/tempZone/home/rods'))
+#print(rods.collections.stat('/tempZone/home/rods'))
+
 print(api.collections.stat('/tempZone/home/rods'))
 
 
