@@ -30,11 +30,14 @@ ops_metadata = [
     }
 ]
 
+print(rods.collections.list('/tempZone/home/rods'))
+#print(rods.collections.stat('/tempZone/home/rods'))
+
 #rods.collections.modify_permissions('/tempZone/home/rods', ops_permissions)
 
-statDict = jeb.collections.stat('/tempZone/home/rods')
+#statDict = jeb.collections.stat('/tempZone/home/rods')
 
-print(statDict['permissions'])
+#print(statDict['permissions'])
 
 #print(statDict.registered)
 #print(rods.collections.touch('/tempZone/home/rods'))

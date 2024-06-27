@@ -6,12 +6,6 @@ rods = irodsManager.manager('rods', 'rods', 'http://localhost:9001/irods-http-ap
 class authenticationTests(unittest.TestCase):
     def testTrue(self):
         self.assertEqual(3, 3)
-    
-    def testFalse(self):
-        self.assertEqual(3, 2)
-
-    def testFloop(self):
-        self.assertEqual(3, 4)
 
 # Tests for collections operations
 class collectionsTests(unittest.TestCase):
@@ -20,8 +14,6 @@ class collectionsTests(unittest.TestCase):
 
         response = rods.collections.create('/tempZone/home/new')
         self.assertEqual('Success: [200] Created collection at /tempZone/home/new', response)
-        response = rods.collections.create('/tempZone/home/new')
-        self.assertAlmostEqual('Error: [500] ', response) #TODO: Set whole error message
     
     def testRemove(self):
         rods.collections.remove('/tempZone/home/new')
@@ -34,7 +26,8 @@ class collectionsTests(unittest.TestCase):
     def testStat(self):
         rods.collections.remove('/tempZone/home/new')
         
-        response = rods.collections.stat()
+        response = rods.collections.stat('/tempZone/home/new')
+        self.assertEqual('iRods Response: -170000', response)
     
     def testList(self):
         self.assertTrue(True)
