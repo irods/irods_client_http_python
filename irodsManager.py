@@ -79,6 +79,12 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code'] == 0 and rdict['created'] == False:
                     print('Failed to create collection: \'' + lpath + '\' already exists')
@@ -127,6 +133,12 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to remove collection \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -172,6 +184,12 @@ class manager:
             r = requests.get(self.url_base + '/collections', params=params, headers=headers)
 
             rdict = r.json()
+
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -219,6 +237,12 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to retrieve list for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -230,7 +254,6 @@ class manager:
                 print('Error: ' + r.text)
 
                 return(rdict)
-
         
         # Sets the permission of a user for a given collection
         # params
@@ -268,6 +291,12 @@ class manager:
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
+
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -314,7 +343,15 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
+                rdict = r.json()
+
                 operation = ''
                 if (enable == 1):
                     operation = 'enabled'
@@ -367,6 +404,12 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to modify permissions for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -417,6 +460,12 @@ class manager:
 
             rdict = r.json()
 
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
+
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to modify metadata for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -457,6 +506,12 @@ class manager:
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
+
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -506,6 +561,12 @@ class manager:
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
+
+            returnData = {
+                'http_status': r.status_code,
+                'message': '',
+                'data': ''
+            }
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
