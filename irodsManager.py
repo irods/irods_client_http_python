@@ -18,7 +18,7 @@ class manager:
     
     # Prints the authentication token.
     def printToken(self):
-        print("token: " + self.token)
+        print('token: ' + self.token)
 
     # Inner class to handle collections operations.
     class collections_manager:
@@ -48,25 +48,21 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
-                if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                if rdict['irods_response']['status_code'] == 0 and rdict['created'] == False:
+                    print('Failed to create collection: \'' + lpath + '\' already exists')
+                elif rdict['irods_response']['status_code']:
+                    print('Failed to create collection \'' + lpath + '\': iRODS Status Code ' + str(rdict['irods_response']['status_code']) + ' - ' + str(rdict['irods_response']['status_message']))
                 else:
-                    returnData['message'] = 'Succesfully created collection at ' + lpath
+                    print('Collection \'' + lpath + '\' created successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Removes an existing collection.
         # params
@@ -90,25 +86,23 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to remove collection \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully removed collection at ' + lpath
+                    print('Collection \'' + lpath + '\' removed successfully')
                 
-                return(returnData)
-            else:
-                returnData['message'] = 'Error: ' + r.text
+                return(rdict)
+            elif (r.status_code / 100 == 4):
+                print('Failed to remove collection \'' + lpath + '\': iRODS Status Code ' + str(rdict['irods_response']['status_code']))
 
-                return(returnData)
+                return(rdict)
+            else:
+                print('Error: ' + r.text)
+
+                return(rdict)
         
         # Gives information about a collection.
         # params
@@ -117,7 +111,7 @@ class manager:
         # return
         # - Status code 2XX: Dictionary containing collection information.
         # - Other: Status code and return message.
-        def stat(self, lpath, ticket=""):
+        def stat(self, lpath, ticket=''):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
             }
@@ -130,26 +124,19 @@ class manager:
 
             r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to retrieve information for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully accessed collection at ' + lpath
-                    returnData['data'] = rdict
+                    print('Information for \'' + lpath + '\' retrieved successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Shows the contents of a collection
         # params
@@ -159,7 +146,7 @@ class manager:
         # return
         # - Status code 2XX: Dictionary containing collection information.
         # - Other: Status code and return message.
-        def list(self, lpath, recurse=0, ticket=""):
+        def list(self, lpath, recurse=0, ticket=''):
             headers = {
                 'Authorization': 'Bearer ' + self.token,
             }
@@ -173,26 +160,19 @@ class manager:
 
             r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to retrieve list for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully accessed collection at ' + lpath
-                    returnData['data'] = rdict
+                    print('List for \'' + lpath + '\' retrieved successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Sets the permission of a user for a given collection
         # params
@@ -218,25 +198,19 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to set permission for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully set permission for collection at ' + lpath + ' (' + entity_name + ' : ' + permission + ')'
+                    print('Permission for \'' + lpath + '\' set successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Sets the inheritance for a collection.
         # params
@@ -260,14 +234,9 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
                 operation = ''
                 if (enable == 1):
                     operation = 'enabled'
@@ -275,15 +244,15 @@ class manager:
                     operation = 'disabled'
 
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to set inheritance for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully ' + operation + ' inheritance for collection at ' + lpath
+                    print('Inheritance for \'' + lpath + '\' ' + operation)
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Modifies permissions for multiple users or groups for a collection.
         # params
@@ -310,25 +279,19 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to modify permissions for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully modified permissions for collection at ' + lpath + ' (' + str(operations) + ')'
+                    print('Permissions for \'' + lpath + '\' modified successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Modifies the metadata
         # params
@@ -355,25 +318,19 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to modify metadata for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully modified metadata for collection at ' + lpath + ' (' + str(operations) + ')'
+                    print('Metadata for \'' + lpath + '\' modified successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Renames or moves a collection
         # params
@@ -395,25 +352,19 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to rename \'' + old_lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully moved the collection from ' + old_lpath + ' to ' + new_lpath
+                    print('\'' + old_lpath + '\' renamed to \'' + new_lpath + '\'')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)
         
         # Renames or moves a collection
         # params
@@ -441,22 +392,16 @@ class manager:
 
             r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
-                rdict = r.json()
-
                 if rdict['irods_response']['status_code']:
-                    returnData['message'] = 'iRODS Response: ' + str(rdict['irods_response']['status_code'])
+                    print('Failed to update mtime for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    returnData['message'] = 'Succesfully touched the collection at ' + lpath
+                    print('mtime for \'' + lpath + '\' updated successfully')
                 
-                return(returnData)
+                return(rdict)
             else:
-                returnData['message'] = 'Error: ' + r.text
+                print('Error: ' + r.text)
 
-                return(returnData)
+                return(rdict)

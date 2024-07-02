@@ -30,7 +30,8 @@ ops_metadata = [
     }
 ]
 
-print(rods.collections.list('/tempZone/home/rods'))
+print(rods.collections.stat('/tempZone/home/pew'))
+
 #print(rods.collections.stat('/tempZone/home/rods'))
 
 #rods.collections.modify_permissions('/tempZone/home/rods', ops_permissions)

@@ -13,21 +13,21 @@ class collectionsTests(unittest.TestCase):
         rods.collections.remove('/tempZone/home/new')
 
         response = rods.collections.create('/tempZone/home/new')
-        self.assertEqual('Success: [200] Created collection at /tempZone/home/new', response)
+        self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
     
     def testRemove(self):
         rods.collections.remove('/tempZone/home/new')
 
         response = rods.collections.create('/tempZone/home/new')
-        self.assertEqual('Success: [200] Created collection at /tempZone/home/new', response)
+        self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
         response = rods.collections.remove('/tempZone/home/new')
-        self.assertEqual('Success: [200] Removed collection at /tempZone/home/new', response)
+        self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
     
     def testStat(self):
         rods.collections.remove('/tempZone/home/new')
         
         response = rods.collections.stat('/tempZone/home/new')
-        self.assertEqual('iRods Response: -170000', response)
+        self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
     
     def testList(self):
         self.assertTrue(True)
