@@ -79,11 +79,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code'] == 0 and rdict['created'] == False:
@@ -133,11 +129,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -185,11 +177,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -237,11 +225,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -292,11 +276,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -343,11 +323,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 rdict = r.json()
@@ -404,11 +380,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -460,11 +432,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -507,11 +475,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
@@ -562,11 +526,7 @@ class manager:
 
             rdict = r.json()
 
-            returnData = {
-                'http_status': r.status_code,
-                'message': '',
-                'data': ''
-            }
+            rdict = r.json()
 
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
