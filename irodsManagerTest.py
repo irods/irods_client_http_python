@@ -69,6 +69,8 @@ class collectionsTests(unittest.TestCase):
         self.assertEqual('{\'irods_response\': {\'status_code\': -358000, \'status_message\': \'path does not exist: OBJ_PATH_DOES_NOT_EXIST\'}}', str(response))
         response = self.api.collections.create('/tempZone/home/test/folder', 1)
         self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
+
+        #self.assertRaises()
     
 
     #tests the remove operation
