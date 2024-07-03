@@ -79,8 +79,6 @@ class manager:
 
             rdict = r.json()
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code'] == 0 and rdict['created'] == False:
                     print('Failed to create collection: \'' + lpath + '\' already exists')
@@ -112,7 +110,6 @@ class manager:
             if ((not no_trash == 0) and (not no_trash == 1)):
                 raise Exception('no_trash must be an int 1 or 0')
 
-
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -126,8 +123,6 @@ class manager:
             }
 
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
-
-            rdict = r.json()
 
             rdict = r.json()
 
@@ -177,8 +172,6 @@ class manager:
 
             rdict = r.json()
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to retrieve information for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -222,8 +215,6 @@ class manager:
             }
 
             r = requests.get(self.url_base + '/collections', params=params, headers=headers)
-
-            rdict = r.json()
 
             rdict = r.json()
 
@@ -276,8 +267,6 @@ class manager:
 
             rdict = r.json()
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to set permission for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -320,8 +309,6 @@ class manager:
             }
 
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
-
-            rdict = r.json()
 
             rdict = r.json()
 
@@ -380,8 +367,6 @@ class manager:
 
             rdict = r.json()
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to modify permissions for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -432,8 +417,6 @@ class manager:
 
             rdict = r.json()
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
                 if rdict['irods_response']['status_code']:
                     print('Failed to modify metadata for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
@@ -472,8 +455,6 @@ class manager:
             }
 
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
-
-            rdict = r.json()
 
             rdict = r.json()
 
@@ -523,8 +504,6 @@ class manager:
                 data['reference'] = reference
 
             r = requests.post(self.url_base + '/collections', headers=headers, data=data)
-
-            rdict = r.json()
 
             rdict = r.json()
 
