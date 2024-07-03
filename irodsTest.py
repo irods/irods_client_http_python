@@ -3,13 +3,14 @@ import irodsManager
 #manager = irodsManager.collections_manager('rods', 'rods', 'http://localhost:9001/irods-http-api/', '0.3.0')
 #print(manager.stat('/tempZone/home/rods'))
 
-rods = irodsManager.manager('rods', 'rods', 'http://localhost:9001/irods-http-api/', '0.3.0')
-jeb = irodsManager.manager('jebediah', 'dingleberry', 'http://localhost:9001/irods-http-api/', '0.3.0')
+api = irodsManager.manager('http://localhost:9001/irods-http-api/0.3.0')
+token = api.authenticate('rods', 'rods')
+api.setToken(token)
 
-params = {
-    'jebediah': 'null',
-    'scott': 'read'
-}
+# params = {
+#     'jebediah': 'null',
+#     'scott': 'read'
+# }
 
 ops_permissions = [
     {
@@ -30,20 +31,6 @@ ops_metadata = [
     }
 ]
 
-print(rods.collections.stat('/tempZone/home/pew'))
+print(api.collections.stat('/tempZone/home/rods'))
 
-#print(rods.collections.stat('/tempZone/home/rods'))
 
-#rods.collections.modify_permissions('/tempZone/home/rods', ops_permissions)
-
-#statDict = jeb.collections.stat('/tempZone/home/rods')
-
-#print(statDict['permissions'])
-
-#print(statDict.registered)
-#print(rods.collections.touch('/tempZone/home/rods'))
-#print(rods.collections.stat('/tempZone/home/rods'))
-#print(rods.collections.touch('/tempZone/home/rods', 1000))
-#print(rods.collections.stat('/tempZone/home/rods'))
-#print(rods.collections.touch('/tempZone/home/rods', -1, '/tempZone/home/nyu'))
-#print(rods.collections.stat('/tempZone/home/rods'))

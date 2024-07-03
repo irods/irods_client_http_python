@@ -3,38 +3,51 @@ import json
 
 # Manager that contains functions to access all iRODS HTTP API endpoints.
 class manager:
-    # Gets the username, password, hostname, and version from the user to initialize a manager instance.
-    # Calls the authenticate endpoint and stores the token, hostname, and version for later use.
-    # Throws an error if the authentication fails.
-    def __init__(self, username, password, url_base, version):
+    # Gets the username, password, and base url from the user to initialize a manager instance.
+    def __init__(self, url_base: str):
         self.url_base = url_base
-        self.version = version #consider merging with url
 
+        self.collections = self.collections_manager(self.url_base)
+    
+    def authenticate(self, username: str='', password: str='', openid_token=''):
         #TODO: Add error handling for authentication.
-        r = requests.post(url_base + version + '/authenticate', auth=(username, password))
+        r = requests.post(self.url_base + '/authenticate', auth=(username, password))
         self.token = r.text
 
-        self.collections = self.collections_manager(self.url_base, self.version, self.token)
-    
-    # Prints the authentication token.
-    def printToken(self):
-        print('token: ' + self.token)
+        return(self.token)
+
+    def setToken(self, token: str):
+        if (not isinstance(token, str)):
+            raise Exception('token must be a string')
+        self.token = token
+
+        self.collections.token = token
+
+    # Returns the authentication token.
+    def getToken(self):
+        return(self.token)
 
     # Inner class to handle collections operations.
     class collections_manager:
         # Initializes collections_manager with variables from the parent class.
-        def __init__(self, url_base, version, token):
+        def __init__(self, url_base: str):
             self.url_base = url_base
-            self.version = version
-            self.token = token
-        
+            self.token = None
+
         # Creates a new collection
         # params
         # - lpath: The absolute logical path of the collection to be created.
-        # - create_intermediates (optional): Set to 1 to creat intermediates, otherwise set to 0. Defaults to 0.
+        # - create_intermediates (optional): Set to 1 to create intermediates, otherwise set to 0. Defaults to 0.
         # returns
         # - Status code and response message.
-        def create(self, lpath, create_intermediates=0):
+        def create(self, lpath: str, create_intermediates: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if ((not create_intermediates == 0) and (not create_intermediates == 1)):
+                raise Exception('create_intermediates must be an int 1 or 0')
+
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,7 +59,7 @@ class manager:
                 'create-intermediates': create_intermediates
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -71,7 +84,16 @@ class manager:
         # - no_trash (optional): Set to 1 to move the collection to trash, 0 to permanently remove. Defaults to 0.
         # returns
         # - Status code and response message.
-        def remove(self, lpath, recurse=0, no_trash=0):
+        def remove(self, lpath: str, recurse: int=0, no_trash: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if ((not recurse == 0) and (not recurse == 1)):
+                raise Exception('recurse must be an int 1 or 0')
+            if ((not no_trash == 0) and (not no_trash == 1)):
+                raise Exception('no_trash must be an int 1 or 0')
+
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -84,7 +106,7 @@ class manager:
                 'no-trash': no_trash
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -111,7 +133,14 @@ class manager:
         # return
         # - Status code 2XX: Dictionary containing collection information.
         # - Other: Status code and return message.
-        def stat(self, lpath, ticket=''):
+        def stat(self, lpath: str, ticket: str=''):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if (not isinstance(ticket, str)):
+                raise Exception('ticket must be a string')
+            
             headers = {
                 'Authorization': 'Bearer ' + self.token,
             }
@@ -122,7 +151,7 @@ class manager:
                 'ticket': ticket
             }
 
-            r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
+            r = requests.get(self.url_base + '/collections', params=params, headers=headers)
 
             rdict = r.json()
 
@@ -146,7 +175,16 @@ class manager:
         # return
         # - Status code 2XX: Dictionary containing collection information.
         # - Other: Status code and return message.
-        def list(self, lpath, recurse=0, ticket=''):
+        def list(self, lpath: str, recurse: int=0, ticket: str=''):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if ((not recurse == 0) and (not recurse == 1)):
+                raise Exception('recurse must be an int 1 or 0')
+            if (not isinstance(ticket, str)):
+                raise Exception('ticket must be a string')
+
             headers = {
                 'Authorization': 'Bearer ' + self.token,
             }
@@ -158,7 +196,7 @@ class manager:
                 'ticket': ticket
             }
 
-            r = requests.get(self.url_base + self.version + '/collections', params=params, headers=headers)
+            r = requests.get(self.url_base + '/collections', params=params, headers=headers)
 
             rdict = r.json()
 
@@ -182,7 +220,18 @@ class manager:
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
         # - Status code and response message.
-        def set_permission(self, lpath, entity_name, permission, admin=0):
+        def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if (not isinstance(entity_name, str)):
+                raise Exception('entity_name must be a string')
+            if (not isinstance(permission, str)):
+                raise Exception('permission must be a string (\'null\', \'read\', \'write\', or \'own\')')
+            if ((not admin == 0) and (not admin == 1)):
+                raise Exception('admin must be an int 1 or 0')
+            
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -196,7 +245,7 @@ class manager:
                 'admin': admin
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -219,7 +268,16 @@ class manager:
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
         # - Status code and response message.
-        def set_inheritance(self, lpath, enable, admin=0):
+        def set_inheritance(self, lpath: str, enable: int, admin: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if ((not enable == 0) and (not enable == 1)):
+                raise Exception('enable must be an int 1 or 0')
+            if ((not admin == 0) and (not admin == 1)):
+                raise Exception('admin must be an int 1 or 0')
+            
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -232,7 +290,7 @@ class manager:
                 'admin': admin
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -261,9 +319,15 @@ class manager:
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
         # - Status code and response message.
-        def modify_permissions(self, lpath, operations, admin=0):
-            for entry in operations:
-                print(str(entry))
+        def modify_permissions(self, lpath: str, operations: dict, admin: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if (not isinstance(operations, dict)):
+                raise Exception('operations must be a dictionary')
+            if ((not admin == 0) and (not admin == 1)):
+                raise Exception('admin must be an int 1 or 0')
             
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -277,7 +341,7 @@ class manager:
                 'admin': admin
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -300,9 +364,18 @@ class manager:
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
         # - Status code and response message.
-        def modify_metadata(self, lpath, operations, admin=0):
-            for entry in operations:
-                print(str(entry)) #TODO: Add processing to simplify initial parameter passed by user
+        def modify_metadata(self, lpath: str, operations: dict, admin: int=0):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if (not isinstance(operations, dict)):
+                raise Exception('operations must be a dictionary')
+            if ((not admin == 0) and (not admin == 1)):
+                raise Exception('admin must be an int 1 or 0')
+            
+            # for entry in operations:
+            #     print(str(entry))
             
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -316,7 +389,7 @@ class manager:
                 'admin': admin
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -338,7 +411,14 @@ class manager:
         # - new_lpath: The absolute logical path of the destination for the collection.
         # returns
         # - Status code and response message.
-        def rename(self, old_lpath, new_lpath):
+        def rename(self, old_lpath: str, new_lpath: str):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(old_lpath, str)):
+                raise Exception('old_lpath must be a string')
+            if (not isinstance(new_lpath, str)):
+                raise Exception('new_lpath must be a string')
+            
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -350,7 +430,7 @@ class manager:
                 'new-lpath': new_lpath
             }
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 
@@ -374,6 +454,15 @@ class manager:
         # returns
         # - Status code and response message.
         def touch(self, lpath, seconds_since_epoch=-1, reference=''):
+            if (self.token == None):
+                raise Exception('No token set. Use setToken() to set the auth token to be used')
+            if (not isinstance(lpath, str)):
+                raise Exception('lpath must be a string')
+            if (not isinstance(seconds_since_epoch, int)):
+                raise Exception('seconds_since_epoch must be an int')
+            if (not isinstance(reference, str)):
+                raise Exception('reference must be a string')
+            
             headers = {
                 'Authorization': 'Bearer ' + self.token,
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -390,7 +479,7 @@ class manager:
             if (reference != ''):
                 data['reference'] = reference
 
-            r = requests.post(self.url_base + self.version + '/collections', headers=headers, data=data)
+            r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
             rdict = r.json()
 

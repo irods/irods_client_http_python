@@ -14,6 +14,8 @@ class collectionsTests(unittest.TestCase):
 
         response = rods.collections.create('/tempZone/home/new')
         self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
+
+        #self.assertRaises()
     
     def testRemove(self):
         rods.collections.remove('/tempZone/home/new')
