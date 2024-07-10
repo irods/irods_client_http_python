@@ -36,7 +36,7 @@ class collectionsTests(unittest.TestCase):
         self.userToken1 = self.api.authenticate('rods', 'rods')
         self.userToken2 = self.api.authenticate('jeb', 'ding')
         self.userToken3 = self.api.authenticate('sdor', 'sdor')
-    
+
 
     #tests the create operation
     def testCreate(self):
@@ -70,7 +70,19 @@ class collectionsTests(unittest.TestCase):
         response = self.api.collections.create('/tempZone/home/test/folder', 1)
         self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
 
-        #self.assertRaises()
+        #test creating existing collection
+        response = self.api.collections.create('/tempZone/home/new')
+        self.assertEqual('{\'created\': False, \'irods_response\': {\'status_code\': 0}}', str(response))
+
+        #test invalid path
+        response = self.api.collections.create('tempZone/home/new')
+        self.assertEqual('{\'irods_response\': {\'status_code\': -358000, \'status_message\': \'path does not exist: OBJ_PATH_DOES_NOT_EXIST\'}}', str(response))
+
+        #test create_intermediates
+        response = self.api.collections.create('/tempZone/home/test/folder', 0)
+        self.assertEqual('{\'irods_response\': {\'status_code\': -358000, \'status_message\': \'path does not exist: OBJ_PATH_DOES_NOT_EXIST\'}}', str(response))
+        response = self.api.collections.create('/tempZone/home/test/folder', 1)
+        self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
     
 
     #tests the remove operation
