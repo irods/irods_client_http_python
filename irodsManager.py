@@ -6,15 +6,31 @@ class manager:
     # Gets the username, password, and base url from the user to initialize a manager instance.
     def __init__(self, url_base: str):
         self.url_base = url_base
+        self.token = None
 
         self.collections = self.collections_manager(self.url_base)
     
-    def authenticate(self, username: str='', password: str='', openid_token=''):
+    def authenticate(self, username: str='', password: str='', openid_token: str=''):
         #TODO: Add error handling for authentication.
-        r = requests.post(self.url_base + '/authenticate', auth=(username, password))
-        self.token = r.text
+        if (not isinstance(username, str)):
+            raise Exception('username must be a string')
+        if (not isinstance(password, str)):
+            raise Exception('password must be a string')
+        if (not isinstance(openid_token, str)):
+            raise Exception('openid_token must be a string')
+        
+        if (openid_token != ''): #TODO: Add openid authentication
+            return('logged in with openid')
 
-        return(self.token)
+        r = requests.post(self.url_base + '/authenticate', auth=(username, password))
+
+        if (r.status_code / 100 == 2):
+            if (self.token == None):
+                self.setToken(r.text)
+            return(r.text)
+        else:
+            raise Exception('Failed to authenticate: ' + str(r.status_code))
+        
 
     def setToken(self, token: str):
         if (not isinstance(token, str)):
@@ -324,8 +340,10 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(operations, dict)):
-                raise Exception('operations must be a dictionary')
+            if (not isinstance(operations, list)):
+                raise Exception('operations must be a list of dictionaries')
+            if (not isinstance(operations[0], dict)):
+                raise Exception('operations must be a list of dictionaries')
             if ((not admin == 0) and (not admin == 1)):
                 raise Exception('admin must be an int 1 or 0')
             
@@ -369,8 +387,10 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(operations, dict)):
-                raise Exception('operations must be a dictionary')
+            if (not isinstance(operations, list)):
+                raise Exception('operations must be a list of dictionaries')
+            if (not isinstance(operations[0], dict)):
+                raise Exception('operations must be a list of dictionaries')
             if ((not admin == 0) and (not admin == 1)):
                 raise Exception('admin must be an int 1 or 0')
             
