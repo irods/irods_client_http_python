@@ -9,6 +9,7 @@ class manager:
         self.token = None
 
         self.collections = self.collections_manager(self.url_base)
+        self.data_objects = self.data_objects_manager(self.url_base)
     
     def authenticate(self, username: str='', password: str='', openid_token: str=''):
         #TODO: Add error handling for authentication.
@@ -38,6 +39,7 @@ class manager:
         self.token = token
 
         self.collections.token = token
+        self.data_objects.token = token
 
     # Returns the authentication token.
     def getToken(self):
@@ -518,3 +520,12 @@ class manager:
                 print('Error: ' + r.text)
 
                 return(rdict)
+
+
+
+    # Inner class to handle data objects operations.
+    class data_objects_manager:
+        # Initializes data_objects_manager with variables from the parent class.
+        def __init__(self, url_base: str):
+            self.url_base = url_base
+            self.token = None

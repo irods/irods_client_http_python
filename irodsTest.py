@@ -32,8 +32,3 @@ ops_metadata = [
 ]
 
 print(api.collections.stat('/tempZone/home/rods'))
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 749c6d9 (Set up new authentication flow with collections)
