@@ -1,13 +1,16 @@
 import unittest
 import irodsManager
+import concurrent.futures
 
 # Tests use the users rods (admin), jeb (rodsuser), and sdor (rodsuser)
+
+HOSTNAME = 'localhost'
 
 # Tests for authentication operations
 class authenticationTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(authenticationTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager('http://localhost:9001/irods-http-api/0.3.0')
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
 
     def testAuth(self):
         #Test param checking
@@ -32,15 +35,15 @@ class authenticationTests(unittest.TestCase):
 class collectionsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(collectionsTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager('http://localhost:9001/irods-http-api/0.3.0')
-        self.userToken1 = self.api.authenticate('rods', 'rods')
-        self.userToken2 = self.api.authenticate('jeb', 'ding')
-        self.userToken3 = self.api.authenticate('sdor', 'sdor')
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.adminToken = self.api.authenticate('rods', 'rods')
+        self.userToken1 = self.api.authenticate('jeb', 'ding')
+        self.userToken2 = self.api.authenticate('sdor', 'sdor')
 
 
     #tests the create operation
     def testCreate(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #clean up test collections
         self.api.collections.remove('/tempZone/home/new')
@@ -54,25 +57,13 @@ class collectionsTests(unittest.TestCase):
 
         #test creating new collection
         response = self.api.collections.create('/tempZone/home/new')
-        self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
+        self.assertTrue(response['created'])
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
         #test creating existing collection
         response = self.api.collections.create('/tempZone/home/new')
-        self.assertEqual('{\'created\': False, \'irods_response\': {\'status_code\': 0}}', str(response))
-
-        #test invalid path
-        response = self.api.collections.create('tempZone/home/new')
-        self.assertEqual('{\'irods_response\': {\'status_code\': -358000, \'status_message\': \'path does not exist: OBJ_PATH_DOES_NOT_EXIST\'}}', str(response))
-
-        #test create_intermediates
-        response = self.api.collections.create('/tempZone/home/test/folder', 0)
-        self.assertEqual('{\'irods_response\': {\'status_code\': -358000, \'status_message\': \'path does not exist: OBJ_PATH_DOES_NOT_EXIST\'}}', str(response))
-        response = self.api.collections.create('/tempZone/home/test/folder', 1)
-        self.assertEqual('{\'created\': True, \'irods_response\': {\'status_code\': 0}}', str(response))
-
-        #test creating existing collection
-        response = self.api.collections.create('/tempZone/home/new')
-        self.assertEqual('{\'created\': False, \'irods_response\': {\'status_code\': 0}}', str(response))
+        self.assertFalse(response['created'])
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
         #test invalid path
         response = self.api.collections.create('tempZone/home/new')
@@ -87,7 +78,7 @@ class collectionsTests(unittest.TestCase):
 
     #tests the remove operation
     def testRemove(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #clean up test collections
         self.api.collections.remove('/tempZone/home/new')
@@ -128,7 +119,7 @@ class collectionsTests(unittest.TestCase):
 
     #tests the stat operation
     def testStat(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #clean up test collections
         self.api.collections.remove('/tempZone/home/new')
@@ -150,7 +141,7 @@ class collectionsTests(unittest.TestCase):
 
     #tests the list operation
     def testList(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #clean up test collections
         self.api.collections.remove('/tempZone/home/rods/croatia/zagreb')
@@ -199,7 +190,7 @@ class collectionsTests(unittest.TestCase):
 
     #tests the set permission operation
     def testSetPermission(self):
-        self.api.setToken(self.userToken2)
+        self.api.setToken(self.adminToken)
 
         #test param checking
         self.assertRaises(Exception, self.api.collections.set_permission, 0, 'jeb', 'read', 0)
@@ -207,34 +198,45 @@ class collectionsTests(unittest.TestCase):
         self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 0, 0)
         self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', '0')
         self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', 5)
+        
+        #create new collection
+        response = self.api.collections.create('/tempZone/home/setPerms')
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
         #test no permission
-        response = self.api.collections.stat('/tempZone/home/rods')
-        self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/setPerms')
+        self.assertEqual(response['irods_response']['status_code'], -170000)
 
         #test set permission
-        self.api.setToken(self.userToken1)
-        response = self.api.collections.set_permission('/tempZone/home/rods', 'jeb', 'read')
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.set_permission('/tempZone/home/setPerms', 'jeb', 'read')
         self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
 
         #test with permission
-        self.api.setToken(self.userToken2)
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/setPerms')
         self.assertTrue(response['permissions'])
         
         #test set permission null
-        self.api.setToken(self.userToken1)
-        response = self.api.collections.set_permission('/tempZone/home/rods', 'jeb', 'null')
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.set_permission('/tempZone/home/setPerms', 'jeb', 'null')
         self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
 
         #test no permission
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/setPerms')
         self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
+
+        #remove the collection
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.remove('/tempZone/home/setPerms', 1, 1)
+        self.assertEqual(response['irods_response']['status_code'], 0)
     
 
     #tests the set inheritance operation
     def testSetInheritance(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #test param checking
         self.assertRaises(Exception, self.api.collections.set_inheritance, 0, 0, 0)
@@ -266,7 +268,7 @@ class collectionsTests(unittest.TestCase):
     
     #test the modify permissions operation
     def testModifyPermissions(self):
-        self.api.setToken(self.userToken2)
+        self.api.setToken(self.adminToken)
 
         ops_permissions = [
             {
@@ -296,43 +298,53 @@ class collectionsTests(unittest.TestCase):
         self.assertRaises(Exception, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, '0')
         self.assertRaises(Exception, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, 5)
 
+        #create new collection
+        response = self.api.collections.create('/tempZone/home/modPerms')
+        self.assertEqual(response['irods_response']['status_code'], 0)
+
         #test no permissions
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/modPerms')
         self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
-        self.api.setToken(self.userToken3)
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken2)
+        response = self.api.collections.stat('/tempZone/home/modPerms')
         self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
 
         #test set permissions
-        self.api.setToken(self.userToken1)
-        response = self.api.collections.modify_permissions('/tempZone/home/rods', ops_permissions)
-        self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.modify_permissions('/tempZone/home/modPerms', ops_permissions)
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
         #test with permissions
-        self.api.setToken(self.userToken2)
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/modPerms')
         self.assertTrue(response['permissions'])
-        self.api.setToken(self.userToken3)
-        response = self.api.collections.stat('/tempZone/home/rods')
+        self.api.setToken(self.userToken2)
+        response = self.api.collections.stat('/tempZone/home/modPerms')
         self.assertTrue(response['permissions'])
 
         #test set permissions nuil
-        self.api.setToken(self.userToken1)
-        response = self.api.collections.modify_permissions('/tempZone/home/rods', ops_permissions_null)
-        self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.modify_permissions('/tempZone/home/modPerms', ops_permissions_null)
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
         #test without permissions
+        self.api.setToken(self.userToken1)
+        response = self.api.collections.stat('/tempZone/home/modPerms')
+        self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
         self.api.setToken(self.userToken2)
-        response = self.api.collections.stat('/tempZone/home/rods')
+        response = self.api.collections.stat('/tempZone/home/modPerms')
         self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
-        self.api.setToken(self.userToken3)
-        response = self.api.collections.stat('/tempZone/home/rods')
-        self.assertEqual('{\'irods_response\': {\'status_code\': -170000}}', str(response))
+
+        #remove the collection
+        self.api.setToken(self.adminToken)
+        response = self.api.collections.remove('/tempZone/home/modPerms', 1, 1)
+        self.assertEqual(response['irods_response']['status_code'], 0)
 
 
     #test the modify metadata operation
     def testModifyMetadata(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
         
         ops_metadata = [
             {
@@ -358,14 +370,14 @@ class collectionsTests(unittest.TestCase):
 
         #test adding and removing metadata
         response = self.api.collections.modify_metadata('/tempZone/home/rods', ops_metadata)
-        self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
+        self.assertEqual(response['irods_response']['status_code'], 0)
         response = self.api.collections.modify_metadata('/tempZone/home/rods', ops_metadata_remove)
-        self.assertEqual('{\'irods_response\': {\'status_code\': 0}}', str(response))
+        self.assertEqual(response['irods_response']['status_code'], 0)
     
 
     #tests the rename operation
     def testRename(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
 
         #test param checking
         self.assertRaises(Exception, self.api.collections.rename, '/tempZone/home/rods', 0)
@@ -394,9 +406,215 @@ class collectionsTests(unittest.TestCase):
 
     #tests the touch operation
     def testTouch(self):
-        self.api.setToken(self.userToken1)
+        self.api.setToken(self.adminToken)
         
         self.assertTrue(True)
+
+
+
+# Tests for data object operations
+class dataObjectsTests(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(dataObjectsTests, self).__init__(*args, **kwargs)
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.adminToken = self.api.authenticate('rods', 'rods')
+        self.userToken1 = self.api.authenticate('jeb', 'ding')
+        self.userToken2 = self.api.authenticate('sdor', 'sdor')
+    
+    
+    def testCommonOperations(self):
+        self.api.setToken(self.adminToken)
+        print(self.adminToken)
+
+        try:
+            # Create a unixfilesystem resource.
+            r = self.api.resources.create('resource', 'unixfilesystem', HOSTNAME, '/tmp/resource', '')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            self.api.setToken(self.userToken1)
+            # Create a non-empty data object
+            print(self.api.collections.stat('/tempZone/home/jeb'))
+            r = self.api.data_objects.write('These are the bytes being written to the object', '/tempZone/home/jeb/file.txt', 'resource')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Replicate the data object
+            r = self.api.data_objects.replicate('/tempZone/home/jeb/file.txt', dst_resource='resource')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Show that there are two replicas
+            # TODO: Implement once query operations are completed
+
+            # Trim the first data object
+            r = self.api.data_objects.trim('/tempZone/home/jeb/file.txt', 0)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Rename the data object
+            r = self.api.data_objects.rename('/tempZone/home/jeb/file.txt', '/tempZone/home/jeb/newfile.txt')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Copy the data object
+            r = self.api.data_objects.copy('/tempZone/home/jeb/newfile.txt', '/tempZone/home/jeb/anotherfile.txt')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Set permission on the object
+            r = self.api.data_objects.set_permission('/tempZone/home/jeb/anotherfile.txt', 'rods', 'read')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Confirm that the permission has been set
+            r = self.api.data_objects.stat('/tempZone/home/jeb/anotherfile.txt')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+            self.assertIn({
+                'name': 'rods',
+                'zone': 'tempZone',
+                'type': 'rodsadmin',
+                'perm': 'read_object'
+            }, r['permissions'])
+
+        finally:
+            # Remove the data objects
+            r = self.api.data_objects.remove('/tempZone/home/jeb/anotherfile.txt', 0, 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            r = self.api.data_objects.remove('/tempZone/home/jeb/newfile.txt', 0, 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            self.api.setToken(self.adminToken)
+
+            # Remove the resource
+            r = self.api.resources.remove('resource')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+
+    def testChecksums(self):
+        self.api.setToken(self.adminToken)
+
+        # Create a unixfilesystem resource.
+        r = self.api.resources.create('newresource', 'unixfilesystem', HOSTNAME, '/tmp/newresource', '')
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Create a non-empty data object
+        r = self.api.data_objects.write('These are the bytes being written to the object', '/tempZone/home/rods/file.txt', 'newresource')
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Replicate the data object
+        r = self.api.data_objects.replicate('/tempZone/home/rods/file.txt', dst_resource='newresource')
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Show that there are two replicas
+        # TODO: Implement once query operations are completed
+
+        try:
+            # Calculate a checksum for the first replica
+            r = self.api.data_objects.calculate_checksum('/tempZone/home/rods/file.txt', replica_number=0)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Verify checksum information across all replicas.
+            r = self.api.data_objects.verify_checksum('/tempZone/home/rods/file.txt')
+            print(r)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+        finally:
+            # Remove the data objects
+            r = self.api.data_objects.remove('/tempZone/home/rods/file.txt', 0, 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Remove the resource
+            r = self.api.resources.remove('newresource')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+        
+    
+    def testTouch(self):
+        self.api.setToken(self.adminToken)
+
+        # Test touching non existant data object with no_create
+        r = self.api.data_objects.touch('/tempZone/home/rods/new.txt', 1)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Show that the object has not been created
+        r = self.api.data_objects.stat('/tempZone/home/rods/new.txt')
+        self.assertEqual(r['irods_response']['status_code'], -171000)
+
+        # Test touching non existant object without no_create
+        r = self.api.data_objects.touch('/tempZone/home/rods/new.txt', 0)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Show that the object has been created
+        r = self.api.data_objects.stat('/tempZone/home/rods/new.txt')
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Test touching existing object without no_create
+        r = self.api.data_objects.touch('/tempZone/home/rods/new.txt', 1)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Remove the object
+        r = self.api.data_objects.remove('/tempZone/home/rods/new.txt')
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+
+    def testRegister(self):
+        self.api.setToken(self.adminToken)
+
+        # Create a non-empty local file.
+        content = 'data'
+        with open('/tmp/register-demo.txt', 'w') as f:
+                f.write(content)
+        
+        # Show the data object we want to create via registration does not exist.
+        r = self.api.data_objects.stat('/tempZone/home/rods/register-demo.txt')
+        self.assertEqual(r['irods_response']['status_code'], -171000)
+
+        try:
+            # Create a unixfilesystem resource.
+            r = self.api.resources.create('register_resource', 'unixfilesystem', HOSTNAME, '/tmp/register_resource', '')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Register the local file into the catalog as a new data object.
+            # We know we're registering a new data object because the "as-additional-replica"
+            # parameter isn't set to 1.
+            r = self.api.data_objects.register('/tempZone/home/rods/register-demo.txt', '/tmp/register-demo.txt', 'register_resource', data_size=len(content))
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Show a new data object exists with the expected replica information.
+            # TODO: add when query operations are implemented
+        finally:
+            # Unregisterr the dataq object
+            r = self.api.data_objects.remove('/tempZone/home/rods/register-demo.txt', 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Remove the resource
+            r = self.api.resources.remove('register_resource')
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+    
+    def testParallelWrite(self):
+        self.api.setToken(self.adminToken)
+        self.api.data_objects.remove('/tempZone/home/rods/parallel-write.txt', 0, 1)
+
+        # Open parallel write
+        r = self.api.data_objects.parallel_write_init('/tempZone/home/rods/parallel-write.txt', 3)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        handle = r['parallel_write_handle']
+        
+        try:
+            # Write to the data object using the parallel write handle.
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                for e in enumerate(['A', 'B', 'C']):
+                    count = 10
+                    futures.append(executor.submit(
+                        self.api.data_objects.write, bytes=e[1] * count, offset=e[0] * count, stream_index=e[0], parallel_write_handle=handle
+                    ))
+                for f in concurrent.futures.as_completed(futures):
+                    r = f.result()
+                    self.assertEqual(r['irods_response']['status_code'], 0)
+        finally:
+            # Close parallel write
+            r = self.api.data_objects.parallel_write_shutdown(handle)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Remove the object
+            r = self.api.data_objects.remove('/tempZone/home/rods/parallel-write.txt', 0, 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
 
 if __name__ == '__main__':
     unittest.main()
