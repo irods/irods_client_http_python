@@ -1143,7 +1143,7 @@ class manager:
         # - stream_index (optional): The stream to use when writing in parallel.
         # returns
         # - Status code and response message.
-        def write(self, lpath: str, bytes, resource: str='', offset: int=0, truncate: int=1, append: int=0, parallel_write_handle: str='', stream_index: int=-1):
+        def write(self, bytes, lpath: str='', resource: str='', offset: int=0, truncate: int=1, append: int=0, parallel_write_handle: str='', stream_index: int=-1):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
@@ -1168,16 +1168,24 @@ class manager:
 
             data = {
                 'op': 'write',
-                'lpath': lpath,
                 'offset': offset,
+                'truncate': truncate,
+                'append': append,
                 'bytes': bytes
             }
+
+            if (parallel_write_handle != ''):
+                data['parallel-write-handle'] = parallel_write_handle
+            else:
+                data['lpath'] = lpath
 
             if (resource != ''):
                 data['resource'] = resource
 
             if (stream_index != -1):
                 data['stream-index'] = stream_index
+
+            print(data)
 
             r = requests.post(self.url_base + '/data-objects', headers=headers, data=data)
 
