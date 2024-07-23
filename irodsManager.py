@@ -1185,6 +1185,8 @@ class manager:
             if (stream_index != -1):
                 data['stream-index'] = stream_index
 
+            print(data)
+
             r = requests.post(self.url_base + '/data-objects', headers=headers, data=data)
 
             if (r.status_code / 100 == 2):
