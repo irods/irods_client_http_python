@@ -1,15 +1,16 @@
 import unittest
 import irodsManager
+import concurrent.futures
 
 # Tests use the users rods (admin), jeb (rodsuser), and sdor (rodsuser)
 
-HOSTNAME = 'localhost'
+HOSTNAME = '192.168.86.35'
 
 # Tests for authentication operations
 class authenticationTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(authenticationTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager('http://localhost:9001/irods-http-api/0.3.0')
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
 
     def testAuth(self):
         #Test param checking
@@ -34,7 +35,7 @@ class authenticationTests(unittest.TestCase):
 class collectionsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(collectionsTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager('http://localhost:9001/irods-http-api/0.3.0')
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.userToken1 = self.api.authenticate('rods', 'rods')
         self.userToken2 = self.api.authenticate('jeb', 'ding')
         self.userToken3 = self.api.authenticate('sdor', 'sdor')
@@ -531,6 +532,43 @@ class dataObjectsTests(unittest.TestCase):
         # Remove the object
         r = self.api.data_objects.remove('/tempZone/home/rods/new.txt')
         self.assertEqual(r['irods_response']['status_code'], 0)
+
+
+    def testRegister(self):
+        self.api.setToken(self.adminToken)
+        #TODO
+
+    
+    def testParallelWrite(self):
+        self.api.setToken(self.adminToken)
+        self.api.data_objects.remove('/tempZone/home/rods/parallel-write.txt', 0, 1)
+
+        # Open parallel write
+        r = self.api.data_objects.parallel_write_init('/tempZone/home/rods/parallel-write.txt', 3)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        handle = r['parallel_write_handle']
+        
+        try:
+            # Write to the data object using the parallel write handle.
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                for e in enumerate(['A', 'B', 'C']):
+                    count = 10
+                    print(e)
+                    futures.append(executor.submit(
+                        self.api.data_objects.write, bytes=e[1] * count, offset=e[0] * count, stream_index=e[0], parallel_write_handle=handle
+                    ))
+                for f in concurrent.futures.as_completed(futures):
+                    r = f.result()
+                    self.assertEqual(r['irods_response']['status_code'], 0)
+        finally:
+            # Close parallel write
+            r = self.api.data_objects.parallel_write_shutdown(handle)
+            self.assertEqual(r['irods_response']['status_code'], 0)
+
+            # Remove the object
+            r = self.api.data_objects.remove('/tempZone/home/rods/parallel-write.txt', 0, 1)
+            self.assertEqual(r['irods_response']['status_code'], 0)
 
 
 if __name__ == '__main__':
