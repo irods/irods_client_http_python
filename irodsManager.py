@@ -2342,7 +2342,7 @@ class manager:
                 'rule-id': rule_id
             }
 
-            r = requests.post(self.url_base + '/resources', headers=headers, data=data)
+            r = requests.post(self.url_base + '/rules', headers=headers, data=data)
 
             if (r.status_code / 100 == 2):
                 rdict = r.json()
@@ -2410,12 +2410,13 @@ class manager:
 
             data = {
                 'op': 'create',
-                'lpath': lpath
+                'lpath': lpath,
+                'type': type
             }
 
             if (use_count != -1):
                 data['use-count'] = use_count
-            if (use_count != -1):
+            if (write_data_object_count != -1):
                 data['write-data-object-count'] = write_data_object_count
             if (write_byte_count != -1):
                 data['write-byte-count'] = write_byte_count
@@ -2427,6 +2428,8 @@ class manager:
                 data['groups'] = groups
             if (hosts != ''):
                 data['hosts'] = hosts
+
+            print(data)
 
             r = requests.post(self.url_base + '/tickets', headers=headers, data=data)
 
