@@ -6,7 +6,7 @@ import time
 
 # Tests use the users rods (admin), jeb (rodsuser), and sdor (rodsuser)
 
-HOSTNAME = '192.168.86.35'
+HOSTNAME = 'localhost'
 ZONE_NAME = 'tempZone'
 
 # Tests for authentication operations
@@ -646,7 +646,7 @@ class resourcesTests(unittest.TestCase):
         resc_ufs1 = 'test_ufs1'
 
         # Create three resources (replication w/ two unixfilesystem resources).
-        r = self.api.resources.create(resc_repl, 'replication')
+        r = self.api.resources.create(resc_repl, 'replication', '', '', '')
         self.assertEqual(r['irods_response']['status_code'], 0)
         
         # Show the replication resource was created.
@@ -680,7 +680,7 @@ class resourcesTests(unittest.TestCase):
                 vault_path = f'/tmp/{resc_name}_vault'
 
                 # Create a unixfilesystem resource.
-                r = self.api.resources.create(resc_name, 'unixfilesystem', HOSTNAME, vault_path)
+                r = self.api.resources.create(resc_name, 'unixfilesystem', HOSTNAME, vault_path, '')
                 self.assertEqual(r['irods_response']['status_code'], 0)
 
                 # Add the unixfilesystem resource as a child of the replication resource.
@@ -859,6 +859,109 @@ class resourcesTests(unittest.TestCase):
         finally:
             # Remove the resource
             r = self.api.resources.remove(resource)
+
+
+# Tests for rule operations
+class rulesTests(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(rulesTests, self).__init__(*args, **kwargs)
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.adminToken = self.api.authenticate('rods', 'rods')
+
+    def testList(self):
+        # Try listing rule engine plugins
+        r = self.api.rules.list_rule_engines()
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        self.assertGreater(len(r['rule_engine_plugin_instances']), 0)
+    
+
+    def testExecuteRule(self):
+        test_msg = 'This was run by the iRODS HTTP API test suite!'
+
+        # Execute rule text against the iRODS rule language.
+        r = self.api.rules.execute(f'writeLine("stdout", "{test_msg}")', 'irods_rule_engine_plugin-irods_rule_language-instance')
+ 
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        self.assertEqual(r['stderr'], None)
+
+        # The REP always appends a newline character to the result. While we could trim the result,
+        # it is better to append a newline character to the expected result to guarantee things align.
+        self.assertEqual(r['stdout'], test_msg + '\n')
+
+
+    def testRemoveDelayRule(self):
+        rep_instance = 'irods_rule_engine_plugin-irods_rule_language-instance'
+
+        # Schedule a delay rule to execute in the distant future.
+        r = self.api.rules.execute(f'delay("<INST_NAME>{rep_instance}</INST_NAME><PLUSET>1h</PLUSET>") {{ writeLine("serverLog", "iRODS HTTP API"); }}', rep_instance)
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Find the delay rule we just created.
+        # This query assumes the test suite is running on a system where no other delay
+        # rules are being created.
+        r = self.api.queries.execute_genquery('select max(RULE_EXEC_ID)')
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['rows']), 1)
+
+        print(r)
+
+        # Remove the delay rule.
+        r = self.api.rules.remove_delay_rule(int(r['rows'][0][0]))
+        print(r)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+
+# Tests for tickets operations
+class ticketsTests(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super(ticketsTests, self).__init__(*args, **kwargs)
+        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.adminToken = self.api.authenticate('rods', 'rods')
+        self.userToken = self.api.authenticate('jeb', 'ding')
+
+    
+    def testCreateAndRemove(self):
+        self.api.setToken(self.userToken)
+
+        # Create a write ticket.
+        ticket_type = 'write'
+        ticket_path = f'/{ZONE_NAME}/home/jeb'
+        ticket_use_count = 2000
+        ticket_groups = 'public'
+        ticket_hosts = HOSTNAME
+        r = self.api.tickets.create(ticket_path, ticket_type, use_count=ticket_use_count, seconds_until_expiration=3600, users='rods,jeb', groups=ticket_groups, hosts=ticket_hosts)
+        print(r)
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        ticket_string = r['ticket']
+        self.assertGreater(len(ticket_string), 0)
+
+        # Show the ticket exists and has the properties we defined during creation.
+        # We can use GenQuery for this, but it does seem better to provide a convenience operation
+        # for this.
+        r = self.api.queries.execute_genquery('select TICKET_STRING, TICKET_TYPE, TICKET_COLL_NAME, TICKET_USES_LIMIT, TICKET_ALLOWED_USER_NAME, TICKET_ALLOWED_GROUP_NAME, TICKET_ALLOWED_HOST')
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        self.assertIn(ticket_string, r['rows'][0])
+        self.assertEqual(r['rows'][0][1], ticket_type)
+        self.assertEqual(r['rows'][0][2], ticket_path)
+        self.assertEqual(r['rows'][0][3], str(ticket_use_count))
+        self.assertIn(r['rows'][0][4], ['rods', 'jeb'])
+        self.assertEqual(r['rows'][0][5], ticket_groups)
+        self.assertGreater(len(r['rows'][0][6]), 0)
+
+        # Remove the ticket.
+        r = self.api.tickets.remove(ticket_string)
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+
+        # Show the ticket no longer exists.
+        r = self.api.queries.execute_genquery('select TICKET_STRING')
+
+        self.assertEqual(r['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['rows']), 0)
 
 if __name__ == '__main__':
     unittest.main()
