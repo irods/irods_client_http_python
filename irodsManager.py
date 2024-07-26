@@ -72,7 +72,8 @@ class manager:
         # - lpath: The absolute logical path of the collection to be created.
         # - create_intermediates (optional): Set to 1 to create intermediates, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def create(self, lpath: str, create_intermediates: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -116,7 +117,8 @@ class manager:
         # - recurse (optional): Set to 1 to remove contents of the collection, otherwise set to 0. Defaults to 0.
         # - no_trash (optional): Set to 1 to move the collection to trash, 0 to permanently remove. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX or 4XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def remove(self, lpath: str, recurse: int=0, no_trash: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -165,8 +167,8 @@ class manager:
         # - lpath: The absolute logical path of the collection being queried.
         # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
         # return
-        # - Status code 2XX: Dictionary containing collection information.
-        # - Other: Status code and return message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def stat(self, lpath: str, ticket: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -208,8 +210,8 @@ class manager:
         # - recurse (optional): Set to 1 to list the contents of objects in the collection, otherwise set to 0. Defaults to 0.
         # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
         # return
-        # - Status code 2XX: Dictionary containing collection information.
-        # - Other: Status code and return message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def list(self, lpath: str, recurse: int=0, ticket: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -254,7 +256,8 @@ class manager:
         # - permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -302,7 +305,8 @@ class manager:
         # - enable: Set to 1 to enable inheritance, or 0 to disable.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def set_inheritance(self, lpath: str, enable: int, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -355,7 +359,8 @@ class manager:
         # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def modify_permissions(self, lpath: str, operations: dict, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -402,7 +407,8 @@ class manager:
         # - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def modify_metadata(self, lpath: str, operations: dict, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -448,7 +454,8 @@ class manager:
         # - old_lpath: The current absolute logical path of the collection.
         # - new_lpath: The absolute logical path of the destination for the collection.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def rename(self, old_lpath: str, new_lpath: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -490,7 +497,8 @@ class manager:
         # - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
         # - reference (optional): The absolute logical path of the collection to use as a reference for mtime.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def touch(self, lpath, seconds_since_epoch=-1, reference=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -543,15 +551,16 @@ class manager:
             self.token = None
 
         # Updates mtime for an existing data object or creates a new one
-            # params
-            # - lpath: The absolute logical path of the collection being touched.
-            # - no_create (optional): Set to 1 to prevent creating a new object, otherwise set to 0.
-            # - replica_number (optional): The replica number of the target replica.
-            # - leaf_resources (optional): The resource holding an existing replica. If one does not exist, creates one.
-            # - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
-            # - reference (optional): The absolute logical path of the collection to use as a reference for mtime.
-            # returns
-            # - Status code and response message.
+        # params
+        # - lpath: The absolute logical path of the collection being touched.
+        # - no_create (optional): Set to 1 to prevent creating a new object, otherwise set to 0.
+        # - replica_number (optional): The replica number of the target replica.
+        # - leaf_resources (optional): The resource holding an existing replica. If one does not exist, creates one.
+        # - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
+        # - reference (optional): The absolute logical path of the collection to use as a reference for mtime.
+        # returns
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def touch(self, lpath, no_create: int=0, replica_number: int=-1, leaf_resources: str='', seconds_since_epoch=-1, reference=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -614,7 +623,8 @@ class manager:
         # - no_trash (optional): Set to 1 to move the data object to trash, 0 to permanently remove. Defaults to 0.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX or 4XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def remove(self, lpath: str, catalog_only: int=0, no_trash: int=0, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -663,14 +673,15 @@ class manager:
 
         # Calculates the checksum for a data object.
         # params
-        # - lpath: The absolute logical path of the data object to be removed.
+        # - lpath: The absolute logical path of the data object to have its checksum calculated.
         # - resource (optional): The resource holding the existing replica.
         # - replica_number (optional): The replica number of the target replica.
         # - force (optional): Set to 1 to replace the existing checksum, otherwise set to 0. Defaults to 0.
         # - all (optional): Set to 1 to calculate the checksum for all replicas, otherwise set to 0. Defaults to 0.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def calculate_checksum(self, lpath: str, resource: str='', replica_number: int=-1, force: int=0, all: int=0, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -725,13 +736,14 @@ class manager:
 
         # Verifies the checksum for a data object.
         # params
-        # - lpath: The absolute logical path of the data object to be removed.
+        # - lpath: The absolute logical path of the data object to have checksums verified.
         # - resource (optional): The resource holding the existing replica.
         # - replica_number (optional): The replica number of the target replica.
         # - compute_checksums (optional): Set to 1 to skip checksum calculation, otherwise set to 0. Defaults to 0.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def verify_checksum(self, lpath: str, resource: str='', replica_number: int=-1, compute_checksums: int=0, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -787,7 +799,8 @@ class manager:
         # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
         # return
         # - Status code 2XX: Dictionary containing data object information.
-        # - Other: Status code and return message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def stat(self, lpath: str, ticket: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -826,7 +839,8 @@ class manager:
         # - old_lpath: The current absolute logical path of the data object.
         # - new_lpath: The absolute logical path of the destination for the data object.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def rename(self, old_lpath: str, new_lpath: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -870,7 +884,8 @@ class manager:
         # - dst_resource: The absolute logical path of the destination resource.
         # - overwrite: set to 1 to overwrite an existing objject, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def copy(self, src_lpath: str, dst_lpath: str, src_resource: str='', dst_resource: str='', overwrite: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -881,7 +896,7 @@ class manager:
             if (not isinstance(src_resource, str)):
                 raise Exception('src_resource must be a string')
             if (not isinstance(dst_resource, str)):
-                raise Exception('dst_lpath must be a string')
+                raise Exception('dst_resource must be a string')
             if ((not overwrite == 0) and (not overwrite == 1)):
                 raise Exception('overwrite must be an int 1 or 0')
             
@@ -921,12 +936,13 @@ class manager:
 
         # Replicates a data object from one resource to another.
         # params
-        # - lpath: The  absolute logical path of the data object to be replicated.
-        # - src_resource: The absolute logical path of the source resource.
-        # - dst_resource: The absolute logical path of the destination resource.
+        # - lpath: The absolute logical path of the data object to be replicated.  
+        # - src_resource: The name of the source resource.
+        # - dst_resource: The name of the destination resource.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def replicate(self, lpath: str, src_resource: str='', dst_resource: str='', admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -935,7 +951,7 @@ class manager:
             if (not isinstance(src_resource, str)):
                 raise Exception('src_resource must be a string')
             if (not isinstance(dst_resource, str)):
-                raise Exception('dst_lpath must be a string')
+                raise Exception('dst_resource must be a string')
             if ((not admin == 0) and (not admin == 1)):
                 raise Exception('admin must be an int 1 or 0')
             
@@ -973,14 +989,15 @@ class manager:
 
                 return(r)
             
-        # Trims an existing replica or removes its catalog entry.
+        # Trims an existing replica or only removes its catalog entry.
         # params
-        # - lpath: The  absolute logical path of the data object to be replicated.
+        # - lpath: The  absolute logical path of the data object to be trimmed.
         # - replica_number: The replica number of the target replica.
         # - catalog_only (optional): Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def trim(self, lpath: str, replica_number: int, catalog_only: int=0, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1024,14 +1041,15 @@ class manager:
 
         # Registers a data object/replica into the catalog.
         # params
-        # - lpath: The  absolute logical path of the data object to be registered.
-        # - ppath: The  absolute physical path of the data object to be registered.
-        # - resource: The resource that will own the replica.
+        # - lpath: The absolute logical path of the data object to be registered.
+        # - ppath: The absolute physical path of the data object to be registered.
+        # - resource: The resource where this replica will be registered.
         # - as_additional_replica (optional): Set to 1 to register as a replica of an existing object, otherwise set to 0. Defaults to 0.
         # - data_size (optional): The size of the replica in bytes.
         # - checksum (optional): The checksum to associate with the replica.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def register(self, lpath: str, ppath: str, resource: str, as_additional_replica: int=0, data_size: int=-1, checksum: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1090,7 +1108,8 @@ class manager:
         # - count (optional): The number of bytes to read.
         # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def read(self, lpath: str, offset: int=0, count: int=-1, ticket: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1133,16 +1152,17 @@ class manager:
 
         # Writes bytes to a data object.
         # params
-        # - lpath: The absolute logical path of the data object to be read from.
+        # - lpath: The absolute logical path of the data object to write to.
         # - bytes: The bytes to be written.
         # - resource (optional): The root resource to write to.
         # - offset (optional): The number of bytes to skip. Defaults to 0.
         # - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
-        # - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
+        # - append (optional): Set to 1 to append bytes to the data object, otherwise set to 0. Defaults to 0.
         # - parallel_write_handle (optional): The handle to be used when writing in parallel.
         # - stream_index (optional): The stream to use when writing in parallel.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def write(self, bytes, lpath: str='', resource: str='', offset: int=0, truncate: int=1, append: int=0, parallel_write_handle: str='', stream_index: int=-1):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1205,7 +1225,7 @@ class manager:
 
         # Initializes server-side state for parallel writing.
         # params
-        # - lpath: The absolute logical path of the data object to be read from.
+        # - lpath: The absolute logical path of the data object to write to.
         # - stream_count: THe number of streams to open.
         # - resource (optional): The root resource to write to.
         # - offset (optional): The number of bytes to skip. Defaults to 0.s
@@ -1213,7 +1233,8 @@ class manager:
         # - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
         # - ticket (optional):  Ticket to be enabled before the operation. Defaults to an empty string.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def parallel_write_init(self, lpath: str, stream_count: int, truncate: int=1, append: int=0, ticket: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1260,11 +1281,12 @@ class manager:
                 return(r)
             
 
-        # Initializes server-side state for parallel writing.
+        # Removes server-side state for parallel writing.
         # params
         # - parallel_write_handle: Handle obtained from parallel_write_init
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def parallel_write_shutdown(self, parallel_write_handle: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1299,11 +1321,12 @@ class manager:
         
         # Modifies the metadata for a data object
         # params
-        # - lpath: The absolute logical path of the collection to have its inheritance set.
+        # - lpath: The absolute logical path of the collection to have its metadata modified.
         # - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def modify_metadata(self, lpath: str, operations: list, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1345,14 +1368,15 @@ class manager:
                 return(rdict)
             
 
-        # Sets the permission of a user for a given collection
+        # Sets the permission of a user for a given data object.
         # params
-        # - lpath: The absolute logical path of the collection to have a permission set.
+        # - lpath: The absolute logical path of the data object to have a permission set.
         # - entity_name: The name of the user or group having its permission set.
         # - permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1401,7 +1425,8 @@ class manager:
         # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def modify_permissions(self, lpath: str, operations: list, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1443,15 +1468,30 @@ class manager:
                 return(rdict)
             
         
-        # Modifies properties of a single replica
+        # Modifies properties of a single replica.
         # WARNING: This operation requires rodsadmin level privileges and should only be used when there isn't a safer option.
         #          Misuse can lead to catalog inconsistencies and unexpected behavior.
         # params
         # - lpath: The absolute logical path of the data object to have its permissions modified.
-        # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
-        # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+        # - resource_hierarchy (optional): The resource hierarchy containing the replica. Mutually exclusive with replica_number.
+        # - replica_number (optional): The replica number of the replica. Mutually exclusive with resource_hierarchy.
+        # - new_data_checksum (optional): The new checksum to be set for the replica.
+        # - new_data_comments (optional): The new comments to be set for the replica.
+        # - new_data_create_time (optional): The new create time to be set for the replica.
+        # - new_data_expiry (optional): The new expiry to be set for the replica.
+        # - new_data_mode (optional): The new mode to be set for the replica.
+        # - new_data_modify_time (optional): The new modify time to be set for the replica.
+        # - new_data_path (optional): The new path to be set for the replica.
+        # - new_data_replica_number (optional): The new replica number to be set for the replica.
+        # - new_data_replica_status (optional): The new replica status to be set for the replica.
+        # - new_data_resource_id (optional): The new resource id to be set for the replica.
+        # - new_data_size (optional): The new size to be set for the replica.
+        # - new_data_status (optional): The new status to be set for the replica.
+        # - new_data_type_name (optional): The new type name to be set for the replica.
+        # - new_data_version (optional): The new version to be set for the replica.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: Dictionary containing iRODS response informationn.
+        # - Other: Status code and error message.
         def modify_replica(self, lpath: str, resource_hierarchy: str='', replica_number: int=-1, new_data_checksum: str='',
                            new_data_comments: str='', new_data_create_time: int=-1, new_data_expiry: int=-1,
                            new_data_mode: str='', new_data_modify_time: str='', new_data_path: str='',
@@ -1502,7 +1542,7 @@ class manager:
             }
 
             data = {
-                'op': 'modify_permissions',
+                'op': 'modify_replica',
                 'lpath': lpath
             }
 
@@ -1604,12 +1644,8 @@ class manager:
         # - Status code 2XX: Dictionary containing server information.
         # - Other: Status code and return message.
         def info(self):
-            
-            headers = {
-                'Authorization': 'Bearer ' + self.token,
-            }
 
-            r = requests.get(self.url_base + '/info', headers=headers)
+            r = requests.get(self.url_base + '/info')
 
             if (r.status_code / 100 == 2):
                 rdict = r.json()
@@ -1728,7 +1764,7 @@ class manager:
             if ((not isinstance(offset, int)) or (not offset >= 0)):
                 raise Exception('offset must be an int greater than 0')
             if ((not isinstance(count, int)) or (not count >= -1)):
-                raise Exception('offset must be an int greater than 0 or flag value -1')
+                raise Exception('count must be an int greater than 0 or flag value -1')
 
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -1769,7 +1805,8 @@ class manager:
         # - name: The name of the query to be added.
         # - sql: The SQL attached to the query.
         # return
-        # - Status code and return message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def add_specific_query(self, name: str, sql: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1809,7 +1846,8 @@ class manager:
         # params
         # - name: The name of the SpecificQuery to be removed
         # return
-        # - Status code and return message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def remove_specific_query(self, name):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1841,7 +1879,6 @@ class manager:
 
                 return(r)
 
-    #TODO: Add query operations
 
     # Inner class to handle resource operations.
     class resources_manager:
@@ -1851,7 +1888,7 @@ class manager:
             self.token = None
 
 
-        # Creates a new resource.
+        # Creates a new resource. Requires rodsadmin level privileges.
         # params
         # - name: The name of the resource to be created.
         # - type: The type of the resource to be created.
@@ -1859,7 +1896,8 @@ class manager:
         # - vault_path: May or may not be required depending on the resource type.
         # - context:  May or may not be required depending on the resource type.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def create(self, name: str, type: str, host: str, vault_path: str, context: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1915,7 +1953,8 @@ class manager:
         # params
         # - name: The name of the resource to be removed.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def remove(self, name: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -1955,11 +1994,12 @@ class manager:
 
         # Modifies a property for a resource.
         # params
-        # - name: The name of the resource to be removed.
+        # - name: The name of the resource to have its metadata modified.
         # - property: The property to be modified.
         # - value: The new value to be set.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def modify(self, name: str, property: str, value: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2014,7 +2054,8 @@ class manager:
         # - child_name: The name of the child resource.
         # - context (optional): Additional information for the zone.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def add_child(self, parent_name: str, child_name: str, context: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2065,7 +2106,8 @@ class manager:
         # - parent_name: The name of the parent resource.
         # - child_name: The name of the child resource.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def remove_child(self, parent_name: str, child_name: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2110,7 +2152,8 @@ class manager:
         # params
         # - name: The name of the resource to be rebalanced.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def rebalance(self, name: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2148,11 +2191,12 @@ class manager:
                 return(r)
     
 
-    # Retrieves information for a resource.
+        # Retrieves information for a resource.
         # params
-        # - name: The name of the resource to be removed.
+        # - name: The name of the resource.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def stat(self, name: str):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2190,13 +2234,14 @@ class manager:
                 return(r)
             
 
-    # Modifies the metadata for a resource.
+        # Modifies the metadata for a resource.
         # params
-        # - name: The absolute logical path of the collection to have its metadata modified.
+        # - name: The name of the resource to have its metadata modified.
         # - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
         # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: The results of the specific query.
+        # - Other: Status code and return message.
         def modify_metadata(self, name: str, operations: dict, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
@@ -2280,16 +2325,17 @@ class manager:
         # Executes rule code.
         # params
         # - rule_text: The rule code to execute.
-        # - rep_instance (optional): The rule engine plugin to run the rule-text against.
+        # - rep_instance (optional): The rule engine plugin instance to target to run the rule-text.
         # returns
-        # - Status code and response message.
+        # - Status code 2XX: List of rule engine plugins.
+        # - Other: Status code and return message.
         def execute(self, rule_text: str, rep_instance: str=''):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(rule_text, str)):
-                raise Exception('name must be a string')
+                raise Exception('rule_text must be a string')
             if (not isinstance(rep_instance, str)):
-                raise Exception('name must be a string')
+                raise Exception('rep_instance must be a string')
 
             headers = {
                 'Authorization': 'Bearer ' + self.token,
