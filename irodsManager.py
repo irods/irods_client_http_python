@@ -504,8 +504,8 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(seconds_since_epoch, int)):
-                raise Exception('seconds_since_epoch must be an int')
+            if (not isinstance(seconds_since_epoch, int) or not (seconds_since_epoch >= -1)):
+                raise Exception('seconds_since_epoch must be an int greater than 0 or flag value -1')
             if (not isinstance(reference, str)):
                 raise Exception('reference must be a string')
             
@@ -568,12 +568,12 @@ class manager:
                 raise Exception('lpath must be a string')
             if ((not no_create == 0) and (not no_create == 1)):
                 raise Exception('no_create must be an int 1 or 0')
-            if (not isinstance(replica_number, int)):
-                raise Exception('replica_number must be an int')
+            if (not isinstance(replica_number, int) or not (replica_number >= -1)):
+                raise Exception('replica_number must be an int greater than 0 or flag value -1')
             if (not isinstance(leaf_resources, str)):
                 raise Exception('leaf_resources must be a string')
-            if (not isinstance(seconds_since_epoch, int)):
-                raise Exception('seconds_since_epoch must be an int')
+            if (not isinstance(seconds_since_epoch, int) or not (seconds_since_epoch >= -1)):
+                raise Exception('seconds_since_epoch must be an int greater than 0 or flag value -1')
             if (not isinstance(reference, str)):
                 raise Exception('reference must be a string')
             
@@ -689,8 +689,8 @@ class manager:
                 raise Exception('lpath must be a string')
             if (not isinstance(resource, str)):
                 raise Exception('resource must be a string')
-            if (not isinstance(replica_number, int)):
-                raise Exception('replica_number must be an int')
+            if (not isinstance(replica_number, int) or not (replica_number >= -1)):
+                raise Exception('replica_number must be an int greater than 0 or flag value -1')
             if ((not force == 0) and (not force == 1)):
                 raise Exception('force must be an int 1 or 0')
             if ((not all == 0) and (not all == 1)):
@@ -751,8 +751,8 @@ class manager:
                 raise Exception('lpath must be a string')
             if (not isinstance(resource, str)):
                 raise Exception('resource must be a string')
-            if (not isinstance(replica_number, int)):
-                raise Exception('replica_number must be an int')
+            if (not isinstance(replica_number, int) or not (replica_number >= -1)):
+                raise Exception('replica_number must be an int greater than 0 or flag value -1')
             if ((not compute_checksums == 0) and (not compute_checksums == 1)):
                 raise Exception('force must be an int 1 or 0')
             if ((not admin == 0) and (not admin == 1)):
@@ -1003,8 +1003,8 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(replica_number, int)):
-                raise Exception('replica_number must be an int')
+            if (not isinstance(replica_number, int) or not (replica_number >= 0)):
+                raise Exception('replica_number must be an int greater than 0')
             if ((not catalog_only == 0) and (not catalog_only == 1)):
                 raise Exception('catalog_only must be an int 1 or 0')
             if ((not admin == 0) and (not admin == 1)):
@@ -1029,9 +1029,9 @@ class manager:
                 rdict = r.json()
 
                 if rdict['irods_response']['status_code']:
-                    print('Failed to trim \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
+                    print('Failed to trim replica + ' + replica_number + ' of \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
-                    print('Sucessfully trimmed \'' + lpath + '\'')
+                    print('Sucessfully trimmed replica ' + replica_number + ' of \'' + lpath + '\'')
                 return(rdict)
             else:
                 print('Error: ' + r.text)
@@ -1061,8 +1061,8 @@ class manager:
                 raise Exception('resource must be a string')
             if ((not as_additional_replica == 0) and (not as_additional_replica == 1)):
                 raise Exception('as_additional_replica must be an int 1 or 0')
-            if (not isinstance(data_size, int)):
-                raise Exception('data_size must be an int')
+            if (not isinstance(data_size, int)  or not (data_size -1)):
+                raise Exception('data_size must be an int greater than 0 or flag value -1')
             if (not isinstance(checksum, str)):
                 raise Exception('checksum must be a string')
             
@@ -1115,10 +1115,10 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(offset, int)):
+            if (not isinstance(offset, int)  or not (offset >= 0)):
                 raise Exception('offset must be an int')
-            if (not isinstance(count, int)):
-                raise Exception('count must be an int')
+            if (not isinstance(count, int)  or not (count >= -1)):
+                raise Exception('count must be an int greater than 0 or flag value -1')
             if (not isinstance(ticket, str)):
                 raise Exception('ticket must be a string')
             
@@ -1170,16 +1170,16 @@ class manager:
                 raise Exception('lpath must be a string')
             if (not isinstance(resource, str)):
                 raise Exception('resource must be a string')
-            if (not isinstance(offset, int)):
-                raise Exception('offset must be an int')
+            if (not isinstance(offset, int) or not (offset >= 0)):
+                raise Exception('offset must be an int greater than 0')
             if ((not truncate == 0) and (not truncate == 1)):
                 raise Exception('truncate must be an int 1 or 0')
             if ((not append == 0) and (not append == 1)):
                 raise Exception('append must be an int 1 or 0')
             if (not isinstance(parallel_write_handle, str)):
                 raise Exception('parallel_write_handle must be a string')
-            if (not isinstance(stream_index, int)):
-                raise Exception('stream_index must be an int')
+            if (not isinstance(stream_index, int)  or not (stream_index >= -1)):
+                raise Exception('stream_index must be an int greater than 0 or flag value -1')
             
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -1240,8 +1240,8 @@ class manager:
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(lpath, str)):
                 raise Exception('lpath must be a string')
-            if (not isinstance(stream_count, int)):
-                raise Exception('stream_count must be an int')
+            if (not isinstance(stream_count, int)  or not (stream_count >= 0)):
+                raise Exception('stream_count must be an int greater than 0')
             if ((not truncate == 0) and (not truncate == 1)):
                 raise Exception('truncate must be an int 1 or 0')
             if ((not append == 0) and (not append == 1)):
@@ -1503,38 +1503,38 @@ class manager:
                 raise Exception('lpath must be a string')
             if (not isinstance(resource_hierarchy, str)):
                 raise Exception('resource_hierarchy must be a string')
-            if (not isinstance(replica_number, int)):
-                raise Exception('replica_number must be an int')
+            if (not isinstance(replica_number, int)  or not (replica_number >= -1)):
+                raise Exception('replica_number must be an int greater than 0 or flag value -1')
             if ((resource_hierarchy != '') and (replica_number != -1)):
                 raise Exception('replica_hierarchy and replica_number are mutually exclusive')
             if (not isinstance(new_data_checksum, str)):
                 raise Exception('new_data_checksum must be a string')
             if (not isinstance(new_data_comments, str)):
                 raise Exception('new_data_comments must be a string')
-            if (not isinstance(new_data_create_time, int)):
-                raise Exception('new_data_create_time must be an int')
-            if (not isinstance(new_data_expiry, int)):
-                raise Exception('new_data_expiry must be an int')
+            if (not isinstance(new_data_create_time, int)  or not (new_data_create_time >= -1)):
+                raise Exception('new_data_create_time must be an int greater than 0 or flag value -1')
+            if (not isinstance(new_data_expiry, int) or not (new_data_expiry >= -1)):
+                raise Exception('new_data_expiry must be an int greater than 0 or flag value -1')
             if (not isinstance(new_data_mode, str)):
                 raise Exception('new_data_mode must be a string')
             if (not isinstance(new_data_modify_time, str)):
                 raise Exception('new_data_modify_time must be a string')
             if (not isinstance(new_data_path, str)):
                 raise Exception('new_data_path must be a string')
-            if (not isinstance(new_data_replica_number, int)):
-                raise Exception('new_data_replica_number must be an int')
-            if (not isinstance(new_data_replica_status, int)):
-                raise Exception('new_data_replica_status must be an int')
-            if (not isinstance(new_data_resource_id, int)):
-                raise Exception('new_data_resource_id must be an int')
-            if (not isinstance(new_data_size, int)):
-                raise Exception('new_data_size must be an int')
+            if (not isinstance(new_data_replica_number, int)  or not (new_data_replica_number >= -1)):
+                raise Exception('new_data_replica_number must be an int greater than 0 or flag value -1')
+            if (not isinstance(new_data_replica_status, int) or not (new_data_replica_status >= -1)):
+                raise Exception('new_data_replica_status must be an int greater than 0 or flag value -1')
+            if (not isinstance(new_data_resource_id, int) or not (new_data_resource_id >= -1)):
+                raise Exception('new_data_resource_id must be an int greater than 0 or flag value -1')
+            if (not isinstance(new_data_size, int) or not (new_data_size >= -1)):
+                raise Exception('new_data_size must be an int greater than 0 or flag value -1')
             if (not isinstance(new_data_status, str)):
                 raise Exception('new_data_status must be a string')
             if (not isinstance(new_data_type_name, str)):
                 raise Exception('new_data_type_name must be a string')
-            if (not isinstance(new_data_version, int)):
-                raise Exception('new_data_version must be an int')
+            if (not isinstance(new_data_version, int) or not (new_data_version >= -1)):
+                raise Exception('new_data_version must be an int greater than 0 or flag value -1')
             
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -2242,7 +2242,7 @@ class manager:
         # returns
         # - Status code 2XX: The results of the specific query.
         # - Other: Status code and return message.
-        def modify_metadata(self, name: str, operations: dict, admin: int=0):
+        def modify_metadata(self, name: str, operations: list, admin: int=0):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
             if (not isinstance(name, str)):
@@ -2375,8 +2375,8 @@ class manager:
         def remove_delay_rule(self, rule_id: int):
             if (self.token == None):
                 raise Exception('No token set. Use setToken() to set the auth token to be used')
-            if (not isinstance(rule_id, int)):
-                raise Exception('rule_id must be an int')
+            if (not isinstance(rule_id, int) or not (rule_id >= 0)):
+                raise Exception('rule_id must be an int greater than 0')
 
             headers = {
                 'Authorization': 'Bearer ' + self.token,
@@ -2434,13 +2434,13 @@ class manager:
                 raise Exception('lpath must be an string')
             if ((type != 'read') and (type != 'write')):
                 raise Exception('type must be either read or write')
-            if (not isinstance(use_count, int)):
+            if (not isinstance(use_count, int) or not (use_count >= -1)):
                 raise Exception('use_count must be an int')
-            if (not isinstance(write_data_object_count, int)):
+            if (not isinstance(write_data_object_count, int) or not (write_data_object_count >= -1)):
                 raise Exception('write_data_object_count must be an int')
-            if (not isinstance(write_byte_count, int)):
+            if (not isinstance(write_byte_count, int) or not (write_byte_count >= -1)):
                 raise Exception('write_byte_count must be an int')
-            if (not isinstance(seconds_until_expiration, int)):
+            if (not isinstance(seconds_until_expiration, int) or not (seconds_until_expiration >= -1)):
                 raise Exception('seconds_until_expiration must be an int')
             if (not isinstance(users, str)):
                 raise Exception('users must be an string')
