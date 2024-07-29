@@ -1,5 +1,5 @@
 import unittest
-import irodsManager
+from irods_client.irodsClient import IrodsClient
 import concurrent.futures
 import os
 import time
@@ -13,7 +13,7 @@ ZONE_NAME = 'tempZone'
 class authenticationTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(authenticationTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
 
     def testAuth(self):
         #Test param checking
@@ -38,7 +38,7 @@ class authenticationTests(unittest.TestCase):
 class collectionsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(collectionsTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.adminToken = self.api.authenticate('rods', 'rods')
         self.userToken1 = self.api.authenticate('jeb', 'ding')
         self.userToken2 = self.api.authenticate('sdor', 'sdor')
@@ -419,7 +419,7 @@ class collectionsTests(unittest.TestCase):
 class dataObjectsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(dataObjectsTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.adminToken = self.api.authenticate('rods', 'rods')
         self.userToken1 = self.api.authenticate('jeb', 'ding')
         self.userToken2 = self.api.authenticate('sdor', 'sdor')
@@ -625,7 +625,7 @@ class dataObjectsTests(unittest.TestCase):
 class resourcesTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(resourcesTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.adminToken = self.api.authenticate('rods', 'rods')
         self.userToken1 = self.api.authenticate('jeb', 'ding')
 
@@ -865,7 +865,7 @@ class resourcesTests(unittest.TestCase):
 class rulesTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(rulesTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.adminToken = self.api.authenticate('rods', 'rods')
 
     def testList(self):
@@ -918,7 +918,7 @@ class rulesTests(unittest.TestCase):
 class ticketsTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(ticketsTests, self).__init__(*args, **kwargs)
-        self.api = irodsManager.manager(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
+        self.api = IrodsClient(f'http://{HOSTNAME}:9001/irods-http-api/0.3.0')
         self.adminToken = self.api.authenticate('rods', 'rods')
         self.userToken = self.api.authenticate('jeb', 'ding')
 
