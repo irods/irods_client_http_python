@@ -85,9 +85,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to remove collection \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -95,13 +95,15 @@ class Collections:
             
             return(rdict)
         elif (r.status_code / 100 == 4):
+            rdict = r.json()
+
             print('Failed to remove collection \'' + lpath + '\': iRODS Status Code ' + str(rdict['irods_response']['status_code']))
 
             return(rdict)
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
 
     # Gives information about a collection.
@@ -131,9 +133,9 @@ class Collections:
 
         r = requests.get(self.url_base + '/collections', params=params, headers=headers)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to retrieve information for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -143,7 +145,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
 
     # Shows the contents of a collection
@@ -177,9 +179,9 @@ class Collections:
 
         r = requests.get(self.url_base + '/collections', params=params, headers=headers)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to retrieve list for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -189,7 +191,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Sets the permission of a user for a given collection
     # params
@@ -226,9 +228,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to set permission for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -238,7 +240,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Sets the inheritance for a collection.
     # params
@@ -271,8 +273,6 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
             rdict = r.json()
 
@@ -291,7 +291,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Modifies permissions for multiple users or groups for a collection.
     # params
@@ -326,9 +326,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to modify permissions for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -338,7 +338,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Modifies the metadata for a collection.
     # params
@@ -373,9 +373,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to modify metadata for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -385,7 +385,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Renames or moves a collection
     # params
@@ -414,9 +414,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to rename \'' + old_lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -426,7 +426,7 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
     
     # Updates mtime for a collection
     # params
@@ -463,9 +463,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+
             if rdict['irods_response']['status_code']:
                 print('Failed to update mtime for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
@@ -475,4 +475,4 @@ class Collections:
         else:
             print('Error: ' + r.text)
 
-            return(rdict)
+            return(r)
