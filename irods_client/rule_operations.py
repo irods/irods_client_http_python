@@ -31,11 +31,26 @@ class Rules:
             else:
                 print('Rule engine list retrieved successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
 
 
     # Executes rule code.
@@ -75,11 +90,26 @@ class Rules:
             else:
                 print('Rule executed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
     
     # Removes a delay rule from the catalog.
@@ -113,8 +143,23 @@ class Rules:
             else:
                 print('Delay rule removed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )

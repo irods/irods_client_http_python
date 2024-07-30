@@ -61,11 +61,26 @@ class Resources:
                 else:
                     print('Resource \'' + name + '\' created successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
         
 
         # Removes an existing resource.
@@ -99,15 +114,30 @@ class Resources:
                 else:
                     print('Resource \'' + name + '\' removed successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to remove resource \'' + name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             
 
         # Modifies a property for a resource.
@@ -154,15 +184,30 @@ class Resources:
                 else:
                     print('Property for \'' + name + '\' modified successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to modify property for \'' + name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
 
 
         # Creates a parent-child relationship between two resources.
@@ -206,15 +251,30 @@ class Resources:
                 else:
                     print('Added \'' + child_name + '\' as a child of \'' + parent_name + '\' successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to add \'' + child_name + '\' as a child of \'' + parent_name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             
         
         # Removes a parent-child relationship between two resources.
@@ -252,15 +312,30 @@ class Resources:
                 else:
                     print('Removed \'' + child_name + '\' as a child of \'' + parent_name + '\' successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to remove \'' + child_name + '\' as a child of \'' + parent_name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
         
 
         # Rebalances a resource hierarchy.
@@ -294,15 +369,30 @@ class Resources:
                 else:
                     print('\'' + name + '\' rebalanced successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to rebalance\'' + name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
     
 
         # Retrieves information for a resource.
@@ -336,15 +426,30 @@ class Resources:
                 else:
                     print('Information for \'' + name + '\' retrieved successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             elif (r.status_code / 100 == 4):
                 print('Failed to retrieve information for \'' + name + '\'')
 
                 return(r)
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(r)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             
 
         # Modifies the metadata for a resource.
@@ -380,16 +485,31 @@ class Resources:
 
             r = requests.post(self.url_base + '/resources', headers=headers, data=data)
 
-            rdict = r.json()
-
             if (r.status_code / 100 == 2):
+                rdict = r.json()
+                
                 if rdict['irods_response']['status_code']:
                     print('Failed to modify metadata for \'' + name + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
                 else:
                     print('Metadata for \'' + name + '\' modified successfully')
                 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )
             else:
-                print('Error: ' + r.text)
+                irods_err = ''
+                rdict = None
+                if (r.text != ''):
+                    rdict = r.json()
+                    irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+                print(f'Error <{r.status_code}>{irods_err}')
 
-                return(rdict)
+                return(
+                    {
+                        'status_code': r.status_code,
+                        'data': rdict
+                    }
+                )

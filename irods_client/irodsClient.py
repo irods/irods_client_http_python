@@ -76,7 +76,12 @@ class IrodsClient:
 
             print('Server information for retrieved successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
             print('Error: ' + r.text)
 
