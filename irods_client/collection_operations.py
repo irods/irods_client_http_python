@@ -19,11 +19,13 @@ class Collections:
     # - Status code and response message.
     def create(self, lpath: str, create_intermediates: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(create_intermediates, int)):
+            raise TypeError('create_intermediates must be an int 1 or 0')
         if ((not create_intermediates == 0) and (not create_intermediates == 1)):
-            raise Exception('create_intermediates must be an int 1 or 0')
+            raise ValueError('create_intermediates must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -78,13 +80,17 @@ class Collections:
     # - Status code and response message.
     def remove(self, lpath: str, recurse: int=0, no_trash: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(recurse, int)):
+            raise TypeError('recurse must be an int 1 or 0')
         if ((not recurse == 0) and (not recurse == 1)):
-            raise Exception('recurse must be an int 1 or 0')
+            raise ValueError('recurse must be an int 1 or 0')
+        if (not isinstance(no_trash, int)):
+            raise TypeError('no_trash must be an int 1 or 0')
         if ((not no_trash == 0) and (not no_trash == 1)):
-            raise Exception('no_trash must be an int 1 or 0')
+            raise ValueError('no_trash must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -150,11 +156,11 @@ class Collections:
     # - Other: Status code and return message.
     def stat(self, lpath: str, ticket: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(ticket, str)):
-            raise Exception('ticket must be a string')
+            raise TypeError('ticket must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -208,13 +214,15 @@ class Collections:
     # - Other: Status code and return message.
     def list(self, lpath: str, recurse: int=0, ticket: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(recurse, int)):
+            raise TypeError('recurse must be an int 1 or 0')
         if ((not recurse == 0) and (not recurse == 1)):
-            raise Exception('recurse must be an int 1 or 0')
+            raise ValueError('recurse must be an int 1 or 0')
         if (not isinstance(ticket, str)):
-            raise Exception('ticket must be a string')
+            raise TypeError('ticket must be a string')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -268,15 +276,17 @@ class Collections:
     # - Status code and response message.
     def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(entity_name, str)):
-            raise Exception('entity_name must be a string')
+            raise TypeError('entity_name must be a string')
         if (not isinstance(permission, str)):
-            raise Exception('permission must be a string (\'null\', \'read\', \'write\', or \'own\')')
+            raise TypeError('permission must be a string (\'null\', \'read\', \'write\', or \'own\')')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -331,13 +341,17 @@ class Collections:
     # - Status code and response message.
     def set_inheritance(self, lpath: str, enable: int, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(enable, int)):
+            raise TypeError('enable must be an int 1 or 0')
         if ((not enable == 0) and (not enable == 1)):
-            raise Exception('enable must be an int 1 or 0')
+            raise ValueError('enable must be an int 1 or 0')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -397,15 +411,17 @@ class Collections:
     # - Status code and response message.
     def modify_permissions(self, lpath: str, operations: dict, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(operations, list)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
         if (not isinstance(operations[0], dict)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -459,15 +475,17 @@ class Collections:
     # - Status code and response message.
     def modify_metadata(self, lpath: str, operations: dict, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(operations, list)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
         if (not isinstance(operations[0], dict)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -520,11 +538,11 @@ class Collections:
     # - Status code and response message.
     def rename(self, old_lpath: str, new_lpath: str):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(old_lpath, str)):
-            raise Exception('old_lpath must be a string')
+            raise TypeError('old_lpath must be a string')
         if (not isinstance(new_lpath, str)):
-            raise Exception('new_lpath must be a string')
+            raise TypeError('new_lpath must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -577,13 +595,15 @@ class Collections:
     # - Status code and response message.
     def touch(self, lpath, seconds_since_epoch=-1, reference=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(seconds_since_epoch, int)):
-            raise Exception('seconds_since_epoch must be an int')
+            raise TypeError('seconds_since_epoch must be an int')
+        if (not seconds_since_epoch > -1):
+            raise ValueError('seconds_since_epoch must be greater than 0 or flag value -1')
         if (not isinstance(reference, str)):
-            raise Exception('reference must be a string')
+            raise TypeError('reference must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,

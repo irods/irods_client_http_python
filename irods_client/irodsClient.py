@@ -22,11 +22,11 @@ class IrodsClient:
 
     def authenticate(self, username: str='', password: str='', openid_token: str=''):
         if (not isinstance(username, str)):
-            raise Exception('username must be a string')
+            raise TypeError('username must be a string')
         if (not isinstance(password, str)):
-            raise Exception('password must be a string')
+            raise TypeError('password must be a string')
         if (not isinstance(openid_token, str)):
-            raise Exception('openid_token must be a string')
+            raise TypeError('openid_token must be a string')
         
         if (openid_token != ''): #TODO: Add openid authentication
             return('logged in with openid')
@@ -38,12 +38,12 @@ class IrodsClient:
                 self.setToken(r.text)
             return(r.text)
         else:
-            raise Exception('Failed to authenticate: ' + str(r.status_code))
+            raise RuntimeError('Failed to authenticate: ' + str(r.status_code))
         
 
     def setToken(self, token: str):
         if (not isinstance(token, str)):
-            raise Exception('token must be a string')
+            raise TypeError('token must be a string')
         self.token = token
 
         self.collections.token = token

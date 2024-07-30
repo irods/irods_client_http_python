@@ -24,23 +24,35 @@ class Queries:
     def execute_genquery(self, query: str, offset: int=0, count: int=-1, case_sensitive: int=1, distinct: int=1,
                             parser: str='genquery1', sql_only: int=0, zone: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(query, str)):
-            raise Exception('query must be a string')
-        if ((not isinstance(offset, int)) or (not offset >= 0)):
-            raise Exception('offset must be an int greater than 0')
+            raise TypeError('query must be a string')
+        if ((not isinstance(offset, int))):
+            raise TypeError('offset must be an int')
+        if (not offset > 0):
+            raise ValueError('offset must be greater than 0 or flag value -1')
         if ((not isinstance(count, int)) or (not count >= -1)):
-            raise Exception('count must be an int greater than 0 or flag value -1')
+            raise TypeError('count must be an int greater than 0 or flag value -1')
+        if (not count > -1):
+            raise ValueError('count must be greater than 0 or flag value -1')
+        if (not isinstance(case_sensitive, int)):
+            raise TypeError('case_sensitive must be an int 1 or 0')
         if ((not case_sensitive == 0) and (not case_sensitive == 1)):
-            raise Exception('case_sensitive must be an int 1 or 0')
+            raise ValueError('case_sensitive must be an int 1 or 0')
+        if (not isinstance(distinct, int)):
+            raise TypeError('distinct must be an int 1 or 0')
         if ((not distinct == 0) and (not distinct == 1)):
-            raise Exception('distinct must be an int 1 or 0')
+            raise ValueError('distinct must be an int 1 or 0')
+        if (not isinstance(parser, str)):
+            raise TypeError('parser must be a string')
         if ((not parser == 'genquery1') and (not parser == 'genquery2')):
-            raise Exception('parser must be either \'genquery1\' or \'genquery2\'')
+            raise ValueError('parser must be either \'genquery1\' or \'genquery2\'')
+        if (not isinstance(sql_only, int)):
+            raise TypeError('sql_only must be an int 1 or 0')
         if ((not sql_only == 0) and (not sql_only == 1)):
-            raise Exception('sql_only must be an int 1 or 0')
+            raise ValueError('sql_only must be an int 1 or 0')
         if (not isinstance(zone, str)):
-            raise Exception('zone must be a string')
+            raise TypeError('zone must be a string')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -109,17 +121,21 @@ class Queries:
     # - Other: Status code and return message.
     def execute_specific_query(self, name: str, args: str='', args_delimiter: str=',', offset: int=0, count: int=-1):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(name, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
         if (not isinstance(args, str)):
-            raise Exception('args must be a string')
+            raise TypeError('args must be a string')
         if (not isinstance(args_delimiter, str)):
-            raise Exception('args_delimiter must be a string')
-        if ((not isinstance(offset, int)) or (not offset >= 0)):
-            raise Exception('offset must be an int greater than 0')
-        if ((not isinstance(count, int)) or (not count >= -1)):
-            raise Exception('offset must be an int greater than 0 or flag value -1')
+            raise TypeError('args_delimiter must be a string')
+        if ((not isinstance(offset, int))):
+            raise TypeError('offset must be an int')
+        if (not offset > 0):
+            raise ValueError('offset must be greater than 0 or flag value -1')
+        if ((not isinstance(count, int))):
+            raise TypeError('count must be an int')
+        if (not count > -1):
+            raise ValueError('count must be greater than 0 or flag value -1')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -178,11 +194,11 @@ class Queries:
     # - Status code and return message.
     def add_specific_query(self, name: str, sql: str):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(name, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
         if (not isinstance(sql, str)):
-            raise Exception('sql must be a string')
+            raise TypeError('sql must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -233,9 +249,9 @@ class Queries:
     # - Status code and return message.
     def remove_specific_query(self, name):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(name, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,

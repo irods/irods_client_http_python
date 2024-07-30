@@ -17,9 +17,9 @@ class authenticationTests(unittest.TestCase):
 
     def testAuth(self):
         #Test param checking
-        self.assertRaises(Exception, self.api.authenticate, 0, 'api')
-        self.assertRaises(Exception, self.api.authenticate, 'api', 0)
-        self.assertRaises(Exception, self.api.authenticate, openid_token=2)
+        self.assertRaises(TypeError, self.api.authenticate, 0, 'api')
+        self.assertRaises(TypeError, self.api.authenticate, 'api', 0)
+        self.assertRaises(TypeError, self.api.authenticate, openid_token=2)
 
         #test openid optional parameter
         self.assertEqual('logged in with openid', self.api.authenticate(openid_token='hello'))
@@ -54,9 +54,9 @@ class collectionsTests(unittest.TestCase):
         self.api.collections.remove('/tempZone/home/test')
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.create, 0, 0)
-        self.assertRaises(Exception, self.api.collections.create, '/tempZone/home/rods', '0')
-        self.assertRaises(Exception, self.api.collections.create, '/tempZone/home/rods', 7)
+        self.assertRaises(TypeError, self.api.collections.create, 0, 0)
+        self.assertRaises(TypeError, self.api.collections.create, '/tempZone/home/rods', '0')
+        self.assertRaises(ValueError, self.api.collections.create, '/tempZone/home/rods', 7)
 
         #test creating new collection
         response = self.api.collections.create('/tempZone/home/new')
@@ -89,11 +89,11 @@ class collectionsTests(unittest.TestCase):
         self.api.collections.remove('/tempZone/home/test')
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.remove, 0, 0, 0)
-        self.assertRaises(Exception, self.api.collections.remove, '/tempZone/home/rods', '0', 0)
-        self.assertRaises(Exception, self.api.collections.remove, '/tempZone/home/rods', 5, 0)
-        self.assertRaises(Exception, self.api.collections.remove, '/tempZone/home/rods', 0, '0')
-        self.assertRaises(Exception, self.api.collections.remove, '/tempZone/home/rods', 0, 5)
+        self.assertRaises(TypeError, self.api.collections.remove, 0, 0, 0)
+        self.assertRaises(TypeError, self.api.collections.remove, '/tempZone/home/rods', '0', 0)
+        self.assertRaises(ValueError, self.api.collections.remove, '/tempZone/home/rods', 5, 0)
+        self.assertRaises(TypeError, self.api.collections.remove, '/tempZone/home/rods', 0, '0')
+        self.assertRaises(ValueError, self.api.collections.remove, '/tempZone/home/rods', 0, 5)
 
         #test removing collection
         response = self.api.collections.create('/tempZone/home/new')
@@ -127,8 +127,8 @@ class collectionsTests(unittest.TestCase):
         self.api.collections.remove('/tempZone/home/new')
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.stat, 0, 'ticket')
-        self.assertRaises(Exception, self.api.collections.stat, '/tempZone/home/rods', 0)
+        self.assertRaises(TypeError, self.api.collections.stat, 0, 'ticket')
+        self.assertRaises(TypeError, self.api.collections.stat, '/tempZone/home/rods', 0)
         
         #test invalid paths
         response = self.api.collections.stat('/tempZone/home/new')
@@ -152,10 +152,10 @@ class collectionsTests(unittest.TestCase):
         self.api.collections.remove('/tempZone/home/rods/croatia')
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.stat, 0, 'ticket')
-        self.assertRaises(Exception, self.api.collections.stat, '/tempZone/home/rods', '0', 'ticket')
-        self.assertRaises(Exception, self.api.collections.stat, '/tempZone/home/rods', 5, 'ticket')
-        self.assertRaises(Exception, self.api.collections.stat, '/tempZone/home/rods', 0, 0)
+        self.assertRaises(TypeError, self.api.collections.list, 0, 'ticket')
+        self.assertRaises(TypeError, self.api.collections.list, '/tempZone/home/rods', '0', 'ticket')
+        self.assertRaises(ValueError, self.api.collections.list, '/tempZone/home/rods', 5, 'ticket')
+        self.assertRaises(TypeError, self.api.collections.list, '/tempZone/home/rods', 0, 0)
 
         #test empty collection
         response = self.api.collections.list('/tempZone/home/rods')
@@ -195,11 +195,11 @@ class collectionsTests(unittest.TestCase):
         self.api.setToken(self.adminToken)
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.set_permission, 0, 'jeb', 'read', 0)
-        self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 0, 'read', 0)
-        self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 0, 0)
-        self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', '0')
-        self.assertRaises(Exception, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', 5)
+        self.assertRaises(TypeError, self.api.collections.set_permission, 0, 'jeb', 'read', 0)
+        self.assertRaises(TypeError, self.api.collections.set_permission, '/tempZone/home/rods', 0, 'read', 0)
+        self.assertRaises(TypeError, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 0, 0)
+        self.assertRaises(TypeError, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', '0')
+        self.assertRaises(ValueError, self.api.collections.set_permission, '/tempZone/home/rods', 'jeb', 'read', 5)
         
         #create new collection
         response = self.api.collections.create('/tempZone/home/setPerms')
@@ -241,11 +241,11 @@ class collectionsTests(unittest.TestCase):
         self.api.setToken(self.adminToken)
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.set_inheritance, 0, 0, 0)
-        self.assertRaises(Exception, self.api.collections.set_inheritance, '/tempZone/home/rods', '0', 0)
-        self.assertRaises(Exception, self.api.collections.set_inheritance, '/tempZone/home/rods', 5, 0)
-        self.assertRaises(Exception, self.api.collections.set_inheritance, '/tempZone/home/rods', 0, '0')
-        self.assertRaises(Exception, self.api.collections.set_inheritance, '/tempZone/home/rods', 0, 5)
+        self.assertRaises(TypeError, self.api.collections.set_inheritance, 0, 0, 0)
+        self.assertRaises(TypeError, self.api.collections.set_inheritance, '/tempZone/home/rods', '0', 0)
+        self.assertRaises(ValueError, self.api.collections.set_inheritance, '/tempZone/home/rods', 5, 0)
+        self.assertRaises(TypeError, self.api.collections.set_inheritance, '/tempZone/home/rods', 0, '0')
+        self.assertRaises(ValueError, self.api.collections.set_inheritance, '/tempZone/home/rods', 0, 5)
 
         #control
         response = self.api.collections.stat('/tempZone/home/rods')
@@ -295,10 +295,10 @@ class collectionsTests(unittest.TestCase):
         ]
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.modify_permissions, 0, ops_permissions, 0)
-        self.assertRaises(Exception, self.api.collections.modify_permissions, '/tempZone/home/rods', 5, 0)
-        self.assertRaises(Exception, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, '0')
-        self.assertRaises(Exception, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, 5)
+        self.assertRaises(TypeError, self.api.collections.modify_permissions, 0, ops_permissions, 0)
+        self.assertRaises(TypeError, self.api.collections.modify_permissions, '/tempZone/home/rods', 5, 0)
+        self.assertRaises(TypeError, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, '0')
+        self.assertRaises(ValueError, self.api.collections.modify_permissions, '/tempZone/home/rods', ops_permissions, 5)
 
         #create new collection
         response = self.api.collections.create('/tempZone/home/modPerms')
@@ -365,10 +365,10 @@ class collectionsTests(unittest.TestCase):
         ]
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.modify_metadata, 0, ops_metadata, 0)
-        self.assertRaises(Exception, self.api.collections.modify_metadata, '/tempZone/home/rods', 5, 0)
-        self.assertRaises(Exception, self.api.collections.modify_metadata, '/tempZone/home/rods', ops_metadata, '0')
-        self.assertRaises(Exception, self.api.collections.modify_metadata, '/tempZone/home/rods', ops_metadata, 5)
+        self.assertRaises(TypeError, self.api.collections.modify_metadata, 0, ops_metadata, 0)
+        self.assertRaises(TypeError, self.api.collections.modify_metadata, '/tempZone/home/rods', 5, 0)
+        self.assertRaises(TypeError, self.api.collections.modify_metadata, '/tempZone/home/rods', ops_metadata, '0')
+        self.assertRaises(ValueError, self.api.collections.modify_metadata, '/tempZone/home/rods', ops_metadata, 5)
 
         #test adding and removing metadata
         response = self.api.collections.modify_metadata('/tempZone/home/rods', ops_metadata)
@@ -382,8 +382,8 @@ class collectionsTests(unittest.TestCase):
         self.api.setToken(self.adminToken)
 
         #test param checking
-        self.assertRaises(Exception, self.api.collections.rename, '/tempZone/home/rods', 0)
-        self.assertRaises(Exception, self.api.collections.rename, 0, '/tempZone/home/pods')
+        self.assertRaises(TypeError, self.api.collections.rename, '/tempZone/home/rods', 0)
+        self.assertRaises(TypeError, self.api.collections.rename, 0, '/tempZone/home/pods')
         
         #test before move
         response = self.api.collections.stat('/tempZone/home/pods')
