@@ -23,25 +23,35 @@ class Tickets:
     def create(self, lpath: str, type: str='read', use_count: int=-1, write_data_object_count: int=-1, write_byte_count: int=-1,
                 seconds_until_expiration: int=-1, users: str='', groups: str='', hosts: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be an string')
+            raise TypeError('lpath must be an string')
+        if (not isinstance(type, str)):
+            raise TypeError('type must be a string')
         if ((type != 'read') and (type != 'write')):
-            raise Exception('type must be either read or write')
+            raise ValueError('type must be either read or write')
         if (not isinstance(use_count, int)):
-            raise Exception('use_count must be an int')
+            raise TypeError('use_count must be an int')
+        if (not use_count > -1):
+            raise ValueError('use_count must be greater than 0 or flag value -1')
         if (not isinstance(write_data_object_count, int)):
-            raise Exception('write_data_object_count must be an int')
+            raise TypeError('write_data_object_count must be an int')
+        if (not write_data_object_count > -1):
+            raise ValueError('write_data_object_count must be greater than 0 or flag value -1')
         if (not isinstance(write_byte_count, int)):
-            raise Exception('write_byte_count must be an int')
+            raise TypeError('write_byte_count must be an int')
+        if (not write_byte_count > -1):
+            raise ValueError('write_byte_count must be greater than 0 or flag value -1')
         if (not isinstance(seconds_until_expiration, int)):
-            raise Exception('seconds_until_expiration must be an int')
+            raise TypeError('seconds_until_expiration must be an int')
+        if (not seconds_until_expiration > -1):
+            raise ValueError('seconds_until_expiration must be greater than 0 or flag value -1')
         if (not isinstance(users, str)):
-            raise Exception('users must be an string')
+            raise TypeError('users must be an string')
         if (not isinstance(groups, str)):
-            raise Exception('groups must be an string')
+            raise TypeError('groups must be an string')
         if (not isinstance(hosts, str)):
-            raise Exception('hosts must be an string')
+            raise TypeError('hosts must be an string')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -107,9 +117,9 @@ class Tickets:
     # - Status code and response message.
     def remove(self, name: str):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(name, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,

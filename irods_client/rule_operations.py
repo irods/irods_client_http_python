@@ -61,11 +61,11 @@ class Rules:
     # - Status code and response message.
     def execute(self, rule_text: str, rep_instance: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(rule_text, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
         if (not isinstance(rep_instance, str)):
-            raise Exception('name must be a string')
+            raise TypeError('name must be a string')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -119,9 +119,11 @@ class Rules:
     # - Status code and response message.
     def remove_delay_rule(self, rule_id: int):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(rule_id, int)):
-            raise Exception('rule_id must be an int')
+            raise TypeError('rule_id must be an int')
+        if (not rule_id > 0):
+            raise ValueError('rule_id must be greater than 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,

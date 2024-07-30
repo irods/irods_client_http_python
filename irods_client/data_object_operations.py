@@ -19,19 +19,25 @@ class DataObjects:
         # - Status code and response message.
     def touch(self, lpath, no_create: int=0, replica_number: int=-1, leaf_resources: str='', seconds_since_epoch=-1, reference=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(no_create, int)):
+            raise TypeError('no_create must be an int 1 or 0')
         if ((not no_create == 0) and (not no_create == 1)):
-            raise Exception('no_create must be an int 1 or 0')
+            raise ValueError('no_create must be an int 1 or 0')
         if (not isinstance(replica_number, int)):
-            raise Exception('replica_number must be an int')
+            raise TypeError('replica_number must be an int')
+        if (not replica_number > -1):
+            raise ValueError('replica_number must be greater than 0 or flag value -1')
         if (not isinstance(leaf_resources, str)):
-            raise Exception('leaf_resources must be a string')
+            raise TypeError('leaf_resources must be a string')
         if (not isinstance(seconds_since_epoch, int)):
-            raise Exception('seconds_since_epoch must be an int')
+            raise TypeError('seconds_since_epoch must be an int')
+        if (not seconds_since_epoch > -1):
+            raise ValueError('seconds_since_epoch must be greater than 0 or flag value -1')
         if (not isinstance(reference, str)):
-            raise Exception('reference must be a string')
+            raise TypeError('reference must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -97,15 +103,21 @@ class DataObjects:
     # - Status code and response message.
     def remove(self, lpath: str, catalog_only: int=0, no_trash: int=0, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
+        if (not isinstance(catalog_only, int)):
+            raise TypeError('catalog_only must be an int 1 or 0')
         if ((not catalog_only == 0) and (not catalog_only == 1)):
-            raise Exception('recurse must be an int 1 or 0')
+            raise ValueError('catalog_only must be an int 1 or 0')
+        if (not isinstance(no_trash, int)):
+            raise TypeError('no_trash must be an int 1 or 0')
         if ((not no_trash == 0) and (not no_trash == 1)):
-            raise Exception('no_trash must be an int 1 or 0')
+            raise ValueError('no_trash must be an int 1 or 0')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -173,19 +185,27 @@ class DataObjects:
     # - Status code and response message.
     def calculate_checksum(self, lpath: str, resource: str='', replica_number: int=-1, force: int=0, all: int=0, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise T('lpath must be a string')
         if (not isinstance(resource, str)):
-            raise Exception('resource must be a string')
+            raise T('resource must be a string')
         if (not isinstance(replica_number, int)):
-            raise Exception('replica_number must be an int')
+            raise T('replica_number must be an int')
+        if (not replica_number > -1):
+            raise ValueError('replica number must be greater than 0 or flag value -1')
+        if (not isinstance(force, int)):
+            raise TypeError('force must be an int 1 or 0')
         if ((not force == 0) and (not force == 1)):
-            raise Exception('force must be an int 1 or 0')
+            raise ValueError('force must be an int 1 or 0')
+        if (not isinstance(all, int)):
+            raise TypeError('all must be an int 1 or 0')
         if ((not all == 0) and (not all == 1)):
-            raise Exception('all must be an int 1 or 0')
+            raise ValueError('all must be an int 1 or 0')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -249,17 +269,23 @@ class DataObjects:
     # - Status code and response message.
     def verify_checksum(self, lpath: str, resource: str='', replica_number: int=-1, compute_checksums: int=0, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(resource, str)):
-            raise Exception('resource must be a string')
+            raise TypeError('resource must be a string')
         if (not isinstance(replica_number, int)):
-            raise Exception('replica_number must be an int')
+            raise TypeError('replica_number must be an int')
+        if (not replica_number > -1):
+            raise ValueError('replica_number must be greater than 0 or flag value -1')
+        if (not isinstance(compute_checksums, int)):
+            raise TypeError('compute_checksums must be an int 1 or 0')
         if ((not compute_checksums == 0) and (not compute_checksums == 1)):
-            raise Exception('force must be an int 1 or 0')
+            raise ValueError('force must be an int 1 or 0')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -320,11 +346,11 @@ class DataObjects:
     # - Other: Status code and return message.
     def stat(self, lpath: str, ticket: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(ticket, str)):
-            raise Exception('ticket must be a string')
+            raise TypeError('ticket must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -374,11 +400,11 @@ class DataObjects:
     # - Status code and response message.
     def rename(self, old_lpath: str, new_lpath: str):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(old_lpath, str)):
-            raise Exception('old_lpath must be a string')
+            raise TypeError('old_lpath must be a string')
         if (not isinstance(new_lpath, str)):
-            raise Exception('new_lpath must be a string')
+            raise TypeError('new_lpath must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -433,17 +459,19 @@ class DataObjects:
     # - Status code and response message.
     def copy(self, src_lpath: str, dst_lpath: str, src_resource: str='', dst_resource: str='', overwrite: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(src_lpath, str)):
-            raise Exception('src_lpath must be a string')
+            raise TypeError('src_lpath must be a string')
         if (not isinstance(dst_lpath, str)):
-            raise Exception('dst_lpath must be a string')
+            raise TypeError('dst_lpath must be a string')
         if (not isinstance(src_resource, str)):
-            raise Exception('src_resource must be a string')
+            raise TypeError('src_resource must be a string')
         if (not isinstance(dst_resource, str)):
-            raise Exception('dst_lpath must be a string')
+            raise TypeError('dst_lpath must be a string')
+        if (not isinstance(overwrite, int)):
+            raise TypeError('overwrite must be an int 1 or 0')
         if ((not overwrite == 0) and (not overwrite == 1)):
-            raise Exception('overwrite must be an int 1 or 0')
+            raise ValueError('overwrite must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -504,15 +532,17 @@ class DataObjects:
     # - Status code and response message.
     def replicate(self, lpath: str, src_resource: str='', dst_resource: str='', admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(src_resource, str)):
-            raise Exception('src_resource must be a string')
+            raise TypeError('src_resource must be a string')
         if (not isinstance(dst_resource, str)):
-            raise Exception('dst_lpath must be a string')
+            raise TypeError('dst_lpath must be a string')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -573,15 +603,19 @@ class DataObjects:
     # - Status code and response message.
     def trim(self, lpath: str, replica_number: int, catalog_only: int=0, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise T('lpath must be a string')
         if (not isinstance(replica_number, int)):
-            raise Exception('replica_number must be an int')
+            raise T('replica_number must be an int')
+        if (not isinstance(catalog_only, int)):
+            raise TypeError('catalog_only must be an int 1 or 0')
         if ((not catalog_only == 0) and (not catalog_only == 1)):
-            raise Exception('catalog_only must be an int 1 or 0')
+            raise ValueError('catalog_only must be an int 1 or 0')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -639,19 +673,23 @@ class DataObjects:
     # - Status code and response message.
     def register(self, lpath: str, ppath: str, resource: str, as_additional_replica: int=0, data_size: int=-1, checksum: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(ppath, str)):
-            raise Exception('ppath must be a string')
+            raise TypeError('ppath must be a string')
         if (not isinstance(resource, str)):
-            raise Exception('resource must be a string')
+            raise TypeError('resource must be a string')
+        if (not isinstance(as_additional_replica, int)):
+            raise TypeError('as_additional_replica must be an int 1 or 0')
         if ((not as_additional_replica == 0) and (not as_additional_replica == 1)):
-            raise Exception('as_additional_replica must be an int 1 or 0')
+            raise ValueError('as_additional_replica must be an int 1 or 0')
         if (not isinstance(data_size, int)):
-            raise Exception('data_size must be an int')
+            raise TypeError('data_size must be an int')
+        if (not data > -1):
+            raise ValueError('data_size must be greater than 0 or flag value -1')
         if (not isinstance(checksum, str)):
-            raise Exception('checksum must be a string')
+            raise TypeError('checksum must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -713,15 +751,17 @@ class DataObjects:
     # - Status code and response message.
     def read(self, lpath: str, offset: int=0, count: int=-1, ticket: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(offset, int)):
-            raise Exception('offset must be an int')
+            raise TypeError('offset must be an int')
         if (not isinstance(count, int)):
-            raise Exception('count must be an int')
+            raise TypeError('count must be an int')
+        if (not count > -1):
+            raise ValueError('count must be greater than 0 or flag value -1')
         if (not isinstance(ticket, str)):
-            raise Exception('ticket must be a string')
+            raise TypeError('ticket must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -775,21 +815,29 @@ class DataObjects:
     # - Status code and response message.
     def write(self, bytes, lpath: str='', resource: str='', offset: int=0, truncate: int=1, append: int=0, parallel_write_handle: str='', stream_index: int=-1):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(resource, str)):
-            raise Exception('resource must be a string')
+            raise TypeError('resource must be a string')
         if (not isinstance(offset, int)):
-            raise Exception('offset must be an int')
+            raise TypeError('offset must be an int')
+        if (not offset > 0):
+            raise ValueError('offset must be greater than 0')
+        if (not isinstance(truncate, int)):
+            raise TypeError('truncate must be an int 1 or 0')
         if ((not truncate == 0) and (not truncate == 1)):
-            raise Exception('truncate must be an int 1 or 0')
+            raise ValueError('truncate must be an int 1 or 0')
+        if (not isinstance(append, int)):
+            raise TypeError('append must be an int 1 or 0')
         if ((not append == 0) and (not append == 1)):
-            raise Exception('append must be an int 1 or 0')
+            raise ValueError('append must be an int 1 or 0')
         if (not isinstance(parallel_write_handle, str)):
-            raise Exception('parallel_write_handle must be a string')
+            raise TypeError('parallel_write_handle must be a string')
         if (not isinstance(stream_index, int)):
-            raise Exception('stream_index must be an int')
+            raise TypeError('stream_index must be an int')
+        if (not stream_index > -1):
+            raise ValueError('stream_index must be greater than 0 or flag value -1')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -861,17 +909,23 @@ class DataObjects:
     # - Status code and response message.
     def parallel_write_init(self, lpath: str, stream_count: int, truncate: int=1, append: int=0, ticket: str=''):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(stream_count, int)):
-            raise Exception('stream_count must be an int')
+            raise TypeError('stream_count must be an int')
+        if (not stream_count > 0):
+            raise ValueError('stream_count must be greater than 0 or flag value -1')
+        if (not isinstance(truncate, int)):
+            raise TypeError('truncate must be an int 1 or 0')
         if ((not truncate == 0) and (not truncate == 1)):
-            raise Exception('truncate must be an int 1 or 0')
+            raise ValueError('truncate must be an int 1 or 0')
+        if (not isinstance(append, int)):
+            raise TypeError('append must be an int 1 or 0')
         if ((not append == 0) and (not append == 1)):
-            raise Exception('append must be an int 1 or 0')
+            raise ValueError('append must be an int 1 or 0')
         if (not isinstance(ticket, str)):
-            raise Exception('ticket must be a string')
+            raise TypeError('ticket must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -927,9 +981,9 @@ class DataObjects:
     # - Status code and response message.
     def parallel_write_shutdown(self, parallel_write_handle: str):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(parallel_write_handle, str)):
-            raise Exception('parallel_write_handle must be a string')
+            raise TypeError('parallel_write_handle must be a string')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -981,15 +1035,17 @@ class DataObjects:
     # - Status code and response message.
     def modify_metadata(self, lpath: str, operations: list, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(operations, list)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
         if (not isinstance(operations[0], dict)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
 
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -1045,15 +1101,17 @@ class DataObjects:
     # - Status code and response message.
     def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(entity_name, str)):
-            raise Exception('entity_name must be a string')
+            raise TypeError('entity_name must be a string')
         if (not isinstance(permission, str)):
-            raise Exception('permission must be a string (\'null\', \'read\', \'write\', or \'own\')')
+            raise TypeError('permission must be a string (\'null\', \'read\', \'write\', or \'own\')')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -1109,15 +1167,17 @@ class DataObjects:
     # - Status code and response message.
     def modify_permissions(self, lpath: str, operations: list, admin: int=0):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(operations, list)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
         if (not isinstance(operations[0], dict)):
-            raise Exception('operations must be a list of dictionaries')
+            raise TypeError('operations must be a list of dictionaries')
+        if (not isinstance(admin, int)):
+            raise TypeError('admin must be an int 1 or 0')
         if ((not admin == 0) and (not admin == 1)):
-            raise Exception('admin must be an int 1 or 0')
+            raise ValueError('admin must be an int 1 or 0')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -1178,43 +1238,57 @@ class DataObjects:
                         new_data_replica_number: int=-1, new_data_replica_status: int=-1, new_data_resource_id: int=-1,
                         new_data_size: int=-1, new_data_status: str='', new_data_type_name: str='', new_data_version: int=-1):
         if (self.token == None):
-            raise Exception('No token set. Use setToken() to set the auth token to be used')
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
-            raise Exception('lpath must be a string')
+            raise TypeError('lpath must be a string')
         if (not isinstance(resource_hierarchy, str)):
-            raise Exception('resource_hierarchy must be a string')
+            raise TypeError('resource_hierarchy must be a string')
         if (not isinstance(replica_number, int)):
-            raise Exception('replica_number must be an int')
+            raise TypeError('replica_number must be an int')
         if ((resource_hierarchy != '') and (replica_number != -1)):
-            raise Exception('replica_hierarchy and replica_number are mutually exclusive')
+            raise ValueError('replica_hierarchy and replica_number are mutually exclusive')
         if (not isinstance(new_data_checksum, str)):
-            raise Exception('new_data_checksum must be a string')
+            raise TypeError('new_data_checksum must be a string')
         if (not isinstance(new_data_comments, str)):
-            raise Exception('new_data_comments must be a string')
+            raise TypeError('new_data_comments must be a string')
         if (not isinstance(new_data_create_time, int)):
-            raise Exception('new_data_create_time must be an int')
+            raise TypeError('new_data_create_time must be an int')
+        if (not new_data_create_time > -1):
+            raise ValueError('new_data_create_time must be greater than 0 or flag value -1')
         if (not isinstance(new_data_expiry, int)):
-            raise Exception('new_data_expiry must be an int')
+            raise TypeError('new_data_expiry must be an int')
+        if (not new_data_expiry > -1):
+            raise ValueError('new_data_expiry must be greater than 0 or flag value -1')
         if (not isinstance(new_data_mode, str)):
-            raise Exception('new_data_mode must be a string')
+            raise TypeError('new_data_mode must be a string')
         if (not isinstance(new_data_modify_time, str)):
-            raise Exception('new_data_modify_time must be a string')
+            raise TypeError('new_data_modify_time must be a string')
         if (not isinstance(new_data_path, str)):
-            raise Exception('new_data_path must be a string')
+            raise TypeError('new_data_path must be a string')
         if (not isinstance(new_data_replica_number, int)):
-            raise Exception('new_data_replica_number must be an int')
+            raise TypeError('new_data_replica_number must be an int')
+        if (not new_data_replica_number > -1):
+            raise ValueError('new_data_replica_number must be greater than 0 or flag value -1')
         if (not isinstance(new_data_replica_status, int)):
-            raise Exception('new_data_replica_status must be an int')
+            raise TypeError('new_data_replica_status must be an int')
+        if (not new_data_replica_status > -1):
+            raise ValueError('new_data_replica_status must be greater than 0 or flag value -1')
         if (not isinstance(new_data_resource_id, int)):
-            raise Exception('new_data_resource_id must be an int')
+            raise TypeError('new_data_resource_id must be an int')
+        if (not new_data_resource_id > -1):
+            raise ValueError('new_data_resource_id must be greater than 0 or flag value -1')
         if (not isinstance(new_data_size, int)):
-            raise Exception('new_data_size must be an int')
+            raise TypeError('new_data_size must be an int')
+        if (not new_data_size > -1):
+            raise ValueError('new_data_size must be greater than 0 or flag value -1')
         if (not isinstance(new_data_status, str)):
-            raise Exception('new_data_status must be a string')
+            raise TypeError('new_data_status must be a string')
         if (not isinstance(new_data_type_name, str)):
-            raise Exception('new_data_type_name must be a string')
+            raise TypeError('new_data_type_name must be a string')
         if (not isinstance(new_data_version, int)):
-            raise Exception('new_data_version must be an int')
+            raise TypeError('new_data_version must be an int')
+        if (not new_data_version > -1):
+            raise ValueError('new_data_version must be greater than 0 or flag value -1')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -1292,7 +1366,7 @@ class DataObjects:
             no_params = False
 
         if (no_params):
-            raise Exception('At least one new data parameter must be given.')    
+            raise RuntimeError('At least one new data parameter must be given.')    
 
         r = requests.post(self.url_base + '/data-objects', headers=headers, data=data)
 
