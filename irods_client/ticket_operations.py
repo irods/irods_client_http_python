@@ -78,11 +78,26 @@ class Tickets:
 
             print('Ticket generated successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Removes an existing ticket.
@@ -116,12 +131,27 @@ class Tickets:
             else:
                 print('Ticket \'' + name + '\' removed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         elif (r.status_code / 100 == 4):
             print('Failed to remove ticket \'' + name + '\'')
 
             return(r)
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )

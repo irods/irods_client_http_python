@@ -65,11 +65,26 @@ class DataObjects:
             else:
                 print('Data object \'' + lpath + '\' touched successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Removes an existing data object.
@@ -114,16 +129,36 @@ class DataObjects:
             else:
                 print('Data object \'' + lpath + '\' removed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         elif (r.status_code / 100 == 4):
             rdict = r.json()
             print('Failed to remove data object \'' + lpath + '\': iRODS Status Code ' + str(rdict['irods_response']['status_code']))
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Calculates the checksum for a data object.
@@ -181,11 +216,26 @@ class DataObjects:
             else:
                 print('Checksum for data object \'' + lpath + '\' calculated successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Verifies the checksum for a data object.
@@ -239,11 +289,26 @@ class DataObjects:
             else:
                 print('Checksum for data object \'' + lpath + '\' verified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Gives information about a data object.
@@ -279,11 +344,26 @@ class DataObjects:
                 print('Failed to retrieve information for \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Information for \'' + lpath + '\' retrieved successfully')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Renames or moves a data object.
@@ -320,11 +400,26 @@ class DataObjects:
             else:
                 print('\'' + old_lpath + '\' renamed to \'' + new_lpath + '\'')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Copies a data object.
@@ -377,11 +472,26 @@ class DataObjects:
             else:
                 print('\'' + src_lpath + '\' copied to \'' + dst_lpath + '\'')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Replicates a data object from one resource to another.
@@ -432,11 +542,26 @@ class DataObjects:
             else:
                 print('\'' + lpath + '\' replicated from \'' + src_resource + '\' to \'' + dst_resource + '\'')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
     # Trims an existing replica or removes its catalog entry.
     # params
@@ -480,11 +605,26 @@ class DataObjects:
                 print('Failed to trim \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Sucessfully trimmed \'' + lpath + '\'')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Registers a data object/replica into the catalog.
@@ -541,11 +681,26 @@ class DataObjects:
                 print('Failed to register \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Sucessfully registered \'' + lpath + '\'')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Reads bytes from a data object.
@@ -591,9 +746,19 @@ class DataObjects:
             print('Sucessfully read \'' + lpath + '\'')
             return(r.text)
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Writes bytes to a data object.
@@ -661,11 +826,26 @@ class DataObjects:
                 print('Failed to write to \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Sucessfully wrote to \'' + lpath + '\'')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Initializes server-side state for parallel writing.
@@ -718,11 +898,26 @@ class DataObjects:
                 print('Failed to open parallel write to \'' + lpath + '\': iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Sucessfully opened parallel write to \'' + lpath + '\'')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Initializes server-side state for parallel writing.
@@ -755,11 +950,26 @@ class DataObjects:
                 print('Failed to close parallel write: iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
                 print('Sucessfully closed parallel write.')
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
     
     # Modifies the metadata for a data object
@@ -803,11 +1013,26 @@ class DataObjects:
             else:
                 print('Metadata for \'' + lpath + '\' modified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
 
     # Sets the permission of a user for a given collection
@@ -853,11 +1078,26 @@ class DataObjects:
             else:
                 print('Permission for \'' + lpath + '\' set successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     
     # Modifies permissions for multiple users or groups for a data object.
@@ -901,11 +1141,26 @@ class DataObjects:
             else:
                 print('Permissions for \'' + lpath + '\' modified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         
     
     # Modifies properties of a single replica
@@ -1049,8 +1304,23 @@ class DataObjects:
             else:
                 print('\'' + lpath + '\' modified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )

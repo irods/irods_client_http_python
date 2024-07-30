@@ -38,9 +38,9 @@ class Collections:
 
         r = requests.post(self.url_base + '/collections', headers=headers, data=data)
 
-        rdict = r.json()
-
         if (r.status_code / 100 == 2):
+            rdict = r.json()
+            
             if rdict['irods_response']['status_code'] == 0 and rdict['created'] == False:
                 print('Failed to create collection: \'' + lpath + '\' already exists')
             elif rdict['irods_response']['status_code']:
@@ -48,11 +48,26 @@ class Collections:
             else:
                 print('Collection \'' + lpath + '\' created successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Removes an existing collection.
     # params
@@ -93,17 +108,37 @@ class Collections:
             else:
                 print('Collection \'' + lpath + '\' removed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         elif (r.status_code / 100 == 4):
             rdict = r.json()
 
             print('Failed to remove collection \'' + lpath + '\': iRODS Status Code ' + str(rdict['irods_response']['status_code']))
 
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Gives information about a collection.
@@ -141,11 +176,26 @@ class Collections:
             else:
                 print('Information for \'' + lpath + '\' retrieved successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Shows the contents of a collection
@@ -187,11 +237,26 @@ class Collections:
             else:
                 print('List for \'' + lpath + '\' retrieved successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Sets the permission of a user for a given collection
     # params
@@ -236,11 +301,26 @@ class Collections:
             else:
                 print('Permission for \'' + lpath + '\' set successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Sets the inheritance for a collection.
     # params
@@ -287,11 +367,26 @@ class Collections:
             else:
                 print('Inheritance for \'' + lpath + '\' ' + operation)
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Modifies permissions for multiple users or groups for a collection.
     # params
@@ -334,11 +429,26 @@ class Collections:
             else:
                 print('Permissions for \'' + lpath + '\' modified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Modifies the metadata for a collection.
     # params
@@ -381,11 +491,26 @@ class Collections:
             else:
                 print('Metadata for \'' + lpath + '\' modified successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Renames or moves a collection
     # params
@@ -422,11 +547,26 @@ class Collections:
             else:
                 print('\'' + old_lpath + '\' renamed to \'' + new_lpath + '\'')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
     # Updates mtime for a collection
     # params
@@ -471,8 +611,23 @@ class Collections:
             else:
                 print('mtime for \'' + lpath + '\' updated successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            ) 
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )

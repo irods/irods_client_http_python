@@ -75,11 +75,26 @@ class Queries:
             else:
                 print('Query executed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Excecutes a specific query and returns the results.
@@ -133,11 +148,26 @@ class Queries:
             else:
                 print('Query executed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Adds a SpecificQuery to the iRODS zone.
@@ -174,11 +204,26 @@ class Queries:
             else:
                 print('Query added successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
     
 
     # Removes a SpecificQuery from the iRODS zone.
@@ -211,8 +256,23 @@ class Queries:
             else:
                 print('Query removed successfully')
             
-            return(rdict)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
         else:
-            print('Error: ' + r.text)
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRods Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
 
-            return(r)
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
