@@ -2,22 +2,31 @@ import requests
 import json
 
 class DataObjects:
-    # Initializes data_objects_manager with variables from the parent class.
     def __init__(self, url_base: str):
+        """" 
+        Initializes DataObjects with a base url. 
+        Token is set to None initially, and updated when setToken() is called in irodsClient.
+        """
         self.url_base = url_base
         self.token = None
 
-    # Updates mtime for an existing data object or creates a new one
-        # params
-        # - lpath: The absolute logical path of the collection being touched.
-        # - no_create (optional): Set to 1 to prevent creating a new object, otherwise set to 0.
-        # - replica_number (optional): The replica number of the target replica.
-        # - leaf_resources (optional): The resource holding an existing replica. If one does not exist, creates one.
-        # - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
-        # - reference (optional): The absolute logical path of the collection to use as a reference for mtime.
-        # returns
-        # - Status code and response message.
+
     def touch(self, lpath, no_create: int=0, replica_number: int=-1, leaf_resources: str='', seconds_since_epoch=-1, reference=''):
+        """
+        Updates mtime for an existing data object or creates a new one
+
+        Parameters
+        - lpath: The absolute logical path of the data object being touched.
+        - no_create (optional): Set to 1 to prevent creating a new object, otherwise set to 0.
+        - replica_number (optional): The replica number of the target replica.
+        - leaf_resources (optional): The resource holding an existing replica. If one does not exist, creates one.
+        - seconds_since_epoch (optional): The value to set mtime to, defaults to -1 as a flag.
+        - reference (optional): The absolute logical path of the data object to use as a reference for mtime.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -28,14 +37,14 @@ class DataObjects:
             raise ValueError('no_create must be an int 1 or 0')
         if (not isinstance(replica_number, int)):
             raise TypeError('replica_number must be an int')
-        if (not replica_number > -1):
-            raise ValueError('replica_number must be greater than 0 or flag value -1')
+        if (not replica_number >= -1):
+            raise ValueError('replica_number must be greater than or equal to 0 or flag value -1')
         if (not isinstance(leaf_resources, str)):
             raise TypeError('leaf_resources must be a string')
         if (not isinstance(seconds_since_epoch, int)):
             raise TypeError('seconds_since_epoch must be an int')
-        if (not seconds_since_epoch > -1):
-            raise ValueError('seconds_since_epoch must be greater than 0 or flag value -1')
+        if (not seconds_since_epoch >= -1):
+            raise ValueError('seconds_since_epoch must be greater than or equal to 0 or flag value -1')
         if (not isinstance(reference, str)):
             raise TypeError('reference must be a string')
         
@@ -93,15 +102,20 @@ class DataObjects:
             )
         
 
-    # Removes an existing data object.
-    # params
-    # - lpath: The absolute logical path of the data object to be removed.
-    # - catalog_only (optional): Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
-    # - no_trash (optional): Set to 1 to move the data object to trash, 0 to permanently remove. Defaults to 0.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def remove(self, lpath: str, catalog_only: int=0, no_trash: int=0, admin: int=0):
+        """
+        Removes an existing data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to be removed.
+        - catalog_only (optional): Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
+        - no_trash (optional): Set to 1 to move the data object to trash, 0 to permanently remove. Defaults to 0.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -173,17 +187,22 @@ class DataObjects:
             )
     
 
-    # Calculates the checksum for a data object.
-    # params
-    # - lpath: The absolute logical path of the data object to be removed.
-    # - resource (optional): The resource holding the existing replica.
-    # - replica_number (optional): The replica number of the target replica.
-    # - force (optional): Set to 1 to replace the existing checksum, otherwise set to 0. Defaults to 0.
-    # - all (optional): Set to 1 to calculate the checksum for all replicas, otherwise set to 0. Defaults to 0.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def calculate_checksum(self, lpath: str, resource: str='', replica_number: int=-1, force: int=0, all: int=0, admin: int=0):
+        """
+        Calculates the checksum for a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have its checksum calculated.
+        - resource (optional): The resource holding the existing replica.
+        - replica_number (optional): The replica number of the target replica.
+        - force (optional): Set to 1 to replace the existing checksum, otherwise set to 0. Defaults to 0.
+        - all (optional): Set to 1 to calculate the checksum for all replicas, otherwise set to 0. Defaults to 0.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -192,8 +211,8 @@ class DataObjects:
             raise T('resource must be a string')
         if (not isinstance(replica_number, int)):
             raise T('replica_number must be an int')
-        if (not replica_number > -1):
-            raise ValueError('replica number must be greater than 0 or flag value -1')
+        if (not replica_number >= -1):
+            raise ValueError('replica number must be greater than or equal to 0 or flag value -1')
         if (not isinstance(force, int)):
             raise TypeError('force must be an int 1 or 0')
         if ((not force == 0) and (not force == 1)):
@@ -258,16 +277,21 @@ class DataObjects:
             )
         
 
-    # Verifies the checksum for a data object.
-    # params
-    # - lpath: The absolute logical path of the data object to be removed.
-    # - resource (optional): The resource holding the existing replica.
-    # - replica_number (optional): The replica number of the target replica.
-    # - compute_checksums (optional): Set to 1 to skip checksum calculation, otherwise set to 0. Defaults to 0.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def verify_checksum(self, lpath: str, resource: str='', replica_number: int=-1, compute_checksums: int=0, admin: int=0):
+        """
+        Verifies the checksum for a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have its checksum verified.
+        - resource (optional): The resource holding the existing replica.
+        - replica_number (optional): The replica number of the target replica.
+        - compute_checksums (optional): Set to 1 to skip checksum calculation, otherwise set to 0. Defaults to 0.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -276,8 +300,8 @@ class DataObjects:
             raise TypeError('resource must be a string')
         if (not isinstance(replica_number, int)):
             raise TypeError('replica_number must be an int')
-        if (not replica_number > -1):
-            raise ValueError('replica_number must be greater than 0 or flag value -1')
+        if (not replica_number >= -1):
+            raise ValueError('replica_number must be greater than or equal to 0 or flag value -1')
         if (not isinstance(compute_checksums, int)):
             raise TypeError('compute_checksums must be an int 1 or 0')
         if ((not compute_checksums == 0) and (not compute_checksums == 1)):
@@ -337,14 +361,18 @@ class DataObjects:
             )
         
 
-    # Gives information about a data object.
-    # params
-    # - lpath: The absolute logical path of the data object being queried.
-    # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
-    # return
-    # - Status code 2XX: Dictionary containing data object information.
-    # - Other: Status code and return message.
     def stat(self, lpath: str, ticket: str=''):
+        """
+        Gives information about a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object being accessed.
+        - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -392,13 +420,18 @@ class DataObjects:
             )
         
 
-    # Renames or moves a data object.
-    # params
-    # - old_lpath: The current absolute logical path of the data object.
-    # - new_lpath: The absolute logical path of the destination for the data object.
-    # returns
-    # - Status code and response message.
     def rename(self, old_lpath: str, new_lpath: str):
+        """
+        Renames or moves a data object.
+
+        Parameters
+        - old_lpath: The current absolute logical path of the data object.
+        - new_lpath: The absolute logical path of the destination for the data object.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(old_lpath, str)):
@@ -448,16 +481,21 @@ class DataObjects:
             )
         
 
-    # Copies a data object.
-    # params
-    # - src_lpath: The absolute logical path of the source data object.
-    # - dst_lpath: The absolute logical path of the destination.
-    # - src_resource: The absolute logical path of the source resource.
-    # - dst_resource: The absolute logical path of the destination resource.
-    # - overwrite: set to 1 to overwrite an existing objject, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def copy(self, src_lpath: str, dst_lpath: str, src_resource: str='', dst_resource: str='', overwrite: int=0):
+        """
+        Copies a data object.
+
+        Parameters
+        - src_lpath: The absolute logical path of the source data object.
+        - dst_lpath: The absolute logical path of the destination.
+        - src_resource: The absolute logical path of the source resource.
+        - dst_resource: The absolute logical path of the destination resource.
+        - overwrite: set to 1 to overwrite an existing objject, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(src_lpath, str)):
@@ -522,15 +560,20 @@ class DataObjects:
             )
         
 
-    # Replicates a data object from one resource to another.
-    # params
-    # - lpath: The  absolute logical path of the data object to be replicated.
-    # - src_resource: The absolute logical path of the source resource.
-    # - dst_resource: The absolute logical path of the destination resource.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def replicate(self, lpath: str, src_resource: str='', dst_resource: str='', admin: int=0):
+        """
+        Replicates a data object from one resource to another.
+
+        Parameters
+        - lpath: The  absolute logical path of the data object to be replicated.
+        - src_resource: The absolute logical path of the source resource.
+        - dst_resource: The absolute logical path of the destination resource.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -593,15 +636,21 @@ class DataObjects:
                 }
             )
         
-    # Trims an existing replica or removes its catalog entry.
-    # params
-    # - lpath: The  absolute logical path of the data object to be replicated.
-    # - replica_number: The replica number of the target replica.
-    # - catalog_only (optional): Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
+
     def trim(self, lpath: str, replica_number: int, catalog_only: int=0, admin: int=0):
+        """
+        Trims an existing replica or removes its catalog entry.
+
+        Parameters
+        - lpath: The  absolute logical path of the data object to be trimmed.
+        - replica_number: The replica number of the target replica.
+        - catalog_only (optional): Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -661,17 +710,22 @@ class DataObjects:
             )
         
 
-    # Registers a data object/replica into the catalog.
-    # params
-    # - lpath: The  absolute logical path of the data object to be registered.
-    # - ppath: The  absolute physical path of the data object to be registered.
-    # - resource: The resource that will own the replica.
-    # - as_additional_replica (optional): Set to 1 to register as a replica of an existing object, otherwise set to 0. Defaults to 0.
-    # - data_size (optional): The size of the replica in bytes.
-    # - checksum (optional): The checksum to associate with the replica.
-    # returns
-    # - Status code and response message.
     def register(self, lpath: str, ppath: str, resource: str, as_additional_replica: int=0, data_size: int=-1, checksum: str=''):
+        """
+        Registers a data object/replica into the catalog.
+
+        Parameters
+        - lpath: The  absolute logical path of the data object to be registered.
+        - ppath: The  absolute physical path of the data object to be registered.
+        - resource: The resource that will own the replica.
+        - as_additional_replica (optional): Set to 1 to register as a replica of an existing object, otherwise set to 0. Defaults to 0.
+        - data_size (optional): The size of the replica in bytes.
+        - checksum (optional): The checksum to associate with the replica.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -686,8 +740,8 @@ class DataObjects:
             raise ValueError('as_additional_replica must be an int 1 or 0')
         if (not isinstance(data_size, int)):
             raise TypeError('data_size must be an int')
-        if (not data > -1):
-            raise ValueError('data_size must be greater than 0 or flag value -1')
+        if (not data_size >= -1):
+            raise ValueError('data_size must be greater than or equal to 0 or flag value -1')
         if (not isinstance(checksum, str)):
             raise TypeError('checksum must be a string')
         
@@ -741,15 +795,20 @@ class DataObjects:
             )
         
 
-    # Reads bytes from a data object.
-    # params
-    # - lpath: The absolute logical path of the data object to be read from.
-    # - offset (optional): The number of bytes to skip. Defaults to 0.
-    # - count (optional): The number of bytes to read.
-    # - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
-    # returns
-    # - Status code and response message.
     def read(self, lpath: str, offset: int=0, count: int=-1, ticket: str=''):
+        """
+        Reads bytes from a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to be read from.
+        - offset (optional): The number of bytes to skip. Defaults to 0.
+        - count (optional): The number of bytes to read.
+        - ticket (optional): Ticket to be enabled before the operation. Defaults to an empty string.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -758,8 +817,8 @@ class DataObjects:
             raise TypeError('offset must be an int')
         if (not isinstance(count, int)):
             raise TypeError('count must be an int')
-        if (not count > -1):
-            raise ValueError('count must be greater than 0 or flag value -1')
+        if (not count >= -1):
+            raise ValueError('count must be greater than or equal to 0 or flag value -1')
         if (not isinstance(ticket, str)):
             raise TypeError('ticket must be a string')
         
@@ -801,19 +860,24 @@ class DataObjects:
             )
     
 
-    # Writes bytes to a data object.
-    # params
-    # - lpath: The absolute logical path of the data object to be read from.
-    # - bytes: The bytes to be written.
-    # - resource (optional): The root resource to write to.
-    # - offset (optional): The number of bytes to skip. Defaults to 0.
-    # - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
-    # - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
-    # - parallel_write_handle (optional): The handle to be used when writing in parallel.
-    # - stream_index (optional): The stream to use when writing in parallel.
-    # returns
-    # - Status code and response message.
     def write(self, bytes, lpath: str='', resource: str='', offset: int=0, truncate: int=1, append: int=0, parallel_write_handle: str='', stream_index: int=-1):
+        """
+        Writes bytes to a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to be written to.
+        - bytes: The bytes to be written.
+        - resource (optional): The root resource to write to.
+        - offset (optional): The number of bytes to skip. Defaults to 0.
+        - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
+        - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
+        - parallel_write_handle (optional): The handle to be used when writing in parallel.
+        - stream_index (optional): The stream to use when writing in parallel.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -822,8 +886,8 @@ class DataObjects:
             raise TypeError('resource must be a string')
         if (not isinstance(offset, int)):
             raise TypeError('offset must be an int')
-        if (not offset > 0):
-            raise ValueError('offset must be greater than 0')
+        if (not offset >= 0):
+            raise ValueError('offset must be greater than or equal to 0')
         if (not isinstance(truncate, int)):
             raise TypeError('truncate must be an int 1 or 0')
         if ((not truncate == 0) and (not truncate == 1)):
@@ -836,8 +900,8 @@ class DataObjects:
             raise TypeError('parallel_write_handle must be a string')
         if (not isinstance(stream_index, int)):
             raise TypeError('stream_index must be an int')
-        if (not stream_index > -1):
-            raise ValueError('stream_index must be greater than 0 or flag value -1')
+        if (not stream_index >= -1):
+            raise ValueError('stream_index must be greater than or equal to 0 or flag value -1')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
@@ -862,8 +926,6 @@ class DataObjects:
 
         if (stream_index != -1):
             data['stream-index'] = stream_index
-
-        #print(data)
 
         r = requests.post(self.url_base + '/data-objects', headers=headers, data=data)
 
@@ -896,26 +958,30 @@ class DataObjects:
             )
         
 
-    # Initializes server-side state for parallel writing.
-    # params
-    # - lpath: The absolute logical path of the data object to be read from.
-    # - stream_count: THe number of streams to open.
-    # - resource (optional): The root resource to write to.
-    # - offset (optional): The number of bytes to skip. Defaults to 0.s
-    # - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
-    # - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
-    # - ticket (optional):  Ticket to be enabled before the operation. Defaults to an empty string.
-    # returns
-    # - Status code and response message.
     def parallel_write_init(self, lpath: str, stream_count: int, truncate: int=1, append: int=0, ticket: str=''):
+        """
+        Initializes server-side state for parallel writing.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to be initialized for parallel write.
+        - stream_count: THe number of streams to open.
+        - offset (optional): The number of bytes to skip. Defaults to 0.
+        - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
+        - append (optional): Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
+        - ticket (optional):  Ticket to be enabled before the operation. Defaults to an empty string.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
             raise TypeError('lpath must be a string')
         if (not isinstance(stream_count, int)):
             raise TypeError('stream_count must be an int')
-        if (not stream_count > 0):
-            raise ValueError('stream_count must be greater than 0 or flag value -1')
+        if (not stream_count >= 0):
+            raise ValueError('stream_count must be greater than or equal to 0 or flag value -1')
         if (not isinstance(truncate, int)):
             raise TypeError('truncate must be an int 1 or 0')
         if ((not truncate == 0) and (not truncate == 1)):
@@ -974,12 +1040,17 @@ class DataObjects:
             )
         
 
-    # Initializes server-side state for parallel writing.
-    # params
-    # - parallel_write_handle: Handle obtained from parallel_write_init
-    # returns
-    # - Status code and response message.
     def parallel_write_shutdown(self, parallel_write_handle: str):
+        """
+        Shuts down the parallel write state in the server.
+
+        Parameters
+        - parallel_write_handle: Handle obtained from parallel_write_init
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(parallel_write_handle, str)):
@@ -1026,14 +1097,19 @@ class DataObjects:
             )
         
     
-    # Modifies the metadata for a data object
-    # params
-    # - lpath: The absolute logical path of the collection to have its inheritance set.
-    # - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def modify_metadata(self, lpath: str, operations: list, admin: int=0):
+        """
+        Modifies the metadata for a data object
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have its inheritance set.
+        - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -1091,15 +1167,20 @@ class DataObjects:
             )
         
 
-    # Sets the permission of a user for a given collection
-    # params
-    # - lpath: The absolute logical path of the collection to have a permission set.
-    # - entity_name: The name of the user or group having its permission set.
-    # - permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def set_permission(self, lpath: str, entity_name: str, permission: str, admin: int=0):
+        """
+        Sets the permission of a user for a given data object
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have a permission set.
+        - entity_name: The name of the user or group having its permission set.
+        - permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -1158,14 +1239,19 @@ class DataObjects:
             )
     
     
-    # Modifies permissions for multiple users or groups for a data object.
-    # params
-    # - lpath: The absolute logical path of the data object to have its permissions modified.
-    # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def modify_permissions(self, lpath: str, operations: list, admin: int=0):
+        """
+        Modifies permissions for multiple users or groups for a data object.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have its permissions modified.
+        - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
+        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -1223,20 +1309,45 @@ class DataObjects:
             )
         
     
-    # Modifies properties of a single replica
-    # WARNING: This operation requires rodsadmin level privileges and should only be used when there isn't a safer option.
-    #          Misuse can lead to catalog inconsistencies and unexpected behavior.
-    # params
-    # - lpath: The absolute logical path of the data object to have its permissions modified.
-    # - operations: Dictionary containing the operations to carry out. Should contain names and permissions for all operations.
-    # - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
-    # returns
-    # - Status code and response message.
     def modify_replica(self, lpath: str, resource_hierarchy: str='', replica_number: int=-1, new_data_checksum: str='',
                         new_data_comments: str='', new_data_create_time: int=-1, new_data_expiry: int=-1,
                         new_data_mode: str='', new_data_modify_time: str='', new_data_path: str='',
                         new_data_replica_number: int=-1, new_data_replica_status: int=-1, new_data_resource_id: int=-1,
                         new_data_size: int=-1, new_data_status: str='', new_data_type_name: str='', new_data_version: int=-1):
+        """
+        Modifies properties of a single replica.
+
+        WARNING: 
+        This operation requires rodsadmin level privileges and should only be used when there isn't a safer option.
+        Misuse can lead to catalog inconsistencies and unexpected behavior.
+
+        Parameters
+        - lpath: The absolute logical path of the data object to have a replica modified.
+        - resource_hierarchy: The hierarchy containing the resource to be modified. Mutually exclusive with replica_number.
+        - replica_number: The number of the replica to be modified. mutually exclusive with resource_hierarchy.
+
+        Note:
+        At least one of the following optional parameters must be passed in
+
+        - new_data_checksum (optional): The new checksum to be set.
+        - new_data_comments (optional): The new comments to be set.
+        - new_data_create_time (optional): The new create time to be set.
+        - new_data_expiry (optional): The new expiry to be set.
+        - new_data_mode (optional): The new mode to be set.
+        - new_data_modify_time (optional): The new modify time to be set.
+        - new_data_path (optional): The new path to be set.
+        - new_data_replica_number (optional): The new replica number to be set.
+        - new_data_replica_status (optional): The new replica status to be set.
+        - new_data_resource_id (optional): The new resource id to be set
+        - new_data_size (optional): The new size to be set.
+        - new_data_status (optional): The new data status to be set.
+        - new_data_type_name (optional): The new type name to be set.
+        - new_data_version (optional): The new version to be set.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
         if (self.token == None):
             raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
         if (not isinstance(lpath, str)):
@@ -1253,12 +1364,12 @@ class DataObjects:
             raise TypeError('new_data_comments must be a string')
         if (not isinstance(new_data_create_time, int)):
             raise TypeError('new_data_create_time must be an int')
-        if (not new_data_create_time > -1):
-            raise ValueError('new_data_create_time must be greater than 0 or flag value -1')
+        if (not new_data_create_time >= -1):
+            raise ValueError('new_data_create_time must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_expiry, int)):
             raise TypeError('new_data_expiry must be an int')
-        if (not new_data_expiry > -1):
-            raise ValueError('new_data_expiry must be greater than 0 or flag value -1')
+        if (not new_data_expiry >= -1):
+            raise ValueError('new_data_expiry must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_mode, str)):
             raise TypeError('new_data_mode must be a string')
         if (not isinstance(new_data_modify_time, str)):
@@ -1267,28 +1378,28 @@ class DataObjects:
             raise TypeError('new_data_path must be a string')
         if (not isinstance(new_data_replica_number, int)):
             raise TypeError('new_data_replica_number must be an int')
-        if (not new_data_replica_number > -1):
-            raise ValueError('new_data_replica_number must be greater than 0 or flag value -1')
+        if (not new_data_replica_number >= -1):
+            raise ValueError('new_data_replica_number must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_replica_status, int)):
             raise TypeError('new_data_replica_status must be an int')
-        if (not new_data_replica_status > -1):
-            raise ValueError('new_data_replica_status must be greater than 0 or flag value -1')
+        if (not new_data_replica_status >= -1):
+            raise ValueError('new_data_replica_status must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_resource_id, int)):
             raise TypeError('new_data_resource_id must be an int')
-        if (not new_data_resource_id > -1):
-            raise ValueError('new_data_resource_id must be greater than 0 or flag value -1')
+        if (not new_data_resource_id >= -1):
+            raise ValueError('new_data_resource_id must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_size, int)):
             raise TypeError('new_data_size must be an int')
-        if (not new_data_size > -1):
-            raise ValueError('new_data_size must be greater than 0 or flag value -1')
+        if (not new_data_size >= -1):
+            raise ValueError('new_data_size must be greater than or equal to 0 or flag value -1')
         if (not isinstance(new_data_status, str)):
             raise TypeError('new_data_status must be a string')
         if (not isinstance(new_data_type_name, str)):
             raise TypeError('new_data_type_name must be a string')
         if (not isinstance(new_data_version, int)):
             raise TypeError('new_data_version must be an int')
-        if (not new_data_version > -1):
-            raise ValueError('new_data_version must be greater than 0 or flag value -1')
+        if (not new_data_version >= -1):
+            raise ValueError('new_data_version must be greater than or equal to 0 or flag value -1')
         
         headers = {
             'Authorization': 'Bearer ' + self.token,
