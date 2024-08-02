@@ -102,52 +102,7 @@ def setup_class(cls, opts):
         cls.logger.debug(f'Failed to authenticate as rodsuser [{cls.rodsuser_username}].')
         return
 
-    # Create a rodsuser for testing.
-    # if not opts.get('create_rodsuser', True):
-    #     cls.logger.debug('create_rodsuser is False. Class setup complete.')
-    #     return
-
-
-    # cls.rodsuser_username = config.test_config['rodsuser']['username']
-    # headers = {'Authorization': f'Bearer {cls.rodsadmin_bearer_token}'}
-    # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
-    #     'op': 'create_user',
-    #     'name': cls.rodsuser_username,
-    #     'zone': cls.self.zone_name
-    # })
-    # cls.logger.debug(r.content)
-    # if r.status_code != 200:
-    #     cls._class_init_error = True
-    #     cls.logger.debug(f'Failed to create rodsuser [{cls.rodsuser_username}].')
-    #     return
-    # cls._remove_rodsuser = True
-
-
-    # Set the rodsuser's password.
-    # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
-    #     'op': 'set_password',
-    #     'name': cls.rodsuser_username,
-    #     'zone': cls.self.zone_name,
-    #     'new-password': config.test_config['rodsuser']['password']
-    # })
-    # cls.logger.debug(r.content)
-    # if r.status_code != 200:
-    #     cls._class_init_error = True
-    #     cls.logger.debug(f'Failed to set password for rodsuser [{cls.rodsuser_username}].')
-    #     return
-
-
-    # Authenticate as the rodsuser and store the bearer token.
-    # r = requests.post(f'{cls.url_base}/authenticate', auth=(cls.rodsuser_username, config.test_config['rodsuser']['password']))
-    # cls.logger.debug(r.content)
-    # if r.status_code != 200:
-    #     cls._class_init_error = True
-    #     cls.logger.debug(f'Failed to authenticate as rodsuser [{cls.rodsuser_username}].')
-    #     return
-    # cls.rodsuser_bearer_token = r.text
-
-
-    # cls.logger.debug('Class setup complete.')
+    cls.logger.debug('Class setup complete.')
 
 
 def tear_down_class(cls):
@@ -156,18 +111,6 @@ def tear_down_class(cls):
 
     if not cls._remove_rodsuser:
         return
-
-    # headers = {'Authorization': f'Bearer {cls.rodsadmin_bearer_token}'}
-    # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
-    #     'op': 'remove_user',
-    #     'name': cls.rodsuser_username,
-    #     'zone': cls.self.zone_name
-    # })
-    # cls.logger.debug(r.content)
-    # if r.status_code != 200:
-    #     cls.logger.debug(f'Failed to remove rodsuser [{cls.rodsuser_username}].')
-    #     return
-
 
 
 # Tests for collections operations
