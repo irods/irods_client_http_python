@@ -69,7 +69,7 @@ def setup_class(cls, opts):
     cls.api = IrodsClient(cls.url_base)
 
     cls.zone_name = config.test_config['irods_zone']
-    cls.server_hostname = config.test_config['irods_server_hostname']
+    cls.host = config.test_config['irods_server_hostname']
 
 
     # create_rodsuser cannot be honored if init_rodsadmin is set to False.
@@ -91,6 +91,7 @@ def setup_class(cls, opts):
     
     # Authenticate as a rodsuser and store the bearer token.
     # Should be replaced once user operations are implemented
+    # Currently, the user specified in the config file must exist before running tests
     cls.rodsuser_username = config.test_config['rodsuser']['username']
     print(cls.rodsuser_username)
     print(config.test_config['rodsuser']['password'])
@@ -112,7 +113,7 @@ def setup_class(cls, opts):
     # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
     #     'op': 'create_user',
     #     'name': cls.rodsuser_username,
-    #     'zone': cls.zone_name
+    #     'zone': cls.self.zone_name
     # })
     # cls.logger.debug(r.content)
     # if r.status_code != 200:
@@ -126,7 +127,7 @@ def setup_class(cls, opts):
     # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
     #     'op': 'set_password',
     #     'name': cls.rodsuser_username,
-    #     'zone': cls.zone_name,
+    #     'zone': cls.self.zone_name,
     #     'new-password': config.test_config['rodsuser']['password']
     # })
     # cls.logger.debug(r.content)
@@ -160,7 +161,7 @@ def tear_down_class(cls):
     # r = requests.post(f'{cls.url_base}/users-groups', headers=headers, data={
     #     'op': 'remove_user',
     #     'name': cls.rodsuser_username,
-    #     'zone': cls.zone_name
+    #     'zone': cls.self.zone_name
     # })
     # cls.logger.debug(r.content)
     # if r.status_code != 200:
@@ -535,8 +536,574 @@ class collectionsTests(unittest.TestCase):
         self.assertTrue(True)
 
   
+# Tests for data object operations
+class dataObjectsTests(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'data_objects'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+
+    def testCommonOperations(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+        print(self.rodsadmin_bearer_token)
+
+        try:
+            # Create a unixfilesystem resource.
+            r = self.api.resources.create('resource', 'unixfilesystem', self.host, '/tmp/resource', '')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            self.api.setToken(self.rodsuser_bearer_token)
+            # Create a non-empty data object
+            print(self.api.collections.stat(f'/{self.zone_name}/home/{self.rodsuser_username}'))
+            r = self.api.data_objects.write('These are the bytes being written to the object', f'/{self.zone_name}/home/{self.rodsuser_username}/file.txt', 'resource')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Replicate the data object
+            r = self.api.data_objects.replicate(f'/{self.zone_name}/home/{self.rodsuser_username}/file.txt', dst_resource='resource')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Show that there are two replicas
+            # TODO: Implement once query operations are completed
+
+            # Trim the first data object
+            r = self.api.data_objects.trim(f'/{self.zone_name}/home/{self.rodsuser_username}/file.txt', 0)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Rename the data object
+            r = self.api.data_objects.rename(f'/{self.zone_name}/home/{self.rodsuser_username}/file.txt', f'/{self.zone_name}/home/{self.rodsuser_username}/newfile.txt')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Copy the data object
+            r = self.api.data_objects.copy(f'/{self.zone_name}/home/{self.rodsuser_username}/newfile.txt', f'/{self.zone_name}/home/{self.rodsuser_username}/anotherfile.txt')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Set permission on the object
+            r = self.api.data_objects.set_permission(f'/{self.zone_name}/home/{self.rodsuser_username}/anotherfile.txt', 'rods', 'read')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Confirm that the permission has been set
+            r = self.api.data_objects.stat(f'/{self.zone_name}/home/{self.rodsuser_username}/anotherfile.txt')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+            self.assertIn({
+                'name': 'rods',
+                'zone': self.zone_name,
+                'type': 'rodsadmin',
+                'perm': 'read_object'
+            }, r['data']['permissions'])
+
+        finally:
+            # Remove the data objects
+            r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsuser_username}/anotherfile.txt', 0, 1)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsuser_username}/newfile.txt', 0, 1)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            self.api.setToken(self.rodsadmin_bearer_token)
+
+            # Remove the resource
+            r = self.api.resources.remove('resource')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+
+    def testChecksums(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a unixfilesystem resource.
+        r = self.api.resources.create('newresource', 'unixfilesystem', self.host, '/tmp/newresource', '')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Create a non-empty data object
+        r = self.api.data_objects.write('These are the bytes being written to the object', f'/{self.zone_name}/home/{self.rodsadmin_username}/file.txt', 'newresource')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Replicate the data object
+        r = self.api.data_objects.replicate(f'/{self.zone_name}/home/{self.rodsadmin_username}/file.txt', dst_resource='newresource')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that there are two replicas
+        # TODO: Implement once query operations are completed
+
+        try:
+            # Calculate a checksum for the first replica
+            r = self.api.data_objects.calculate_checksum(f'/{self.zone_name}/home/{self.rodsadmin_username}/file.txt', replica_number=0)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Verify checksum information across all replicas.
+            r = self.api.data_objects.verify_checksum(f'/{self.zone_name}/home/{self.rodsadmin_username}/file.txt')
+            print(r)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        finally:
+            # Remove the data objects
+            r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsadmin_username}/file.txt', 0, 1)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Remove the resource
+            r = self.api.resources.remove('newresource')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        
+    
+    def testTouch(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Test touching non existant data object with no_create
+        r = self.api.data_objects.touch(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt', 1)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the object has not been created
+        r = self.api.data_objects.stat(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt')
+        self.assertEqual(r['data']['irods_response']['status_code'], -171000)
+
+        # Test touching non existant object without no_create
+        r = self.api.data_objects.touch(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt', 0)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the object has been created
+        r = self.api.data_objects.stat(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Test touching existing object without no_create
+        r = self.api.data_objects.touch(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt', 1)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Remove the object
+        r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsadmin_username}/new.txt')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+
+    def testRegister(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a non-empty local file.
+        content = 'data'
+        with open('/tmp/register-demo.txt', 'w') as f:
+                f.write(content)
+        
+        # Show the data object we want to create via registration does not exist.
+        r = self.api.data_objects.stat(f'/{self.zone_name}/home/{self.rodsadmin_username}/register-demo.txt')
+        self.assertEqual(r['data']['irods_response']['status_code'], -171000)
+
+        try:
+            # Create a unixfilesystem resource.
+            r = self.api.resources.create('register_resource', 'unixfilesystem', self.host, '/tmp/register_resource', '')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Register the local file into the catalog as a new data object.
+            # We know we're registering a new data object because the "as-additional-replica"
+            # parameter isn't set to 1.
+            r = self.api.data_objects.register(f'/{self.zone_name}/home/{self.rodsadmin_username}/register-demo.txt', '/tmp/register-demo.txt', 'register_resource', data_size=len(content))
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Show a new data object exists with the expected replica information.
+            # TODO: add when query operations are implemented
+        finally:
+            # Unregisterr the dataq object
+            r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsadmin_username}/register-demo.txt', 1)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Remove the resource
+            r = self.api.resources.remove('register_resource')
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+    
+    def testParallelWrite(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+        self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt', 0, 1)
+
+        # Open parallel write
+        r = self.api.data_objects.parallel_write_init(f'/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt', 3)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        handle = r['data']['parallel_write_handle']
+        
+        try:
+            # Write to the data object using the parallel write handle.
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+                for e in enumerate(['A', 'B', 'C']):
+                    count = 10
+                    futures.append(executor.submit(
+                        self.api.data_objects.write, bytes=e[1] * count, offset=e[0] * count, stream_index=e[0], parallel_write_handle=handle
+                    ))
+                for f in concurrent.futures.as_completed(futures):
+                    r = f.result()
+                    self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        finally:
+            # Close parallel write
+            r = self.api.data_objects.parallel_write_shutdown(handle)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+            # Remove the object
+            r = self.api.data_objects.remove(f'/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt', 0, 1)
+            self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+
+
+
+# Tests for resources operations
+class resourcesTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'resources'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+
+    def testCommonOperations(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        #TEMPORARY pre-test cleanup
+        #test is currently not passing, so cleanup occusrs at the beginning to allow it to be run more than once in a row
+        self.api.resources.remove_child('test_repl', 'test_ufs0')
+        self.api.resources.remove_child('test_repl', 'test_ufs1')
+        self.api.resources.remove('test_ufs0')
+        self.api.resources.remove('test_ufs1')
+        self.api.resources.remove('test_repl')
+
+        resc_repl = 'test_repl'
+        resc_ufs0 = 'test_ufs0'
+        resc_ufs1 = 'test_ufs1'
+
+        # Create three resources (replication w/ two unixfilesystem resources).
+        r = self.api.resources.create(resc_repl, 'replication', '', '', '')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        
+        # Show the replication resource was created.
+        r = self.api.resources.stat(resc_repl)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(r['data']['exists'], True)
+        self.assertIn('id', r['data']['info'])
+        self.assertEqual(r['data']['info']['name'], resc_repl)
+        self.assertEqual(r['data']['info']['type'], 'replication')
+        self.assertEqual(r['data']['info']['zone'], 'tempZone')
+        self.assertEqual(r['data']['info']['host'], 'EMPTY_RESC_HOST')
+        self.assertEqual(r['data']['info']['vault_path'], 'EMPTY_RESC_PATH')
+        self.assertIn('status', r['data']['info'])
+        self.assertIn('context', r['data']['info'])
+        self.assertIn('comments', r['data']['info'])
+        self.assertIn('information', r['data']['info'])
+        self.assertIn('free_space', r['data']['info'])
+        self.assertIn('free_space_last_modified', r['data']['info'])
+        self.assertEqual(r['data']['info']['parent_id'], '')
+        self.assertIn('created', r['data']['info'])
+        self.assertIn('last_modified', r['data']['info'])
+        self.assertIn('last_modified_millis', r['data']['info'])
+
+        # Capture the replication resource's id.
+        # This resource is going to be the parent of the unixfilesystem resources.
+        # This value is needed to verify the relationship.
+        resc_repl_id = r['data']['info']['id']
+
+        for resc_name in [resc_ufs0, resc_ufs1]:
+            with self.subTest(f'Create and attach resource [{resc_name}] to [{resc_repl}]'):
+                vault_path = f'/tmp/{resc_name}_vault'
+
+                # Create a unixfilesystem resource.
+                r = self.api.resources.create(resc_name, 'unixfilesystem', self.host, vault_path, '')
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+                # Add the unixfilesystem resource as a child of the replication resource.
+                r = self.api.resources.add_child(resc_repl, resc_name)
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+                # Show that the resource was created and configured successfully.
+                r = self.api.resources.stat(resc_name)
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+                self.assertEqual(r['data']['exists'], True)
+                self.assertIn('id', r['data']['info'])
+                self.assertEqual(r['data']['info']['name'], resc_name)
+                self.assertEqual(r['data']['info']['type'], 'unixfilesystem')
+                self.assertEqual(r['data']['info']['zone'], self.zone_name)
+                self.assertEqual(r['data']['info']['host'], self.host)
+                self.assertEqual(r['data']['info']['vault_path'], vault_path)
+                self.assertIn('status', r['data']['info'])
+                self.assertIn('context', r['data']['info'])
+                self.assertIn('comments', r['data']['info'])
+                self.assertIn('information', r['data']['info'])
+                self.assertIn('free_space', r['data']['info'])
+                self.assertIn('free_space_last_modified', r['data']['info'])
+                self.assertEqual(r['data']['info']['parent_id'], resc_repl_id)
+                self.assertIn('created', r['data']['info'])
+                self.assertIn('last_modified', r['data']['info'])
+
+        # Create a data object targeting the replication resource.
+        data_object = f'/{self.zone_name}/home/{self.rodsadmin_username}/resource_obj'
+        r = self.api.data_objects.write('These are the bytes to be written', data_object, resc_repl, 0)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show there are two replicas under the replication resource hierarchy.
+        r = self.api.queries.execute_genquery(f"select DATA_NAME, RESC_NAME where DATA_NAME = '{os.path.basename(data_object)}'")
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['data']['rows']), 2)
+
+        resc_tuple = (r['data']['rows'][0][1], r['data']['rows'][1][1])
+        self.assertIn(resc_tuple, [(resc_ufs0, resc_ufs1), (resc_ufs1, resc_ufs0)])
+
+        # Trim a replica.
+        r = self.api.data_objects.trim(data_object, 0)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show there is only one replica under the replication resource hierarchy.
+        r = self.api.queries.execute_genquery(f"select DATA_NAME, RESC_NAME where DATA_NAME = '{os.path.basename(data_object)}'")
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['data']['rows']), 1)
+
+        # Launch rebalance
+        r = self.api.resources.rebalance(resc_repl)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Give the rebalance operation time to complete!
+        time.sleep(3)
+
+        #
+        # Clean-up
+        #
+
+        # Remove the data object.
+        r = self.api.data_objects.remove(data_object, 0, 1)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+         # Remove resources.
+        for resc_name in [resc_ufs0, resc_ufs1]:
+            with self.subTest(f'Detach and remove resource [{resc_name}] from [{resc_repl}]'):
+                # Detach ufs resource from the replication resource.
+                r = self.api.resources.remove_child(resc_repl, resc_name)
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+                # Remove ufs resource.
+                r = self.api.resources.remove(resc_name)
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+                # Show that the resource no longer exists.
+                r = self.api.resources.stat(resc_name)
+                self.assertEqual(r['data']['irods_response']['status_code'], 0)
+                self.assertEqual(r['data']['exists'], False)
+        
+        # Remove replication resource.
+        r = self.api.resources.remove(resc_repl)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the resource no longer exists.
+        r = self.api.resources.stat(resc_repl)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(r['data']['exists'], False)
+
+
+    def testModifyMetadata(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a unixfilesystem resource.
+        r = self.api.resources.create('metadata_demo', 'unixfilesystem', self.host, '/tmp/metadata_demo_vault', '')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        
+        operations = [
+            {
+                'operation': 'add',
+                'attribute': 'a1',
+                'value': 'v1',
+                'units': 'u1'
+            }
+        ]
+
+        # Add the metadata to the resource
+        r = self.api.resources.modify_metadata('metadata_demo', operations)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the metadata is on the resource
+        r = self.api.queries.execute_genquery("select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'")
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(r['data']['rows'][0][0], 'metadata_demo')
+
+        # Remove the metadata from the resource.
+        operations = [
+            {
+                'operation': 'remove',
+                'attribute': 'a1',
+                'value': 'v1',
+                'units': 'u1'
+            }
+        ]
+
+        r = self.api.resources.modify_metadata('metadata_demo', operations)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the metadata is no longer on the resource
+        r = self.api.queries.execute_genquery("select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'")
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['data']['rows']), 0)
+
+        # Remove the resource
+        r = self.api.resources.remove('metadata_demo')
+
+
+    def testModifyProperties(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        resource = 'properties_demo'
+
+        # Create a new resource.
+        r = self.api.resources.create(resource, 'replication', '', '', '')
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        
+        try:
+            # The list of updates to apply in sequence.
+            property_map = [
+                ('name',        'test_modifying_resource_properties_renamed'),
+                ('type',        'passthru'),
+                ('host',        'example.org'),
+                ('vault_path',  '/tmp/test_modifying_resource_properties_vault'),
+                ('status',      'down'),
+                ('status',      'up'),
+                ('comments',    'test_modifying_resource_properties_comments'),
+                ('information', 'test_modifying_resource_properties_information'),
+                ('free_space',  'test_modifying_resource_properties_free_space'),
+                ('context',     'test_modifying_resource_properties_context')
+            ]
+
+            # Apply each update to the resource and verify that each one results
+            # in the expected results.
+            for p, v in property_map:
+                with self.subTest(f'Setting property [{p}] to value [{v}]'):
+                    # Change a property of the resource.
+                    r = self.api.resources.modify(resource, p, v)
+
+                    # Make sure to update the "resource" variable following a successful rename.
+                    if 'name' == p:
+                        resource = v
+
+                    # Show the property was modified.
+                    r = self.api.resources.stat(resource)
+                    self.assertEqual(r['data']['irods_response']['status_code'], 0)
+                    self.assertEqual(r['data']['info'][p], v)
+        finally:
+            # Remove the resource
+            r = self.api.resources.remove(resource)
+
+
+# Tests for rule operations
+class rulesTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'rules'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+
+    def testList(self):
+        # Try listing rule engine plugins
+        r = self.api.rules.list_rule_engines()
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertGreater(len(r['data']['rule_engine_plugin_instances']), 0)
+    
+
+    def testExecuteRule(self):
+        test_msg = 'This was run by the iRODS HTTP API test suite!'
+
+        # Execute rule text against the iRODS rule language.
+        r = self.api.rules.execute(f'writeLine("stdout", "{test_msg}")', 'irods_rule_engine_plugin-irods_rule_language-instance')
+ 
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(r['data']['stderr'], None)
+
+        # The REP always appends a newline character to the result. While we could trim the result,
+        # it is better to append a newline character to the expected result to guarantee things align.
+        self.assertEqual(r['data']['stdout'], test_msg + '\n')
+
+
+    def testRemoveDelayRule(self):
+        rep_instance = 'irods_rule_engine_plugin-irods_rule_language-instance'
+
+        # Schedule a delay rule to execute in the distant future.
+        r = self.api.rules.execute(f'delay("<INST_NAME>{rep_instance}</INST_NAME><PLUSET>1h</PLUSET>") {{ writeLine("serverLog", "iRODS HTTP API"); }}', rep_instance)
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Find the delay rule we just created.
+        # This query assumes the test suite is running on a system where no other delay
+        # rules are being created.
+        r = self.api.queries.execute_genquery('select max(RULE_EXEC_ID)')
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['data']['rows']), 1)
+
+        print(r)
+
+        # Remove the delay rule.
+        r = self.api.rules.remove_delay_rule(int(r['data']['rows'][0][0]))
+        print(r)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+
+# Tests for tickets operations
+class ticketsTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'tickets'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+    
+    def testCreateAndRemove(self):
+        self.api.setToken(self.rodsuser_bearer_token)
+
+        # Create a write ticket.
+        ticket_type = 'write'
+        ticket_path = f'/{self.zone_name}/home/{self.rodsuser_username}'
+        ticket_use_count = 2000
+        ticket_groups = 'public'
+        ticket_hosts = self.host
+        r = self.api.tickets.create(ticket_path, ticket_type, use_count=ticket_use_count, seconds_until_expiration=3600, users='rods,jeb', groups=ticket_groups, hosts=ticket_hosts)
+        print(r)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        ticket_string = r['data']['ticket']
+        self.assertGreater(len(ticket_string), 0)
+
+        # Show the ticket exists and has the properties we defined during creation.
+        # We can use GenQuery for this, but it does seem better to provide a convenience operation
+        # for this.
+        r = self.api.queries.execute_genquery('select TICKET_STRING, TICKET_TYPE, TICKET_COLL_NAME, TICKET_USES_LIMIT, TICKET_ALLOWED_USER_NAME, TICKET_ALLOWED_GROUP_NAME, TICKET_ALLOWED_HOST')
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertIn(ticket_string, r['data']['rows'][0])
+        self.assertEqual(r['data']['rows'][0][1], ticket_type)
+        self.assertEqual(r['data']['rows'][0][2], ticket_path)
+        self.assertEqual(r['data']['rows'][0][3], str(ticket_use_count))
+        self.assertIn(r['data']['rows'][0][4], ['rods', 'jeb'])
+        self.assertEqual(r['data']['rows'][0][5], ticket_groups)
+        self.assertGreater(len(r['data']['rows'][0][6]), 0)
+
+        # Remove the ticket.
+        r = self.api.tickets.remove(ticket_string)
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show the ticket no longer exists.
+        r = self.api.queries.execute_genquery('select TICKET_STRING')
+
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+        self.assertEqual(len(r['data']['rows']), 0)
+
 if __name__ == '__main__':
-   unittest.main()
-
-
-
+    unittest.main()
