@@ -1,6 +1,6 @@
 import config
 import unittest
-from irods_client.irodsClient import IrodsClient
+from irods_http_client.irodsHttpClient import IrodsHttpClient
 import concurrent.futures
 import os
 import time
@@ -66,7 +66,7 @@ def setup_class(cls, opts):
     cls.url_base = f"http://{config.test_config['host']}:{config.test_config['port']}{config.test_config['url_base']}"
     cls.url_endpoint = f'{cls.url_base}/{opts["endpoint_name"]}'
 
-    cls.api = IrodsClient(cls.url_base)
+    cls.api = IrodsHttpClient(cls.url_base)
 
     cls.zone_name = config.test_config['irods_zone']
     cls.host = config.test_config['irods_server_hostname']
