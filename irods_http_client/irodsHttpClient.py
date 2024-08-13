@@ -1,12 +1,12 @@
-from irods_client.collection_operations import Collections
-from irods_client.data_object_operations import DataObjects
-from irods_client.query_operations import Queries
-from irods_client.resource_operations import Resources
-from irods_client.rule_operations import Rules
-from irods_client.ticket_operations import Tickets
+from irods_http_client.collection_operations import Collections
+from irods_http_client.data_object_operations import DataObjects
+from irods_http_client.query_operations import Queries
+from irods_http_client.resource_operations import Resources
+from irods_http_client.rule_operations import Rules
+from irods_http_client.ticket_operations import Tickets
 import requests
 
-class IrodsClient:
+class IrodsHttpClient:
     def __init__(self, url_base: str):
         """ Gets the base url from the user to initialize a client instance. """
         self.url_base = url_base
