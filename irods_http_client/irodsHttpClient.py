@@ -4,6 +4,7 @@ from irods_http_client.query_operations import Queries
 from irods_http_client.resource_operations import Resources
 from irods_http_client.rule_operations import Rules
 from irods_http_client.ticket_operations import Tickets
+from irods_http_client.user_group_operations import UsersGroups
 import requests
 
 class IrodsHttpClient:
@@ -18,6 +19,7 @@ class IrodsHttpClient:
         self.resources = Resources(url_base)
         self.rules = Rules(url_base)
         self.tickets = Tickets(url_base)
+        self.users_groups = UsersGroups(url_base)
 
 
     def authenticate(self, username: str='', password: str='', openid_token: str=''):
@@ -68,6 +70,7 @@ class IrodsHttpClient:
         self.resources.token = token
         self.rules.token = token
         self.tickets.token = token
+        self.users_groups.token = token
     
 
     def getToken(self):
