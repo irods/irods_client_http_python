@@ -238,7 +238,7 @@ class UsersGroups:
             'op': 'set_user_type',
             'name': name,
             'zone': zone,
-            'user-type': user_type
+            'new-user-type': user_type
         }
 
         r = requests.post(self.url_base + '/users-groups', headers=headers, data=data)
@@ -645,14 +645,14 @@ class UsersGroups:
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        data = {
+        params = {
             'op': 'is_member_of_group',
             'group': group,
             'user': user,
             'zone': zone
         }
 
-        r = requests.post(self.url_base + '/users-groups', headers=headers, data=data)
+        r = requests.get(self.url_base + '/users-groups', headers=headers, params=params)
 
         if (r.status_code / 100 == 2):
             rdict = r.json()
@@ -721,7 +721,7 @@ class UsersGroups:
             if rdict['irods_response']['status_code']:
                 print('Failed to retrieve information for \'' + name + '\' : iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
-                print('GroInformation for \'' + name + '\' retrieved successfully')
+                print('Information for \'' + name + '\' retrieved successfully')
             
             return(
                 {
