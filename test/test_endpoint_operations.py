@@ -1048,5 +1048,308 @@ class ticketsTests(unittest.TestCase):
         self.assertEqual(r['data']['irods_response']['status_code'], 0)
         self.assertEqual(len(r['data']['rows']), 0)
 
+
+# Tests for user operations
+class userTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'users-groups'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+    
+    def test_create_stat_and_remove_rodsuser(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        new_username = 'test_user_rodsuser'
+        user_type = 'rodsuser'
+
+        # Create a new user.
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+ 
+        # Stat the user.
+        r = self.api.users_groups.stat(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], True)
+        self.assertIn('id', stat_info)
+        self.assertEqual(stat_info['local_unique_name'], f'{new_username}#{self.zone_name}')
+        self.assertEqual(stat_info['type'], user_type)
+
+        # Remove the user.
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+    
+
+    def test_set_password(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        new_username = 'test_user_rodsuser'
+        user_type = 'rodsuser'
+
+        # Create a new user.
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+
+        new_password = 'new_password'
+        # Set a new password
+        r = self.api.users_groups.set_password(new_username, self.zone_name, new_password)
+        self.assertEqual(r['status_code'], 200)
+
+        # Try to get a token for the user
+        token = self.api.authenticate(new_username, new_password)
+        self.assertIsInstance(token, str)
+
+        # Remove the user.
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+
+    def test_create_stat_and_remove_rodsadmin(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        new_username = 'test_user_rodsadmin'
+        user_type = 'rodsadmin'
+        headers = {'Authorization': 'Bearer ' + self.rodsadmin_bearer_token}
+
+        # Create a new user.
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+ 
+        # Stat the user.
+        r = self.api.users_groups.stat(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], True)
+        self.assertIn('id', stat_info)
+        self.assertEqual(stat_info['local_unique_name'], f'{new_username}#{self.zone_name}')
+        self.assertEqual(stat_info['type'], user_type)
+
+        # Remove the user.
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+    
+
+    def test_create_stat_and_remove_groupadmin(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        new_username = 'test_user_groupadmin'
+        user_type = 'groupadmin'
+
+        # Create a new user.
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+ 
+        # Stat the user.
+        r = self.api.users_groups.stat(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], True)
+        self.assertIn('id', stat_info)
+        self.assertEqual(stat_info['local_unique_name'], f'{new_username}#{self.zone_name}')
+        self.assertEqual(stat_info['type'], user_type)
+
+        # Remove the user.
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+
+    def test_add_remove_user_to_and_from_group(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a new group.
+        new_group = 'test_group'
+        r = self.api.users_groups.create_group(new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Stat the group.
+        r = self.api.users_groups.stat(new_group)
+        self.assertEqual(r['status_code'], 200)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], True)
+        self.assertIn('id', stat_info)
+        self.assertEqual(stat_info['type'], 'rodsgroup')
+
+        # Create a new user.
+        new_username = 'test_user_rodsuser'
+        user_type = 'rodsuser'
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+
+        # Add user to group.
+        r = self.api.users_groups.add_to_group(new_username, self.zone_name, new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the user is a member of the group.
+        r = self.api.users_groups.is_member_of_group(new_group, new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+        self.assertEqual(result['is_member'], True)
+
+        # Remove user from group.
+        data = {'op': 'remove_from_group', 'group': new_group, 'user': new_username, 'zone': self.zone_name}
+        r = self.api.users_groups.remove_from_group(new_username, self.zone_name, new_group)
+
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Remove the user.
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+        # Remove group.
+        r = self.api.users_groups.remove_group(new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that the group no longer exists.
+        params = {'op': 'stat', 'name': new_group}
+        r = self.api.users_groups.stat(new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], False)
+
+
+    def test_only_a_rodsadmin_can_change_the_type_of_a_user(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a new user.
+        new_username = 'test_user_rodsuser'
+        user_type = 'rodsuser'
+        r = self.api.users_groups.create_user(new_username, self.zone_name, user_type)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that a rodsadmin can change the type of the new user.
+        new_user_type = 'groupadmin'
+        r = self.api.users_groups.set_user_type(new_username, self.zone_name, new_user_type)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show that a non-admin cannot change the type of the new user.
+        self.api.setToken(self.rodsuser_bearer_token)
+        r = self.api.users_groups.set_user_type(new_user_type, self.zone_name, new_user_type)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], -13000)
+
+        # Show that the user type matches the type set by the rodsadmin.
+        params = {'op': 'stat', 'name': new_username, 'zone': self.zone_name}
+        r = self.api.users_groups.stat(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+
+        stat_info = r['data']
+        self.assertEqual(stat_info['irods_response']['status_code'], 0)
+        self.assertEqual(stat_info['exists'], True)
+        self.assertEqual(stat_info['local_unique_name'], f'{new_username}#{self.zone_name}')
+        self.assertEqual(stat_info['type'], new_user_type)
+
+        # Remove the user.
+        self.api.setToken(self.rodsadmin_bearer_token)
+        r = self.api.users_groups.remove_user(new_username, self.zone_name)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+    
+    
+    def test_listing_all_users_in_zone(self):
+        self.api.setToken(self.rodsuser_bearer_token)
+
+        r = self.api.users_groups.users()
+        self.assertEqual(r['status_code'], 200)
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+        self.assertIn({'name': self.rodsadmin_username, 'zone': self.zone_name}, result['users'])
+        self.assertIn({'name': self.rodsuser_username, 'zone': self.zone_name}, result['users'])
+    
+
+    def test_listing_all_groups_in_zone(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Create a new group.
+        new_group = 'test_group'
+        r = self.api.users_groups.create_group(new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        self.api.setToken(self.rodsuser_bearer_token)
+        # Get all groups.
+        r = self.api.users_groups.groups()
+        self.assertEqual(r['status_code'], 200)
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+        self.assertIn('public', result['groups'])
+        self.assertIn(new_group, result['groups'])
+
+        self.api.setToken(self.rodsadmin_bearer_token)
+        # Remove the new group.
+        r = self.api.users_groups.remove_group(new_group)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+
+    def test_modifying_metadata_atomically(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+        username = self.rodsuser_username
+
+        # Add metadata to the user.
+        ops = [
+                {
+                    'operation': 'add',
+                    'attribute': 'a1',
+                    'value': 'v1',
+                    'units': 'u1'
+                }
+            ]
+        r = self.api.users_groups.modify_metadata(username, ops)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show the metadata exists on the user.
+        r = self.api.queries.execute_genquery("select USER_NAME where META_USER_ATTR_NAME = 'a1' and META_USER_ATTR_VALUE = 'v1' and META_USER_ATTR_UNITS = 'u1'")
+        self.assertEqual(r['status_code'], 200)
+
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+        self.assertEqual(result['rows'][0][0], username)
+
+        # Remove the metadata from the user.
+        ops = [
+                {
+                    'operation': 'remove',
+                    'attribute': 'a1',
+                    'value': 'v1',
+                    'units': 'u1'
+                }
+            ]
+        r = self.api.users_groups.modify_metadata(username, ops)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        # Show the metadata no longer exists on the user.
+        r = self.api.queries.execute_genquery("select USER_NAME where META_USER_ATTR_NAME = 'a1' and META_USER_ATTR_VALUE = 'v1' and META_USER_ATTR_UNITS = 'u1'")
+        self.assertEqual(r['status_code'], 200)
+
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+        self.assertEqual(len(result['rows']), 0)
+
 if __name__ == '__main__':
     unittest.main()
