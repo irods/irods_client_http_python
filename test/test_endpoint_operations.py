@@ -1350,6 +1350,90 @@ class userTests(unittest.TestCase):
         result = r['data']
         self.assertEqual(result['irods_response']['status_code'], 0)
         self.assertEqual(len(result['rows']), 0)
+    
+
+# Tests for zone operations
+class zoneTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {'endpoint_name': 'zones'})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(self._class_init_error, 'Class initialization failed. Cannot continue.')
+    
+
+    def test_report_operation(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+        r = self.api.zones.report()
+        self.assertEqual(r['status_code'], 200)
+
+        result = r['data']
+        self.assertEqual(result['irods_response']['status_code'], 0)
+
+        zone_report = result['zone_report']
+        self.assertIn('schema_version', zone_report)
+        self.assertIn('zones', zone_report)
+        self.assertGreaterEqual(len(zone_report['zones']), 1)
+
+    
+    def test_adding_removing_and_modifying_zones(self):
+        self.api.setToken(self.rodsadmin_bearer_token)
+
+        # Add a remote zone to the local zone.
+        # The new zone will not have any connection information or anything else.
+        zone_name = 'other_zone'
+        r = self.api.zones.add(zone_name)
+        self.assertEqual(r['status_code'], 200)
+        self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+        try:
+            # Show the new zone exists by executing the stat operation on it.
+            r = self.api.zones.stat(zone_name)
+            self.assertEqual(r['status_code'], 200)
+
+            result = r['data']
+            self.assertEqual(result['irods_response']['status_code'], 0)
+            self.assertEqual(result['exists'], True)
+            self.assertEqual(result['info']['name'], zone_name)
+            self.assertEqual(result['info']['type'], 'remote')
+            self.assertEqual(result['info']['connection_info'], '')
+            self.assertEqual(result['info']['comment'], '')
+
+            # The properties to update.
+            property_map = [
+                ('name',            'other_zone_renamed'),
+                ('connection_info', 'example.org:1247'),
+                ('comment',         'updated comment')
+            ]
+
+            # Change the properties of the new zone.
+            for p, v in property_map:
+                with self.subTest(f'Setting property [{p}] to value [{v}]'):
+                    r = self.api.zones.modify(zone_name, p, v)
+                    self.assertEqual(r['status_code'], 200)
+                    self.assertEqual(r['data']['irods_response']['status_code'], 0)
+
+                    # Capture the new name of the zone following its renaming.
+                    if 'name' == p:
+                        zone_name = v
+                    
+                    # Show the new zone was modified successfully.
+                    r = self.api.zones.stat(zone_name)
+                    self.assertEqual(r['status_code'], 200)
+
+                    result = r['data']
+                    self.assertEqual(result['irods_response']['status_code'], 0)
+                    self.assertEqual(result['exists'], True)
+                    self.assertEqual(result['info'][p], v)
+
+        finally:
+            # Remove the remote zone.
+            r = self.api.zones.remove(zone_name)
+            self.assertEqual(r['status_code'], 200)
 
 if __name__ == '__main__':
     unittest.main()

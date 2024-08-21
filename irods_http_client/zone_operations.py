@@ -48,7 +48,7 @@ class Zones:
         if (comment != ''):
             data['comment'] = comment
 
-        r = requests.post(self.url_base + '/users-groups', headers=headers, data=data)
+        r = requests.post(self.url_base + '/zones', headers=headers, data=data)
 
         if (r.status_code / 100 == 2):
             rdict = r.json()
@@ -105,7 +105,7 @@ class Zones:
             'name': name
         }
 
-        r = requests.post(self.url_base + '/users-groups', headers=headers, data=data)
+        r = requests.post(self.url_base + '/zones', headers=headers, data=data)
 
         if (r.status_code / 100 == 2):
             rdict = r.json()
@@ -166,11 +166,12 @@ class Zones:
 
         data = {
             'op': 'modify',
+            'name': name,
             'property': property,
             'value': value
         }
 
-        r = requests.post(self.url_base + '/users-groups', headers=headers, data=data)
+        r = requests.post(self.url_base + '/zones', headers=headers, data=data)
 
         if (r.status_code / 100 == 2):
             rdict = r.json()
@@ -221,14 +222,68 @@ class Zones:
             'op': 'report'
         }
 
-        r = requests.get(self.url_base + '/users-groups', headers=headers, params=params)
+        r = requests.get(self.url_base + '/zones', headers=headers, params=params)
 
         if (r.status_code / 100 == 2):
             rdict = r.json()
             if rdict['irods_response']['status_code']:
                 print('Failed to retrieve information for the iRODS zone : iRODS Status Code' + str(rdict['irods_response']['status_code']))
             else:
-                print('GroInformation for the iRODS zone retrieved successfully')
+                print('Information for the iRODS zone retrieved successfully')
+            
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
+        else:
+            irods_err = ''
+            rdict = None
+            if (r.text != ''):
+                rdict = r.json()
+                irods_err = ': iRODS Status Code' + str(rdict['irods_response'])
+            print(f'Error <{r.status_code}>{irods_err}')
+
+            return(
+                {
+                    'status_code': r.status_code,
+                    'data': rdict
+                }
+            )
+        
+    
+    def stat(self, name: str):
+        """
+        Returns information about a named iRODS zone. Requires rodsadmin privileges.
+
+        Returns
+        - A dict containing the HTTP status code and iRODS response.
+        - The iRODS response is only valid if no error occurred during HTTP communication.
+        """
+        if (self.token == None):
+            raise RuntimeError('No token set. Use setToken() to set the auth token to be used')
+        if (not isinstance(name, str)):
+            raise TypeError('name must be a string')
+
+        headers = {
+            'Authorization': 'Bearer ' + self.token,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+
+        params = {
+            'op': 'stat',
+            'name': name
+        }
+
+        r = requests.get(self.url_base + '/zones', headers=headers, params=params)
+
+        if (r.status_code / 100 == 2):
+            rdict = r.json()
+            if rdict['irods_response']['status_code']:
+                print('Failed to retrieve information for zone \'' + name + '\' : iRODS Status Code' + str(rdict['irods_response']['status_code']))
+            else:
+                print('Information for zone \'' + name + '\' retrieved successfully')
             
             return(
                 {
