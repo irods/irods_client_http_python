@@ -32,7 +32,7 @@ class UsersGroups:
             raise TypeError('zone must be a string')
         if (not isinstance(user_type, str)):
             raise TypeError('user_type must be a string')
-        if ((user_type != 'rodsuser') and (user_type != 'groupadmin') and (user_type != 'rodsadmin') and (user_type != '')):
+        if user_type and user_type not in ['rodsuser', 'groupadmin', 'rodsadmin']:
             raise ValueError('user_type must be set to rodsuser, groupadmin, or rodsadmin.')
 
         headers = {
@@ -225,7 +225,7 @@ class UsersGroups:
             raise TypeError('zone must be a string')
         if (not isinstance(user_type, str)):
             raise TypeError('user_type must be a string')
-        if ((user_type != 'rodsuser') and (user_type != 'groupadmin') and (user_type != 'rodsadmin') and (user_type != '')):
+        if user_type and user_type not in ['rodsuser', 'groupadmin', 'rodsadmin']:
             raise ValueError('user_type must be set to rodsuser, groupadmin, or rodsadmin.')
 
 
