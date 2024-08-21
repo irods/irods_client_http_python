@@ -38,7 +38,7 @@ class Tickets:
             raise TypeError('lpath must be an string')
         if (not isinstance(type, str)):
             raise TypeError('type must be a string')
-        if ((type != 'read') and (type != 'write')):
+        if type not in ['read', 'write']:
             raise ValueError('type must be either read or write')
         if (not isinstance(use_count, int)):
             raise TypeError('use_count must be an int')

@@ -173,9 +173,7 @@ class Resources:
             raise TypeError('name must be a string')
         if (not isinstance(property, str)):
             raise TypeError('property must be a string')
-        if ((property != 'name') and (property != 'type') and (property != 'host') and (property != 'vault_path')
-            and (property != 'context') and (property != 'status') and (property != 'free_space') and (property != 'comments')
-            and (property != 'information')):
+        if property not in ['name', 'type', 'host', 'vault_path', 'context', 'status', 'free_space', 'comments', 'information']:
             raise ValueError('Invalid property. Valid properties:\n - name\n - type\n - host\n - ''vault_path\n - context' + 
                             '\n - status\n - free_space\n - comments\n - information')
         if (not isinstance(value, str)):
