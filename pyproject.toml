@@ -1,0 +1,26 @@
+[project]
+name = "irods-http-client"
+version = "0.1.0"
+authors = [
+  { name="iRODS Consortium", email="info@irods.org" },
+]
+description = "A Python wrapper for the iRODS HTTP API"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "BSD-3-Clause"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/irods/irods_client_http_python"
+"Bug Tracker" = "https://github.com/irods/irods_client_http_python/issues"
+
+[build-system]
+requires = [
+   "jsonschema",
+   "requests",
+   "setuptools >= 40.9.0"
+]
+build-backend = "setuptools.build_meta"

@@ -4,21 +4,24 @@ This is a Python wrapper for the [iRODS HTTP API](https://github.com/irods/irods
 
 Documentation for the endpoint operations can be found [here](https://github.com/irods/irods_client_http_api/blob/main/API.md).
 
-## Setup
-**NOTICE:** This project is not yet available through pip. To use, clone the repository into the desired location.
+## Install
+
+This wrapper is available via pip:
+
 ```
-git clone https://github.com/irods/irods_client_http_python.git
+pip install irods-http-client
 ```
+
 ## Usage
 To use the wrapper, follow the steps listed below.
 
 ```py
-from irods_client import IrodsClient
+from irods_http_client.irodsHttpClient import IrodsHttpClient
 
 # Create an instance of the wrapper with the base url of the iRODS server to
 # be accessed. <host>, <port>, and <version> are placeholders, and need
 # to be replaced by appropriate values.
-api = IrodsClient('http://<host>:<port>/irods-http-api/<version>')
+api = IrodsHttpClient('http://<host>:<port>/irods-http-api/<version>')
 
 # Most endpoint operations require a user to be authenticated in order to
 # be executed. Authenticate with a username and password, and store the
