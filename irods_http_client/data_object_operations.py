@@ -34,32 +34,13 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(no_create, int):
-            raise TypeError("no_create must be an int 1 or 0")
-        if (not no_create == 0) and (not no_create == 1):
-            raise ValueError("no_create must be an int 1 or 0")
-        if not isinstance(replica_number, int):
-            raise TypeError("replica_number must be an int")
-        if not replica_number >= -1:
-            raise ValueError(
-                "replica_number must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(leaf_resources, str):
-            raise TypeError("leaf_resources must be a string")
-        if not isinstance(seconds_since_epoch, int):
-            raise TypeError("seconds_since_epoch must be an int")
-        if not seconds_since_epoch >= -1:
-            raise ValueError(
-                "seconds_since_epoch must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(reference, str):
-            raise TypeError("reference must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(no_create)
+        common.validate_gte_minus1(replica_number)
+        common.validate_instance(leaf_resources, str)
+        common.validate_gte_minus1(seconds_since_epoch)
+        common.validate_instance(reference, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -99,24 +80,11 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(catalog_only, int):
-            raise TypeError("catalog_only must be an int 1 or 0")
-        if (not catalog_only == 0) and (not catalog_only == 1):
-            raise ValueError("catalog_only must be an int 1 or 0")
-        if not isinstance(no_trash, int):
-            raise TypeError("no_trash must be an int 1 or 0")
-        if (not no_trash == 0) and (not no_trash == 1):
-            raise ValueError("no_trash must be an int 1 or 0")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(catalog_only)
+        common.validate_0_or_1(no_trash)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -158,32 +126,13 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise T("lpath must be a string")
-        if not isinstance(resource, str):
-            raise T("resource must be a string")
-        if not isinstance(replica_number, int):
-            raise T("replica_number must be an int")
-        if not replica_number >= -1:
-            raise ValueError(
-                "replica number must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(force, int):
-            raise TypeError("force must be an int 1 or 0")
-        if (not force == 0) and (not force == 1):
-            raise ValueError("force must be an int 1 or 0")
-        if not isinstance(all, int):
-            raise TypeError("all must be an int 1 or 0")
-        if (not all == 0) and (not all == 1):
-            raise ValueError("all must be an int 1 or 0")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(resource, str)
+        common.validate_gte_minus1(replica_number)
+        common.validate_0_or_1(force)
+        common.validate_0_or_1(all)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -229,28 +178,12 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(resource, str):
-            raise TypeError("resource must be a string")
-        if not isinstance(replica_number, int):
-            raise TypeError("replica_number must be an int")
-        if not replica_number >= -1:
-            raise ValueError(
-                "replica_number must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(compute_checksums, int):
-            raise TypeError("compute_checksums must be an int 1 or 0")
-        if (not compute_checksums == 0) and (not compute_checksums == 1):
-            raise ValueError("force must be an int 1 or 0")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(resource, str)
+        common.validate_gte_minus1(replica_number)
+        common.validate_0_or_1(compute_checksums)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -285,14 +218,9 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(ticket, str):
-            raise TypeError("ticket must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(ticket, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -315,14 +243,9 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(old_lpath, str):
-            raise TypeError("old_lpath must be a string")
-        if not isinstance(new_lpath, str):
-            raise TypeError("new_lpath must be a string")
+        common.check_token(self.token)
+        common.validate_instance(old_lpath, str)
+        common.validate_instance(new_lpath, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -348,30 +271,20 @@ class DataObjects:
         Parameters
         - src_lpath: The absolute logical path of the source data object.
         - dst_lpath: The absolute logical path of the destination.
-        - src_resource: The absolute logical path of the source resource.
-        - dst_resource: The absolute logical path of the destination resource.
+        - src_resource: The name of the source resource.
+        - dst_resource: The name of the destination resource.
         - overwrite: set to 1 to overwrite an existing objject, otherwise set to 0. Defaults to 0.
 
         Returns
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(src_lpath, str):
-            raise TypeError("src_lpath must be a string")
-        if not isinstance(dst_lpath, str):
-            raise TypeError("dst_lpath must be a string")
-        if not isinstance(src_resource, str):
-            raise TypeError("src_resource must be a string")
-        if not isinstance(dst_resource, str):
-            raise TypeError("dst_lpath must be a string")
-        if not isinstance(overwrite, int):
-            raise TypeError("overwrite must be an int 1 or 0")
-        if (not overwrite == 0) and (not overwrite == 1):
-            raise ValueError("overwrite must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(src_lpath, str)
+        common.validate_instance(dst_lpath, str)
+        common.validate_instance(src_resource, str)
+        common.validate_instance(dst_resource, str)
+        common.validate_0_or_1(overwrite)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -401,29 +314,20 @@ class DataObjects:
         Replicates a data object from one resource to another.
 
         Parameters
-        - lpath: The  absolute logical path of the data object to be replicated.
-        - src_resource: The absolute logical path of the source resource.
-        - dst_resource: The absolute logical path of the destination resource.
+        - lpath: The absolute logical path of the data object to be replicated.
+        - src_resource: The name of the source resource.
+        - dst_resource: The name of the destination resource.
         - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
 
         Returns
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(src_resource, str):
-            raise TypeError("src_resource must be a string")
-        if not isinstance(dst_resource, str):
-            raise TypeError("dst_lpath must be a string")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(src_resource, str)
+        common.validate_instance(dst_resource, str)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -457,22 +361,11 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise T("lpath must be a string")
-        if not isinstance(replica_number, int):
-            raise T("replica_number must be an int")
-        if not isinstance(catalog_only, int):
-            raise TypeError("catalog_only must be an int 1 or 0")
-        if (not catalog_only == 0) and (not catalog_only == 1):
-            raise ValueError("catalog_only must be an int 1 or 0")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(replica_number, int)
+        common.validate_0_or_1(catalog_only)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -503,8 +396,8 @@ class DataObjects:
         Registers a data object/replica into the catalog.
 
         Parameters
-        - lpath: The  absolute logical path of the data object to be registered.
-        - ppath: The  absolute physical path of the data object to be registered.
+        - lpath: The absolute logical path of the data object to be registered.
+        - ppath: The absolute physical path of the data object to be registered.
         - resource: The resource that will own the replica.
         - as_additional_replica (optional): Set to 1 to register as a replica of an existing object, otherwise set to 0. Defaults to 0.
         - data_size (optional): The size of the replica in bytes.
@@ -514,28 +407,13 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(ppath, str):
-            raise TypeError("ppath must be a string")
-        if not isinstance(resource, str):
-            raise TypeError("resource must be a string")
-        if not isinstance(as_additional_replica, int):
-            raise TypeError("as_additional_replica must be an int 1 or 0")
-        if (not as_additional_replica == 0) and (not as_additional_replica == 1):
-            raise ValueError("as_additional_replica must be an int 1 or 0")
-        if not isinstance(data_size, int):
-            raise TypeError("data_size must be an int")
-        if not data_size >= -1:
-            raise ValueError(
-                "data_size must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(checksum, str):
-            raise TypeError("checksum must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(ppath, str)
+        common.validate_instance(resource, str)
+        common.validate_0_or_1(as_additional_replica)
+        common.validate_gte_minus1(data_size)
+        common.validate_instance(checksum, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -573,22 +451,11 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(offset, int):
-            raise TypeError("offset must be an int")
-        if not isinstance(count, int):
-            raise TypeError("count must be an int")
-        if not count >= -1:
-            raise ValueError(
-                "count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(ticket, str):
-            raise TypeError("ticket must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(offset, int)
+        common.validate_gte_minus1(count)
+        common.validate_instance(ticket, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -623,8 +490,8 @@ class DataObjects:
         Writes bytes to a data object.
 
         Parameters
-        - lpath: The absolute logical path of the data object to be written to.
         - bytes: The bytes to be written.
+        - lpath: The absolute logical path of the data object to be written to.
         - resource (optional): The root resource to write to.
         - offset (optional): The number of bytes to skip. Defaults to 0.
         - truncate (optional): Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
@@ -636,34 +503,17 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(resource, str):
-            raise TypeError("resource must be a string")
-        if not isinstance(offset, int):
-            raise TypeError("offset must be an int")
-        if not offset >= 0:
-            raise ValueError("offset must be greater than or equal to 0")
-        if not isinstance(truncate, int):
-            raise TypeError("truncate must be an int 1 or 0")
-        if (not truncate == 0) and (not truncate == 1):
-            raise ValueError("truncate must be an int 1 or 0")
-        if not isinstance(append, int):
-            raise TypeError("append must be an int 1 or 0")
-        if (not append == 0) and (not append == 1):
-            raise ValueError("append must be an int 1 or 0")
-        if not isinstance(parallel_write_handle, str):
-            raise TypeError("parallel_write_handle must be a string")
-        if not isinstance(stream_index, int):
-            raise TypeError("stream_index must be an int")
-        if not stream_index >= -1:
-            raise ValueError(
-                "stream_index must be greater than or equal to 0 or flag value -1"
-            )
+        common.check_token(self.token)
+#        common.validate_instance(bytes, int)
+        if not len(bytes) >= 0:
+            raise ValueError("bytes must be greater than or equal to 0")
+        common.validate_instance(lpath, str)
+        common.validate_instance(resource, str)
+        common.validate_gte_zero(offset)
+        common.validate_0_or_1(truncate)
+        common.validate_0_or_1(append)
+        common.validate_instance(parallel_write_handle, str)
+        common.validate_gte_minus1(stream_index)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -715,28 +565,12 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(stream_count, int):
-            raise TypeError("stream_count must be an int")
-        if not stream_count >= 0:
-            raise ValueError(
-                "stream_count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(truncate, int):
-            raise TypeError("truncate must be an int 1 or 0")
-        if (not truncate == 0) and (not truncate == 1):
-            raise ValueError("truncate must be an int 1 or 0")
-        if not isinstance(append, int):
-            raise TypeError("append must be an int 1 or 0")
-        if (not append == 0) and (not append == 1):
-            raise ValueError("append must be an int 1 or 0")
-        if not isinstance(ticket, str):
-            raise TypeError("ticket must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_gte_zero(stream_count)
+        common.validate_0_or_1(truncate)
+        common.validate_0_or_1(append)
+        common.validate_instance(ticket, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -768,12 +602,8 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(parallel_write_handle, str):
-            raise TypeError("parallel_write_handle must be a string")
+        common.check_token(self.token)
+        common.validate_instance(parallel_write_handle, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -801,20 +631,11 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -847,22 +668,15 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(entity_name, str)
+        common.validate_instance(permission, str)
+        if permission not in ["null", "read", "write", "own"]:
+            raise ValueError(
+                "permission must be either 'null', 'read', 'write', or 'own'"
             )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(entity_name, str):
-            raise TypeError("entity_name must be a string")
-        if not isinstance(permission, str):
-            raise TypeError(
-                "permission must be a string ('null', 'read', 'write', or 'own')"
-            )
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -893,20 +707,11 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -977,89 +782,41 @@ class DataObjects:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(resource_hierarchy, str):
-            raise TypeError("resource_hierarchy must be a string")
-        if not isinstance(replica_number, int):
-            raise TypeError("replica_number must be an int")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(resource_hierarchy, str)
+        common.validate_instance(replica_number, int)
         if (resource_hierarchy != "") and (replica_number != -1):
             raise ValueError(
                 "replica_hierarchy and replica_number are mutually exclusive"
             )
-        if not isinstance(new_data_checksum, str):
-            raise TypeError("new_data_checksum must be a string")
-        if not isinstance(new_data_comments, str):
-            raise TypeError("new_data_comments must be a string")
-        if not isinstance(new_data_create_time, int):
-            raise TypeError("new_data_create_time must be an int")
-        if not new_data_create_time >= -1:
-            raise ValueError(
-                "new_data_create_time must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_expiry, int):
-            raise TypeError("new_data_expiry must be an int")
-        if not new_data_expiry >= -1:
-            raise ValueError(
-                "new_data_expiry must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_mode, str):
-            raise TypeError("new_data_mode must be a string")
-        if not isinstance(new_data_modify_time, str):
-            raise TypeError("new_data_modify_time must be a string")
-        if not isinstance(new_data_path, str):
-            raise TypeError("new_data_path must be a string")
-        if not isinstance(new_data_replica_number, int):
-            raise TypeError("new_data_replica_number must be an int")
-        if not new_data_replica_number >= -1:
-            raise ValueError(
-                "new_data_replica_number must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_replica_status, int):
-            raise TypeError("new_data_replica_status must be an int")
-        if not new_data_replica_status >= -1:
-            raise ValueError(
-                "new_data_replica_status must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_resource_id, int):
-            raise TypeError("new_data_resource_id must be an int")
-        if not new_data_resource_id >= -1:
-            raise ValueError(
-                "new_data_resource_id must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_size, int):
-            raise TypeError("new_data_size must be an int")
-        if not new_data_size >= -1:
-            raise ValueError(
-                "new_data_size must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(new_data_status, str):
-            raise TypeError("new_data_status must be a string")
-        if not isinstance(new_data_type_name, str):
-            raise TypeError("new_data_type_name must be a string")
-        if not isinstance(new_data_version, int):
-            raise TypeError("new_data_version must be an int")
-        if not new_data_version >= -1:
-            raise ValueError(
-                "new_data_version must be greater than or equal to 0 or flag value -1"
-            )
+        common.validate_instance(new_data_checksum, str)
+        common.validate_instance(new_data_comments, str)
+        common.validate_gte_minus1(new_data_create_time)
+        common.validate_gte_minus1(new_data_expiry)
+        common.validate_instance(new_data_mode, str)
+        common.validate_instance(new_data_modify_time, str)
+        common.validate_instance(new_data_path, str)
+        common.validate_gte_minus1(new_data_replica_number)
+        common.validate_gte_minus1(new_data_replica_status)
+        common.validate_gte_minus1(new_data_resource_id)
+        common.validate_gte_minus1(new_data_size)
+        common.validate_instance(new_data_status, str)
+        common.validate_instance(new_data_name, str)
+        common.validate_gte_minus1(new_data_version)
 
         headers = {
             "Authorization": "Bearer " + self.token,
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
-        data = {"op": "modify_permissions", "lpath": lpath}
+        data = {"op": "modify_replica", "lpath": lpath}
 
         if resource_hierarchy != "":
             data["resource-hierarchy"] = resource_hierarchy
 
         if replica_number != -1:
-            data["replica-numbeer"] = replica_number
+            data["replica-number"] = replica_number
 
         # Boolean for checking if the user passed in any new_data parameters
         no_params = True

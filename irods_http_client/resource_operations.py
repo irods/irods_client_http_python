@@ -27,20 +27,12 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(type, str):
-            raise TypeError("type must be a string")
-        if not isinstance(host, str):
-            raise TypeError("host must be a string")
-        if not isinstance(vault_path, str):
-            raise TypeError("vault_path must be a string")
-        if not isinstance(context, str):
-            raise TypeError("context must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(type, str)
+        common.validate_instance(host, str)
+        common.validate_instance(vault_path, str)
+        common.validate_instance(context, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -72,12 +64,8 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -102,14 +90,9 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(property, str):
-            raise TypeError("property must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(property, str)
         if property not in [
             "name",
             "type",
@@ -126,8 +109,7 @@ class Resources:
                 "vault_path\n - context"
                 + "\n - status\n - free_space\n - comments\n - information"
             )
-        if not isinstance(value, str):
-            raise TypeError("value must be a string")
+        common.validate_instance(value, str)
         if (property == "status") and (value != "up") and (value != "down"):
             raise ValueError("status must be either 'up' or 'down'")
 
@@ -154,16 +136,10 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(parent_name, str):
-            raise TypeError("parent_name must be a string")
-        if not isinstance(child_name, str):
-            raise TypeError("child_name must be a string")
-        if not isinstance(context, str):
-            raise TypeError("context must be a string")
+        common.check_token(self.token)
+        common.validate_instance(parent_name, str)
+        common.validate_instance(child_name, str)
+        common.validate_instance(context, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -190,14 +166,9 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(parent_name, str):
-            raise TypeError("parent_name must be a string")
-        if not isinstance(child_name, str):
-            raise TypeError("child_name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(parent_name, str)
+        common.validate_instance(child_name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -224,12 +195,8 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -252,12 +219,8 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -282,20 +245,11 @@ class Resources:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,

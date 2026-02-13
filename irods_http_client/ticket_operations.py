@@ -41,46 +41,18 @@ class Tickets:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be an string")
-        if not isinstance(type, str):
-            raise TypeError("type must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(type, str)
         if type not in ["read", "write"]:
             raise ValueError("type must be either read or write")
-        if not isinstance(use_count, int):
-            raise TypeError("use_count must be an int")
-        if not use_count >= -1:
-            raise ValueError(
-                "use_count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(write_data_object_count, int):
-            raise TypeError("write_data_object_count must be an int")
-        if not write_data_object_count >= -1:
-            raise ValueError(
-                "write_data_object_count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(write_byte_count, int):
-            raise TypeError("write_byte_count must be an int")
-        if not write_byte_count >= -1:
-            raise ValueError(
-                "write_byte_count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(seconds_until_expiration, int):
-            raise TypeError("seconds_until_expiration must be an int")
-        if not seconds_until_expiration >= -1:
-            raise ValueError(
-                "seconds_until_expiration must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(users, str):
-            raise TypeError("users must be an string")
-        if not isinstance(groups, str):
-            raise TypeError("groups must be an string")
-        if not isinstance(hosts, str):
-            raise TypeError("hosts must be an string")
+        common.validate_gte_minus1(use_count)
+        common.validate_gte_minus1(write_data_object_count)
+        common.validate_gte_minus1(write_byte_count)
+        common.validate_gte_minus1(seconds_until_expiration)
+        common.validate_instance(users, str)
+        common.validate_instance(groups, str)
+        common.validate_instance(hosts, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -118,12 +90,8 @@ class Tickets:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,

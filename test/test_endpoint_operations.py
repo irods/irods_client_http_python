@@ -113,6 +113,29 @@ def tear_down_class(cls):
 
     cls.api.users_groups.remove_user(cls.rodsuser_username, cls.zone_name)
 
+# Tests for library
+class libraryTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {"endpoint_name": "collections"})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(
+            self._class_init_error, "Class initialization failed. Cannot continue."
+        )
+
+    # tests the info operation
+    def testInfo(self):
+        self.api.info()
+
+    # tests the getToken operation
+    def testGetToken(self):
+        self.api.getToken()
 
 # Tests for collections operations
 class collectionsTests(unittest.TestCase):
@@ -763,8 +786,10 @@ class collectionsTests(unittest.TestCase):
     # tests the touch operation
     def testTouch(self):
         self.api.setToken(self.rodsadmin_bearer_token)
-
-        self.assertTrue(True)
+        r = self.api.collections.touch(
+            f"/{self.zone_name}/home/{self.rodsadmin_username}",
+            reference=f"/{self.zone_name}/home"
+        )
 
 
 # Tests for data object operations
@@ -801,6 +826,23 @@ class dataObjectsTests(unittest.TestCase):
                 "resource",
             )
             self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+            # Add metadata to the data object
+            r = self.api.data_objects.modify_metadata(
+                f1,
+                operations=[{'operation': 'add', 'attribute': 'a', 'value': 'v','units': 'u'}]
+            )
+            self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+            # Modify the replica
+            self.api.setToken(self.rodsadmin_bearer_token)
+            r = self.api.data_objects.modify_replica(
+                f1,
+                replica_number=0,
+                new_data_comments="awesome"
+            )
+            self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+            self.api.setToken(self.rodsuser_bearer_token)
 
             # Replicate the data object
             r = self.api.data_objects.replicate(
@@ -854,6 +896,13 @@ class dataObjectsTests(unittest.TestCase):
                 },
                 r["data"]["permissions"],
             )
+
+            # Modify permission on the object
+            r = self.api.data_objects.modify_permissions(
+                f3,
+                operations=[{'entity_name': 'rods','acl': 'write'}]
+            )
+            self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
         finally:
             # Remove the data objects
@@ -1371,6 +1420,46 @@ class rulesTests(unittest.TestCase):
         # Remove the delay rule.
         r = self.api.rules.remove_delay_rule(int(r["data"]["rows"][0][0]))
         self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+# Tests for query operations
+class queryTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        setup_class(cls, {"endpoint_name": "query"})
+
+    @classmethod
+    def tearDownClass(cls):
+        tear_down_class(cls)
+
+    def setUp(self):
+        self.assertFalse(
+            self._class_init_error, "Class initialization failed. Cannot continue."
+        )
+
+    def testCreateExecuteRemoveSpecificQuery(self):
+
+        try:
+
+            # As rodsadmin, create a specific query
+            self.api.setToken(self.rodsadmin_bearer_token)
+
+            name = "get_users_count"
+            sql = "select count(*) from r_user_main"
+            r = self.api.queries.add_specific_query(name=name, sql=sql)
+            self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+            # Switch to rodsuser and execute it
+            self.api.setToken(self.rodsuser_bearer_token)
+            r = self.api.queries.execute_specific_query(name=name)
+            self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+            self.assertEqual(r["data"]["rows"][0][0], "3")
+
+        finally:
+
+            # Switch to rodsadmin and remove it
+            self.api.setToken(self.rodsadmin_bearer_token)
+            r = self.api.queries.remove_specific_query(name=name)
 
 
 # Tests for tickets operations

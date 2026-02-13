@@ -23,7 +23,7 @@ class Queries:
         zone: str = "",
     ):
         """
-        Excecutes a GenQuery string and returns the results.
+        Executes a GenQuery string and returns the results.
 
         Parameters
         - query: The query being executed
@@ -39,40 +39,17 @@ class Queries:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(query, str):
-            raise TypeError("query must be a string")
-        if not isinstance(offset, int):
-            raise TypeError("offset must be an int")
-        if not offset >= 0:
-            raise ValueError("offset must be greater than or equal to 0")
-        if not isinstance(count, int):
-            raise TypeError("count must be an int")
-        if not count >= -1:
-            raise ValueError(
-                "count must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(case_sensitive, int):
-            raise TypeError("case_sensitive must be an int 1 or 0")
-        if (not case_sensitive == 0) and (not case_sensitive == 1):
-            raise ValueError("case_sensitive must be an int 1 or 0")
-        if not isinstance(distinct, int):
-            raise TypeError("distinct must be an int 1 or 0")
-        if (not distinct == 0) and (not distinct == 1):
-            raise ValueError("distinct must be an int 1 or 0")
-        if not isinstance(parser, str):
-            raise TypeError("parser must be a string")
-        if (not parser == "genquery1") and (not parser == "genquery2"):
+        common.check_token(self.token)
+        common.validate_instance(query, str)
+        common.validate_gte_zero(offset)
+        common.validate_gte_minus1(count)
+        common.validate_0_or_1(case_sensitive)
+        common.validate_0_or_1(distinct)
+        common.validate_instance(parser, str)
+        if parser not in ["genquery1", "genquery2"]:
             raise ValueError("parser must be either 'genquery1' or 'genquery2'")
-        if not isinstance(sql_only, int):
-            raise TypeError("sql_only must be an int 1 or 0")
-        if (not sql_only == 0) and (not sql_only == 1):
-            raise ValueError("sql_only must be an int 1 or 0")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
+        common.validate_0_or_1(sql_only)
+        common.validate_instance(zone, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -109,7 +86,7 @@ class Queries:
         count: int = -1,
     ):
         """
-        Excecutes a specific query and returns the results.
+        Executes a specific query and returns the results.
 
         Parameters
         - name: The name of the query to be executed
@@ -122,26 +99,12 @@ class Queries:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(args, str):
-            raise TypeError("args must be a string")
-        if not isinstance(args_delimiter, str):
-            raise TypeError("args_delimiter must be a string")
-        if not isinstance(offset, int):
-            raise TypeError("offset must be an int")
-        if not offset >= 0:
-            raise ValueError("offset must be greater than or equal to 0")
-        if not isinstance(count, int):
-            raise TypeError("count must be an int")
-        if not count >= -1:
-            raise ValueError(
-                "count must be greater than or equal to 0 or flag value -1"
-            )
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(args, str)
+        common.validate_instance(args_delimiter, str)
+        common.validate_gte_zero(offset)
+        common.validate_gte_minus1(count)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -175,14 +138,9 @@ class Queries:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(sql, str):
-            raise TypeError("sql must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(sql, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -204,12 +162,8 @@ class Queries:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,

@@ -24,16 +24,9 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(create_intermediates, int):
-            raise TypeError("create_intermediates must be an int 1 or 0")
-        if (not create_intermediates == 0) and (not create_intermediates == 1):
-            raise ValueError("create_intermediates must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(create_intermediates)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -62,20 +55,10 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(recurse, int):
-            raise TypeError("recurse must be an int 1 or 0")
-        if (not recurse == 0) and (not recurse == 1):
-            raise ValueError("recurse must be an int 1 or 0")
-        if not isinstance(no_trash, int):
-            raise TypeError("no_trash must be an int 1 or 0")
-        if (not no_trash == 0) and (not no_trash == 1):
-            raise ValueError("no_trash must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(recurse)
+        common.validate_0_or_1(no_trash)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -104,14 +87,9 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(ticket, str):
-            raise TypeError("ticket must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(ticket, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -135,18 +113,10 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(recurse, int):
-            raise TypeError("recurse must be an int 1 or 0")
-        if (not recurse == 0) and (not recurse == 1):
-            raise ValueError("recurse must be an int 1 or 0")
-        if not isinstance(ticket, str):
-            raise TypeError("ticket must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(recurse)
+        common.validate_instance(ticket, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -173,22 +143,15 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(entity_name, str)
+        common.validate_instance(permission, str)
+        if permission not in ["null", "read", "write", "own"]:
+            raise ValueError(
+                "permission must be either 'null', 'read', 'write', or 'own'"
             )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(entity_name, str):
-            raise TypeError("entity_name must be a string")
-        if not isinstance(permission, str):
-            raise TypeError(
-                "permission must be a string ('null', 'read', 'write', or 'own')"
-            )
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -219,20 +182,10 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(enable, int):
-            raise TypeError("enable must be an int 1 or 0")
-        if (not enable == 0) and (not enable == 1):
-            raise ValueError("enable must be an int 1 or 0")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_0_or_1(enable)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -262,20 +215,11 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -305,20 +249,11 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(admin, int):
-            raise TypeError("admin must be an int 1 or 0")
-        if (not admin == 0) and (not admin == 1):
-            raise ValueError("admin must be an int 1 or 0")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
+        common.validate_0_or_1(admin)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -347,14 +282,9 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(old_lpath, str):
-            raise TypeError("old_lpath must be a string")
-        if not isinstance(new_lpath, str):
-            raise TypeError("new_lpath must be a string")
+        common.check_token(self.token)
+        common.validate_instance(old_lpath, str)
+        common.validate_instance(new_lpath, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -379,20 +309,10 @@ class Collections:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(lpath, str):
-            raise TypeError("lpath must be a string")
-        if not isinstance(seconds_since_epoch, int):
-            raise TypeError("seconds_since_epoch must be an int")
-        if not seconds_since_epoch >= -1:
-            raise ValueError(
-                "seconds_since_epoch must be greater than or equal to 0 or flag value -1"
-            )
-        if not isinstance(reference, str):
-            raise TypeError("reference must be a string")
+        common.check_token(self.token)
+        common.validate_instance(lpath, str)
+        common.validate_gte_minus1(seconds_since_epoch)
+        common.validate_instance(reference, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,

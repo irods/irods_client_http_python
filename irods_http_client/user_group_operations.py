@@ -24,17 +24,11 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
-        if not isinstance(user_type, str):
-            raise TypeError("user_type must be a string")
-        if user_type and user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(zone, str)
+        common.validate_instance(user_type, str)
+        if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
             raise ValueError(
                 "user_type must be set to rodsuser, groupadmin, or rodsadmin."
             )
@@ -61,14 +55,9 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(zone, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -93,16 +82,10 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
-        if not isinstance(new_password, str):
-            raise TypeError("new_password must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(zone, str)
+        common.validate_instance(new_password, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -132,17 +115,11 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
-        if not isinstance(user_type, str):
-            raise TypeError("user_type must be a string")
-        if user_type and user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(zone, str)
+        common.validate_instance(user_type, str)
+        if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
             raise ValueError(
                 "user_type must be set to rodsuser, groupadmin, or rodsadmin."
             )
@@ -173,12 +150,8 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -203,12 +176,8 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -233,16 +202,10 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(user, str):
-            raise TypeError("user must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
-        if not isinstance(group, str):
-            raise TypeError("group must be a string")
+        common.check_token(self.token)
+        common.validate_instance(user, str)
+        common.validate_instance(zone, str)
+        common.validate_instance(group, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -267,16 +230,10 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(user, str):
-            raise TypeError("user must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
-        if not isinstance(group, str):
-            raise TypeError("group must be a string")
+        common.check_token(self.token)
+        common.validate_instance(user, str)
+        common.validate_instance(zone, str)
+        common.validate_instance(group, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -296,10 +253,7 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
+        common.check_token(self.token)
 
         headers = {"Authorization": "Bearer " + self.token}
 
@@ -318,10 +272,7 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
+        common.check_token(self.token)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -347,16 +298,10 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(group, str):
-            raise TypeError("group must be a string")
-        if not isinstance(user, str):
-            raise TypeError("user must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
+        common.check_token(self.token)
+        common.validate_instance(group, str)
+        common.validate_instance(user, str)
+        common.validate_instance(zone, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -387,14 +332,9 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(zone, str):
-            raise TypeError("zone must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(zone, str)
 
         headers = {"Authorization": "Bearer " + self.token}
 
@@ -420,16 +360,10 @@ class UsersGroups:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(operations, list):
-            raise TypeError("operations must be a list of dictionaries")
-        if not isinstance(operations[0], dict):
-            raise TypeError("operations must be a list of dictionaries")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(operations, list)
+        common.validate_instance(operations[0], dict)
 
         headers = {
             "Authorization": "Bearer " + self.token,

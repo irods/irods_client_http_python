@@ -6,6 +6,7 @@ from irods_http_client.rule_operations import Rules
 from irods_http_client.ticket_operations import Tickets
 from irods_http_client.user_group_operations import UsersGroups
 from irods_http_client.zone_operations import Zones
+from irods_http_client import common
 import logging
 import requests
 
@@ -97,12 +98,4 @@ class IRODSHTTPClient:
         }
 
         r = requests.get(self.url_base + "/info", headers=headers)
-
-        if r.status_code / 100 == 2:
-            rdict = r.json()
-            return {"status_code": r.status_code, "data": rdict}
-        else:
-            rdict = None
-            if r.text != "":
-                rdict = r.json()
-            return {"status_code": r.status_code, "data": rdict}
+        return common.process_response(r)

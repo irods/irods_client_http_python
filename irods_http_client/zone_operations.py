@@ -23,16 +23,10 @@ class Zones:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(connection_info, str):
-            raise TypeError("connection_info must be a string")
-        if not isinstance(comment, str):
-            raise TypeError("comment must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(connection_info, str)
+        common.validate_instance(comment, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -60,12 +54,8 @@ class Zones:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -91,16 +81,10 @@ class Zones:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
-        if not isinstance(property, str):
-            raise TypeError("property must be a string")
-        if not isinstance(value, str):
-            raise TypeError("value must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
+        common.validate_instance(property, str)
+        common.validate_instance(value, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -120,10 +104,7 @@ class Zones:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
+        common.check_token(self.token)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -143,12 +124,8 @@ class Zones:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(name, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(name, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,

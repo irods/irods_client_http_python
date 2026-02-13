@@ -19,6 +19,7 @@ class Rules:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
+        common.check_token(self.token)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -41,14 +42,9 @@ class Rules:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(rule_text, str):
-            raise TypeError("name must be a string")
-        if not isinstance(rep_instance, str):
-            raise TypeError("name must be a string")
+        common.check_token(self.token)
+        common.validate_instance(rule_text, str)
+        common.validate_instance(rep_instance, str)
 
         headers = {
             "Authorization": "Bearer " + self.token,
@@ -74,14 +70,8 @@ class Rules:
         - A dict containing the HTTP status code and iRODS response.
         - The iRODS response is only valid if no error occurred during HTTP communication.
         """
-        if self.token == None:
-            raise RuntimeError(
-                "No token set. Use setToken() to set the auth token to be used"
-            )
-        if not isinstance(rule_id, int):
-            raise TypeError("rule_id must be an int")
-        if not rule_id >= 0:
-            raise ValueError("rule_id must be greater than or equal to 0")
+        common.check_token(self.token)
+        common.validate_gte_zero(rule_id)
 
         headers = {
             "Authorization": "Bearer " + self.token,
