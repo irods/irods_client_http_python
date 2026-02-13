@@ -1,267 +1,280 @@
-from . import common
+"""Resource operations for iRODS HTTP API."""
+
 import json
+
 import requests
 
+from . import common
+
+
 class Resources:
+	"""Perform resource operations via iRODS HTTP API."""
 
-    def __init__(self, url_base: str):
-        """
-        Initializes DataObjects with a base url.
-        Token is set to None initially, and updated when setToken() is called in irodsClient.
-        """
-        self.url_base = url_base
-        self.token = None
+	def __init__(self, url_base: str):
+		"""
+		Initialize DataObjects with a base url.
 
-    def create(self, name: str, type: str, host: str, vault_path: str, context: str):
-        """
-        Creates a new resource.
+		Token is set to None initially, and updated when setToken() is called in irodsClient.
+		"""
+		self.url_base = url_base
+		self.token = None
 
-        Parameters
-        - name: The name of the resource to be created.
-        - type: The type of the resource to be created.
-        - host: The host of the resource to be created. May or may not be required depending on the resource type.
-        - vault_path: Path to the storage vault for the resource. May or may not be required depending on the resource type.
-        - context:  May or may not be required depending on the resource type.
+	def create(self, name: str, type_: str, host: str, vault_path: str, context: str):
+		"""
+		Create a new resource.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
-        common.validate_instance(type, str)
-        common.validate_instance(host, str)
-        common.validate_instance(vault_path, str)
-        common.validate_instance(context, str)
+		Args:
+		    name: The name of the resource to be created.
+		    type_: The type of the resource to be created.
+		    host: The host of the resource to be created. May or may not be required depending
+		      on the resource type.
+		    vault_path: Path to the storage vault for the resource. May or may not be required
+		      depending on the resource type.
+		    context: May or may not be required depending on the resource type.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
+		common.validate_instance(type_, str)
+		common.validate_instance(host, str)
+		common.validate_instance(vault_path, str)
+		common.validate_instance(context, str)
 
-        data = {"op": "create", "name": name, "type": type}
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-        if host != "":
-            data["host"] = host
+		data = {"op": "create", "name": name, "type": type_}
 
-        if vault_path != "":
-            data["vault-path"] = vault_path
+		if host != "":
+			data["host"] = host
 
-        if context != "":
-            data["context"] = context
+		if vault_path != "":
+			data["vault-path"] = vault_path
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		if context != "":
+			data["context"] = context
 
-    def remove(self, name: str):
-        """
-        Removes an existing resource.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Parameters
-        - name: The name of the resource to be removed.
+	def remove(self, name: str):
+		"""
+		Remove an existing resource.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
+		Args:
+		    name: The name of the resource to be removed.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
 
-        data = {"op": "remove", "name": name}
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		data = {"op": "remove", "name": name}
 
-    def modify(self, name: str, property: str, value: str):
-        """
-        Modifies a property for a resource.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Parameters
-        - name: The name of the resource to be modified.
-        - property: The property to be modified.
-        - value: The new value to be set.
+	def modify(self, name: str, property_: str, value: str):
+		"""
+		Modify a property for a resource.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
-        common.validate_instance(property, str)
-        if property not in [
-            "name",
-            "type",
-            "host",
-            "vault_path",
-            "context",
-            "status",
-            "free_space",
-            "comments",
-            "information",
-        ]:
-            raise ValueError(
-                "Invalid property. Valid properties:\n - name\n - type\n - host\n - "
-                "vault_path\n - context"
-                + "\n - status\n - free_space\n - comments\n - information"
-            )
-        common.validate_instance(value, str)
-        if (property == "status") and (value != "up") and (value != "down"):
-            raise ValueError("status must be either 'up' or 'down'")
+		Args:
+		    name: The name of the resource to be modified.
+		    property_: The property to be modified.
+		    value: The new value to be set.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
 
-        data = {"op": "modify", "name": name, "property": property, "value": value}
+		Raises:
+		    ValueError: If property_ is not a valid resource property.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
+		common.validate_instance(property_, str)
+		if property_ not in [
+			"name",
+			"type",
+			"host",
+			"vault_path",
+			"context",
+			"status",
+			"free_space",
+			"comments",
+			"information",
+		]:
+			raise ValueError(
+				"Invalid property. Valid properties:\n - name\n - type\n - host\n - "
+				"vault_path\n - context"
+				"\n - status\n - free_space\n - comments\n - information"
+			)
+		common.validate_instance(value, str)
+		if (property_ == "status") and (value not in ["up", "down"]):
+			raise ValueError("status must be either 'up' or 'down'")
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-    def add_child(self, parent_name: str, child_name: str, context: str = ""):
-        """
-        Creates a parent-child relationship between two resources.
+		data = {"op": "modify", "name": name, "property": property_, "value": value}
 
-        Parameters
-        - parent_name: The name of the parent resource.
-        - child_name: The name of the child resource.
-        - context (optional): Additional information for the zone.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(parent_name, str)
-        common.validate_instance(child_name, str)
-        common.validate_instance(context, str)
+	def add_child(self, parent_name: str, child_name: str, context: str = ""):
+		"""
+		Create a parent-child relationship between two resources.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Args:
+		    parent_name: The name of the parent resource.
+		    child_name: The name of the child resource.
+		    context: Additional information for the zone.
 
-        data = {"op": "add_child", "parent-name": parent_name, "child-name": child_name}
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(parent_name, str)
+		common.validate_instance(child_name, str)
+		common.validate_instance(context, str)
 
-        if context != "":
-            data["context"] = context
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		data = {"op": "add_child", "parent-name": parent_name, "child-name": child_name}
 
-    def remove_child(self, parent_name: str, child_name: str):
-        """
-        Removes a parent-child relationship between two resources.
+		if context != "":
+			data["context"] = context
 
-        Parameters
-        - parent_name: The name of the parent resource.
-        - child_name: The name of the child resource.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(parent_name, str)
-        common.validate_instance(child_name, str)
+	def remove_child(self, parent_name: str, child_name: str):
+		"""
+		Remove a parent-child relationship between two resources.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Args:
+		    parent_name: The name of the parent resource.
+		    child_name: The name of the child resource.
 
-        data = {
-            "op": "remove_child",
-            "parent-name": parent_name,
-            "child-name": child_name,
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(parent_name, str)
+		common.validate_instance(child_name, str)
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-    def rebalance(self, name: str):
-        """
-        Rebalances a resource hierarchy.
+		data = {
+			"op": "remove_child",
+			"parent-name": parent_name,
+			"child-name": child_name,
+		}
 
-        Parameters
-        - name: The name of the resource to be rebalanced.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
+	def rebalance(self, name: str):
+		"""
+		Rebalance a resource hierarchy.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Args:
+		    name: The name of the resource to be rebalanced.
 
-        data = {"op": "rebalance", "name": name}
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-    def stat(self, name: str):
-        """
-        Retrieves information for a resource.
+		data = {"op": "rebalance", "name": name}
 
-        Parameters
-        - name: The name of the resource to be accessed.
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
+	def stat(self, name: str):
+		"""
+		Retrieve information for a resource.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Args:
+		    name: The name of the resource to be accessed.
 
-        params = {"op": "stat", "name": name}
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
 
-        r = requests.get(self.url_base + "/resources", headers=headers, params=params)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-    def modify_metadata(self, name: str, operations: dict, admin: int = 0):
-        """
-        Modifies the metadata for a resource.
+		params = {"op": "stat", "name": name}
 
-        Parameters
-        - name: The absolute logical path of the resource to have its metadata modified.
-        - operations: Dictionary containing the operations to carry out. Should contain the operation, attribute, value, and optionally units.
-        - admin (optional): Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
+		r = requests.get(self.url_base + "/resources", headers=headers, params=params, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
-        common.validate_instance(operations, list)
-        common.validate_instance(operations[0], dict)
-        common.validate_0_or_1(admin)
+	def modify_metadata(self, name: str, operations: dict, admin: int = 0):
+		"""
+		Modify the metadata for a resource.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Args:
+		    name: The absolute logical path of the resource to have its metadata modified.
+		    operations: Dictionary containing the operations to carry out. Should contain the
+		      operation, attribute, value, and optionally units.
+		    admin: Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
 
-        data = {
-            "op": "modify_metadata",
-            "name": name,
-            "operations": json.dumps(operations),
-            "admin": admin,
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
+		common.validate_instance(operations, list)
+		common.validate_instance(operations[0], dict)
+		common.validate_0_or_1(admin)
 
-        r = requests.post(self.url_base + "/resources", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
+
+		data = {
+			"op": "modify_metadata",
+			"name": name,
+			"operations": json.dumps(operations),
+			"admin": admin,
+		}
+
+		r = requests.post(self.url_base + "/resources", headers=headers, data=data, timeout=30)
+		return common.process_response(r)

@@ -1,175 +1,187 @@
-from . import common
+"""Query operations for iRODS HTTP API."""
+
 import requests
 
+from . import common
+
+
 class Queries:
+	"""Perform query operations via iRODS HTTP API."""
 
-    def __init__(self, url_base: str):
-        """
-        Initializes Queries with a base url.
-        Token is set to None initially, and updated when setToken() is called in irodsClient.
-        """
-        self.url_base = url_base
-        self.token = None
+	def __init__(self, url_base: str):
+		"""
+		Initialize Queries with a base url.
 
-    def execute_genquery(
-        self,
-        query: str,
-        offset: int = 0,
-        count: int = -1,
-        case_sensitive: int = 1,
-        distinct: int = 1,
-        parser: str = "genquery1",
-        sql_only: int = 0,
-        zone: str = "",
-    ):
-        """
-        Executes a GenQuery string and returns the results.
+		Token is set to None initially, and updated when setToken() is called in irodsClient.
+		"""
+		self.url_base = url_base
+		self.token = None
 
-        Parameters
-        - query: The query being executed
-        - offset (optional): Number of rows to skip. Defaults to 0.
-        - count (optional): Number of rows to return. Default set by administrator.
-        - case_sensitive (optional): Set to 1 to execute a case sensitive query, otherwise set to 0. Defaults to 1. Only supported by GenQuery1.
-        - distinct (optional): Set to 1 to collapse duplicate rows, otherwise set to 0. Defaults to 1. Only supported by GenQuery 1
-        - parser (optional): User either genquery1 or genquery2. Defaults to genquery1.
-        - sql_only (optional): Set to 1 to execute an SQL only query, otherwise set to 0. Defaults to 0. Only supported by GenQuery2.
-        - zone (optional): The zone name. Defaults ot the local zone.
+	def execute_genquery(
+		self,
+		query: str,
+		offset: int = 0,
+		count: int = -1,
+		case_sensitive: int = 1,
+		distinct: int = 1,
+		parser: str = "genquery1",
+		sql_only: int = 0,
+		zone: str = "",
+	):
+		"""
+		Execute a GenQuery string and returns the results.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(query, str)
-        common.validate_gte_zero(offset)
-        common.validate_gte_minus1(count)
-        common.validate_0_or_1(case_sensitive)
-        common.validate_0_or_1(distinct)
-        common.validate_instance(parser, str)
-        if parser not in ["genquery1", "genquery2"]:
-            raise ValueError("parser must be either 'genquery1' or 'genquery2'")
-        common.validate_0_or_1(sql_only)
-        common.validate_instance(zone, str)
+		Args:
+		    query: The query being executed.
+		    offset: Number of rows to skip. Defaults to 0.
+		    count: Number of rows to return. Default set by administrator.
+		    case_sensitive: Set to 1 to execute a case sensitive query, otherwise
+		      set to 0. Defaults to 1. Only supported by GenQuery1.
+		    distinct: Set to 1 to collapse duplicate rows, otherwise set to 0.
+		      Defaults to 1. Only supported by GenQuery 1.
+		    parser: User either genquery1 or genquery2. Defaults to genquery1.
+		    sql_only: Set to 1 to execute an SQL only query, otherwise set to 0.
+		      Defaults to 0. Only supported by GenQuery2.
+		    zone: The zone name. Defaults to the local zone.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
 
-        params = {
-            "op": "execute_genquery",
-            "query": query,
-            "offset": offset,
-            "parser": parser,
-        }
+		Raises:
+		    ValueError: If parser is not 'genquery1' or 'genquery2'.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(query, str)
+		common.validate_gte_zero(offset)
+		common.validate_gte_minus1(count)
+		common.validate_0_or_1(case_sensitive)
+		common.validate_0_or_1(distinct)
+		common.validate_instance(parser, str)
+		if parser not in ["genquery1", "genquery2"]:
+			raise ValueError("parser must be either 'genquery1' or 'genquery2'")
+		common.validate_0_or_1(sql_only)
+		common.validate_instance(zone, str)
 
-        if count != -1:
-            params["count"] = count
+		headers = {
+			"Authorization": "Bearer " + self.token,
+		}
 
-        if zone != "":
-            params["zone"] = zone
+		params = {
+			"op": "execute_genquery",
+			"query": query,
+			"offset": offset,
+			"parser": parser,
+		}
 
-        if parser == "genquery1":
-            params["case-sensitive"] = case_sensitive
-            params["distinct"] = distinct
-        else:
-            params["sql-only"] = sql_only
+		if count != -1:
+			params["count"] = count
 
-        r = requests.get(self.url_base + "/query", headers=headers, params=params)
-        return common.process_response(r)
+		if zone != "":
+			params["zone"] = zone
 
-    def execute_specific_query(
-        self,
-        name: str,
-        args: str = "",
-        args_delimiter: str = ",",
-        offset: int = 0,
-        count: int = -1,
-    ):
-        """
-        Executes a specific query and returns the results.
+		if parser == "genquery1":
+			params["case-sensitive"] = case_sensitive
+			params["distinct"] = distinct
+		else:
+			params["sql-only"] = sql_only
 
-        Parameters
-        - name: The name of the query to be executed
-        - args (optional): The arguments to be passed into the query
-        - args_delimiter (optional): The delimiter to be used to parse the args. Defaults to ','.
-        - offset (optional): Number of rows to skip. Defaults to 0.
-        - count (optional): Number of rows to return. Default set by administrator.
+		r = requests.get(self.url_base + "/query", headers=headers, params=params, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
-        common.validate_instance(args, str)
-        common.validate_instance(args_delimiter, str)
-        common.validate_gte_zero(offset)
-        common.validate_gte_minus1(count)
+	def execute_specific_query(
+		self,
+		name: str,
+		args: str = "",
+		args_delimiter: str = ",",
+		offset: int = 0,
+		count: int = -1,
+	):
+		"""
+		Execute a specific query and returns the results.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-        }
+		Args:
+		    name: The name of the query to be executed.
+		    args: The arguments to be passed into the query.
+		    args_delimiter: The delimiter to be used to parse the args. Defaults to ','.
+		    offset: Number of rows to skip. Defaults to 0.
+		    count: Number of rows to return. Default set by administrator.
 
-        params = {
-            "op": "execute_specific_query",
-            "name": name,
-            "offset": offset,
-            "args-delimiter": args_delimiter,
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
+		common.validate_instance(args, str)
+		common.validate_instance(args_delimiter, str)
+		common.validate_gte_zero(offset)
+		common.validate_gte_minus1(count)
 
-        if count != -1:
-            params["count"] = count
+		headers = {
+			"Authorization": "Bearer " + self.token,
+		}
 
-        if args != "":
-            params["args"] = args
+		params = {
+			"op": "execute_specific_query",
+			"name": name,
+			"offset": offset,
+			"args-delimiter": args_delimiter,
+		}
 
-        r = requests.get(self.url_base + "/query", headers=headers, params=params)
-        return common.process_response(r)
+		if count != -1:
+			params["count"] = count
 
-    def add_specific_query(self, name: str, sql: str):
-        """
-        Adds a SpecificQuery to the iRODS zone.
+		if args != "":
+			params["args"] = args
 
-        Parameters
-        - name: The name of the query to be added.
-        - sql: The SQL attached to the query.
+		r = requests.get(self.url_base + "/query", headers=headers, params=params, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
-        common.validate_instance(sql, str)
+	def add_specific_query(self, name: str, sql: str):
+		"""
+		Add a SpecificQuery to the iRODS zone.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-        }
+		Args:
+		    name: The name of the query to be added.
+		    sql: The SQL attached to the query.
 
-        data = {"op": "add_specific_query", "name": name, "sql": sql}
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
+		common.validate_instance(sql, str)
 
-        r = requests.post(self.url_base + "/query", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+		}
 
-    def remove_specific_query(self, name):
-        """
-        Removes a SpecificQuery from the iRODS zone.
+		data = {"op": "add_specific_query", "name": name, "sql": sql}
 
-        Parameters
-        - name: The name of the SpecificQuery to be removed
+		r = requests.post(self.url_base + "/query", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(name, str)
+	def remove_specific_query(self, name):
+		"""
+		Remove a SpecificQuery from the iRODS zone.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-        }
+		Args:
+		    name: The name of the SpecificQuery to be removed.
 
-        data = {"op": "remove_specific_query", "name": name}
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(name, str)
 
-        r = requests.post(self.url_base + "/query", headers=headers, data=data)
-        return common.process_response(r)
+		headers = {
+			"Authorization": "Bearer " + self.token,
+		}
+
+		data = {"op": "remove_specific_query", "name": name}
+
+		r = requests.post(self.url_base + "/query", headers=headers, data=data, timeout=30)
+		return common.process_response(r)

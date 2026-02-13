@@ -1,84 +1,90 @@
-from . import common
+"""Rule operations for iRODS HTTP API."""
+
 import requests
 
+from . import common
+
+
 class Rules:
+	"""Perform rule operations via iRODS HTTP API."""
 
-    def __init__(self, url_base: str):
-        """
-        Initializes Rules with a base url.
-        Token is set to None initially, and updated when setToken() is called in irodsClient.
-        """
-        self.url_base = url_base
-        self.token = None
+	def __init__(self, url_base: str):
+		"""
+		Initialize Rules with a base url.
 
-    def list_rule_engines(self):
-        """
-        Lists available rule engine plugin instances.
+		Token is set to None initially, and updated when setToken() is called in irodsClient.
+		"""
+		self.url_base = url_base
+		self.token = None
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
+	def list_rule_engines(self):
+		"""
+		List available rule engine plugin instances.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-        }
+		Returns
+		- A dict containing the HTTP status code and iRODS response.
+		- The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
 
-        params = {"op": "list_rule_engines"}
+		headers = {
+			"Authorization": "Bearer " + self.token,
+		}
 
-        r = requests.get(self.url_base + "/rules", params=params, headers=headers)
-        return common.process_response(r)
+		params = {"op": "list_rule_engines"}
 
-    def execute(self, rule_text: str, rep_instance: str = ""):
-        """
-        Executes rule code.
+		r = requests.get(self.url_base + "/rules", params=params, headers=headers, timeout=30)
+		return common.process_response(r)
 
-        Parameters
-        - rule_text: The rule code to execute.
-        - rep_instance (optional): The rule engine plugin to run the rule-text against.
+	def execute(self, rule_text: str, rep_instance: str = ""):
+		"""
+		Execute rule code.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_instance(rule_text, str)
-        common.validate_instance(rep_instance, str)
+		Args:
+		    rule_text: The rule code to execute.
+		    rep_instance: The rule engine plugin to run the rule-text against.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_instance(rule_text, str)
+		common.validate_instance(rep_instance, str)
 
-        data = {"op": "execute", "rule-text": rule_text}
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-        if rep_instance != "":
-            data["rep-instance"] = rep_instance
+		data = {"op": "execute", "rule-text": rule_text}
 
-        r = requests.post(self.url_base + "/rules", headers=headers, data=data)
-        return common.process_response(r)
+		if rep_instance != "":
+			data["rep-instance"] = rep_instance
 
-    def remove_delay_rule(self, rule_id: int):
-        """
-        Removes a delay rule from the catalog.
+		r = requests.post(self.url_base + "/rules", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
 
-        Parameters
-        - rule_id: The id of the delay rule to be removed.
+	def remove_delay_rule(self, rule_id: int):
+		"""
+		Remove a delay rule from the catalog.
 
-        Returns
-        - A dict containing the HTTP status code and iRODS response.
-        - The iRODS response is only valid if no error occurred during HTTP communication.
-        """
-        common.check_token(self.token)
-        common.validate_gte_zero(rule_id)
+		Args:
+		    rule_id: The id of the delay rule to be removed.
 
-        headers = {
-            "Authorization": "Bearer " + self.token,
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
+		Returns:
+		    A dict containing the HTTP status code and iRODS response.
+		    The iRODS response is only valid if no error occurred during HTTP communication.
+		"""
+		common.check_token(self.token)
+		common.validate_gte_zero(rule_id)
 
-        data = {"op": "remove_delay_rule", "rule-id": rule_id}
+		headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
 
-        r = requests.post(self.url_base + "/rules", headers=headers, data=data)
-        return common.process_response(r)
+		data = {"op": "remove_delay_rule", "rule-id": rule_id}
+
+		r = requests.post(self.url_base + "/rules", headers=headers, data=data, timeout=30)
+		return common.process_response(r)
