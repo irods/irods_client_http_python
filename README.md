@@ -16,12 +16,12 @@ pip install irods-http-client
 To use the wrapper, follow the steps listed below.
 
 ```py
-from irods_http_client.irodsHttpClient import IrodsHttpClient
+from irods_http_client import IRODSHTTPClient
 
 # Create an instance of the wrapper with the base url of the iRODS server to
 # be accessed. <host>, <port>, and <version> are placeholders, and need
 # to be replaced by appropriate values.
-api = IrodsHttpClient('http://<host>:<port>/irods-http-api/<version>')
+api = IRODSHTTPClient('http://<host>:<port>/irods-http-api/<version>')
 
 # Most endpoint operations require a user to be authenticated in order to
 # be executed. Authenticate with a username and password, and store the

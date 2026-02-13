@@ -1,1 +1,1 @@
-from .irodsHttpClient import IrodsHttpClient
+from .irods_http_client import IRODSHTTPClient

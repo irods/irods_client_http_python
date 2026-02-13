@@ -12,7 +12,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-class IrodsHttpClient:
+class IRODSHTTPClient:
     def __init__(self, url_base: str):
         """Gets the base url from the user to initialize a client instance."""
         self.url_base = url_base
