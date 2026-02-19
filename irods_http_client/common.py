@@ -1,6 +1,30 @@
 """Common utility functions for iRODS HTTP client operations."""
 
 
+class HTTPSession:
+	"""
+	Encapsulates HTTP session details for iRODS HTTP API.
+
+	This class binds together the base URL and authentication token that are
+	always used together in API calls.
+
+	Attributes:
+	    url_base: The base URL for the iRODS HTTP API.
+	    token: The authentication token for the API.
+	"""
+
+	def __init__(self, url_base: str, token: str):
+		"""
+		Initialize HTTPSession with URL and token.
+
+		Args:
+		    url_base: The base URL for the iRODS HTTP API.
+		    token: The authentication token for the API.
+		"""
+		self.url_base = url_base
+		self.token = token
+
+
 def process_response(r):
 	"""
 	Process an HTTP response and return standardized response dict.
@@ -16,18 +40,18 @@ def process_response(r):
 	return {"status_code": r.status_code, "data": rdict}
 
 
-def check_token(t):
+def validate_not_none(x):
 	"""
-	Verify that an authentication token is set.
+	Validate that a value is not None.
 
 	Args:
-	    t: The authentication token to check.
+	    x: The value to validate.
 
 	Raises:
-	    RuntimeError: If the token is None.
+	    ValueError: If x is None
 	"""
-	if t is None:
-		raise RuntimeError("No token set. Use setToken() to set the auth token to be used.")
+	if x is None:
+		raise ValueError
 
 
 def validate_instance(x, expected_type):
