@@ -1026,13 +1026,14 @@ class DataObjectTests(unittest.TestCase):
 				"/tmp/register-demo.txt",  # noqa: S108
 				"register_resource",
 				data_size=len(content),
+				checksum=1,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 			# Show a new data object exists with the expected replica information.
 			r = queries.execute_genquery(
 				self.rodsadmin_session,
-				"select DATA_NAME, DATA_PATH, RESC_NAME where DATA_NAME = 'register-demo.txt'",
+				"select DATA_NAME, DATA_PATH, DATA_CHECKSUM, RESC_NAME where DATA_NAME = 'register-demo.txt'",
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			self.assertEqual(len(r["data"]["rows"]), 1)

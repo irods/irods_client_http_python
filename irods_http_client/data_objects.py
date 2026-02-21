@@ -407,7 +407,7 @@ def register(
 	resource: str,
 	as_additional_replica: int = 0,
 	data_size: int = -1,
-	checksum: str = "",
+	checksum: int = 0,
 ) -> dict:
 	"""
 	Register a data object/replica into the catalog.
@@ -420,7 +420,7 @@ def register(
 	    as_additional_replica: Set to 1 to register as a replica of an existing
 	      object, otherwise set to 0. Defaults to 0.
 	    data_size: The size of the replica in bytes. Defaults to -1.
-	    checksum: The checksum to associate with the replica. Defaults to "".
+	    checksum: Set to 1 to register with a checksum. Defaults to 0.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -432,7 +432,7 @@ def register(
 	common.validate_instance(resource, str)
 	common.validate_0_or_1(as_additional_replica)
 	common.validate_gte_minus1(data_size)
-	common.validate_instance(checksum, str)
+	common.validate_0_or_1(checksum)
 
 	headers = {
 		"Authorization": "Bearer " + session.token,
@@ -445,13 +445,11 @@ def register(
 		"ppath": ppath,
 		"resource": resource,
 		"as_additional_replica": as_additional_replica,
+		"checksum": checksum,
 	}
 
 	if data_size != -1:
 		data["data-size"] = data_size
-
-	if checksum != "":
-		data["checksum"] = checksum
 
 	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
 	return common.process_response(r)
