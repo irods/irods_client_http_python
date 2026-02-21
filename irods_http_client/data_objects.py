@@ -490,9 +490,8 @@ def read(session: common.HTTPSession, lpath: str, offset: int = 0, count: int = 
 		params["ticket"] = ticket
 
 	r = requests.get(session.url_base + "/data-objects", params=params, headers=headers)  # noqa: S113
-	# TODO: #45 confirm this is the format we want to return
-	#       - this is the only payload that is different from common.process_response()
-	return {'status_code': r.status_code, 'data': {'irods_response': {'status_code': 0, 'bytes': r.content}}}
+	# this is the only payload that is different from common.process_response()
+	return {'status_code': r.status_code, 'data': r.content}
 
 
 def write(

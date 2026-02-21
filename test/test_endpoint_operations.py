@@ -814,14 +814,16 @@ class DataObjectTests(unittest.TestCase):
 				"",
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
 			# Create a non-empty data object
 			r = data_objects.write(self.rodsuser_session, "These are the bytes being written to the object", f1)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 			# Read the data object
-			r = data_objects.read(self.rodsuser_session, f1, offset=6)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-			self.assertIn('being written', r["data"]['irods_response']['bytes'].decode('utf-8'))
+			r = data_objects.read(self.rodsuser_session, f1, offset=6, count=13)
+			self.assertEqual(r["status_code"], 200)
+			self.assertNotIn('There ', r["data"].decode('utf-8'))
+			self.assertEqual('are the bytes', r["data"].decode('utf-8'))
 
 			# Add metadata to the data object
 			r = data_objects.modify_metadata(
