@@ -524,12 +524,12 @@ def write(
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 
 	Raises:
+	    TypeError: If bytes is not bytes or str.
 	    ValueError: If bytes length is less than 0.
 	"""
 	common.validate_not_none(session.token)
-	# also need to validate that bytes_ is a proper type
-	if not len(bytes_) >= 0:
-		raise ValueError("bytes must be greater than or equal to 0")
+	if type(bytes_) not in [bytes, str]:
+		raise TypeError("type(bytes_) must be 'bytes' or 'str'")
 	common.validate_instance(lpath, str)
 	common.validate_instance(resource, str)
 	common.validate_gte_zero(offset)
@@ -911,7 +911,7 @@ def modify_replica(
 		data["new-data-type-name"] = new_data_type_name
 		no_params = False
 
-	if new_data_version != "":
+	if new_data_version != -1:
 		data["new-data-version"] = new_data_version
 		no_params = False
 

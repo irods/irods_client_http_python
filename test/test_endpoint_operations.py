@@ -796,8 +796,25 @@ class DataObjectTests(unittest.TestCase):
 		"""Check that class initialization succeeded before each test."""
 		self.assertFalse(self._class_init_error, "Class initialization failed. Cannot continue.")
 
+	def test_bad_write(self):
+		"""Test writing non-bytes does not work."""
+		# Exercise a bad write
+		f = f"/{self.zone_name}/home/{self.rodsuser_username}/bad_write.txt"
+		self.assertRaises(TypeError, data_objects.write, self.rodsuser_session, 4, f)
+
+	def test_empty_write(self):
+		"""Test writing an empty string works."""
+		try:
+			# Exercise an empty write
+			f = f"/{self.zone_name}/home/{self.rodsuser_username}/empty_write.txt"
+			r = data_objects.write(self.rodsuser_session, "", f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			data_objects.remove(self.rodsuser_session, f, no_trash=1)
+
 	def test_common_operations(self):
-		"""Test common data object operations (write, read, replicate, etc.)."""
+		"""Test common data object operations (write, read, copy, replicate, etc.)."""
 		f1 = f"/{self.zone_name}/home/{self.rodsuser_username}/f1.txt"
 		f2 = f"/{self.zone_name}/home/{self.rodsuser_username}/f2.txt"
 		f3 = f"/{self.zone_name}/home/{self.rodsuser_username}/f3.txt"
@@ -841,6 +858,7 @@ class DataObjectTests(unittest.TestCase):
 			r = data_objects.replicate(
 				self.rodsuser_session,
 				f1,
+				src_resource="demoResc",
 				dst_resource=resc,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
@@ -853,8 +871,8 @@ class DataObjectTests(unittest.TestCase):
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			self.assertEqual(len(r["data"]["rows"]), 2)
 
-			# Trim the first data object
-			r = data_objects.trim(self.rodsuser_session, f1, 0)
+			# Trim the data object
+			r = data_objects.trim(self.rodsuser_session, f1, replica_number=0)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 			# Rename the data object
@@ -864,6 +882,15 @@ class DataObjectTests(unittest.TestCase):
 			# Copy the data object
 			r = data_objects.copy(self.rodsuser_session, f2, f3)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Copy the data object again with parameters
+			r = data_objects.copy(
+				self.rodsuser_session, f2, f3, src_resource=resc, dst_resource="demoResc", overwrite=1
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Exercise a bad permission
+			self.assertRaises(ValueError, data_objects.set_permission, self.rodsuser_session, f3, "rods", "bad")
 
 			# Set permission on the object
 			r = data_objects.set_permission(
@@ -906,7 +933,6 @@ class DataObjectTests(unittest.TestCase):
 
 	def test_modify_replica(self):
 		"""Test modify replica options."""
-
 		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/modify-replica-test.txt"
 
 		try:
@@ -915,7 +941,9 @@ class DataObjectTests(unittest.TestCase):
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 			# Save the physical path
-			r = queries.execute_genquery(self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'modify-replica-test.txt'")
+			r = queries.execute_genquery(
+				self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'modify-replica-test.txt'"
+			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			phypath = r["data"]["rows"][0][0]
 
@@ -923,6 +951,24 @@ class DataObjectTests(unittest.TestCase):
 			r = queries.execute_genquery(self.rodsadmin_session, "SELECT RESC_ID where RESC_NAME = 'demoResc'")
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			rescid = int(r["data"]["rows"][0][0])
+
+			# Exercise modify replica error, incompatible params
+			self.assertRaises(
+				ValueError,
+				data_objects.modify_replica,
+				self.rodsadmin_session,
+				f,
+				replica_number=0,
+				resource_hierarchy="demoResc",
+			)
+
+			# Exercise modify replica error, no new data
+			self.assertRaises(
+				RuntimeError,
+				data_objects.modify_replica,
+				self.rodsadmin_session,
+				f,
+			)
 
 			# Modify the replica
 			r = data_objects.modify_replica(
@@ -941,6 +987,7 @@ class DataObjectTests(unittest.TestCase):
 				new_data_size=50,
 				new_data_status="warm",
 				new_data_type_name="html",
+				new_data_version=3,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
@@ -969,18 +1016,19 @@ class DataObjectTests(unittest.TestCase):
 		)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt"
 		# Create a non-empty data object
 		r = data_objects.write(
 			self.rodsadmin_session,
 			"These are the bytes being written to the object",
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
+			f,
 		)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 		# Replicate the data object
 		r = data_objects.replicate(
 			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
+			f,
 			dst_resource="newresource",
 		)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
@@ -996,64 +1044,93 @@ class DataObjectTests(unittest.TestCase):
 			# Calculate a checksum for the first replica
 			r = data_objects.calculate_checksum(
 				self.rodsadmin_session,
-				f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
+				f,
 				replica_number=0,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-			# Verify checksum information across all replicas.
-			r = data_objects.verify_checksum(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt"
-			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		finally:
-			# Remove the data objects
-			r = data_objects.remove(
+			# Calculate a checksum for the second replica
+			r = data_objects.calculate_checksum(
 				self.rodsadmin_session,
-				f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
-				0,
-				1,
+				f,
+				resource="newresource",
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-			# Remove the resource
-			r = resources.remove(self.rodsadmin_session, "newresource")
+			# Verify checksum on first replica
+			r = data_objects.verify_checksum(
+				self.rodsadmin_session,
+				f,
+				replica_number=0,
+			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Verify checksum on second replica
+			r = data_objects.verify_checksum(
+				self.rodsadmin_session,
+				f,
+				resource="newresource",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			# Remove the data objects
+			data_objects.remove(
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
+				catalog_only=0,
+				no_trash=1,
+			)
+
+			# Remove the resource
+			resources.remove(self.rodsadmin_session, "newresource")
 
 	def test_touch(self):
 		"""Test touch operation on data objects."""
-		# Test touching non existant data object with no_create
-		r = data_objects.touch(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt", 1)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt"
 
-		# Show that the object has not been created
-		r = data_objects.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt")
-		self.assertEqual(r["data"]["irods_response"]["status_code"], -171000)
+		try:
+			# Test touching non existant data object with no_create
+			r = data_objects.touch(self.rodsadmin_session, f, no_create=1)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Test touching non existant object without no_create
-		r = data_objects.touch(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt", 0)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show that the object has not been created
+			r = data_objects.stat(self.rodsadmin_session, f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -171000)
 
-		# Show that the object has been created
-		r = data_objects.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt")
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Test touching non existant object without no_create
+			r = data_objects.touch(self.rodsadmin_session, f, no_create=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Test touching existing object without no_create
-		r = data_objects.touch(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt", 1)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show that the object has been created
+			r = data_objects.stat(self.rodsadmin_session, f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Remove the object
-		r = data_objects.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/new.txt")
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Test touching existing object without no_create
+			r = data_objects.touch(self.rodsadmin_session, f, no_create=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Test parameter options
+			r = data_objects.touch(self.rodsadmin_session, f, seconds_since_epoch=5000)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			r = data_objects.stat(self.rodsadmin_session, f)
+			self.assertEqual(r["data"]["modified_at"], 5000)
+
+			r = data_objects.touch(self.rodsadmin_session, f, replica_number=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			r = data_objects.touch(self.rodsadmin_session, f, leaf_resources="demoResc")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			r = data_objects.touch(self.rodsadmin_session, f, reference=f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			# Remove the object
+			data_objects.remove(self.rodsadmin_session, f)
 
 	def test_register(self):
 		"""Test registering existing files as iRODS data objects."""
-		# Create a non-empty local file.
 		filename = f"/{self.zone_name}/home/{self.rodsadmin_username}/register-demo.txt"
-		content = "data"
-
-		with pathlib.Path("/tmp/register-demo.txt").open("w") as f:  # noqa: S108
-			f.write(content)
 
 		# Show the data object we want to create via registration does not exist.
 		r = data_objects.stat(self.rodsadmin_session, filename)
@@ -1071,13 +1148,29 @@ class DataObjectTests(unittest.TestCase):
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-			# Register the local file into the catalog as a new data object.
+			# Create a non-empty data object.
+			content = "bytes in the server"
+			r = data_objects.write(self.rodsadmin_session, content, filename)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Query and save the physical path on the server.
+			r = queries.execute_genquery(
+				self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'register-demo.txt'"
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			phyfile = r["data"]["rows"][0][0]
+
+			# Unregister the logical path to leave the physical file on the server.
+			r = data_objects.remove(self.rodsadmin_session, filename, 1)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Register the leftover local file into the catalog as a new data object.
 			# We know we're registering a new data object because the "as-additional-replica"
 			# parameter isn't set to 1.
 			r = data_objects.register(
 				self.rodsadmin_session,
 				filename,
-				"/tmp/register-demo.txt",  # noqa: S108
+				phyfile,
 				"register_resource",
 				data_size=len(content),
 				checksum=1,
@@ -1091,17 +1184,16 @@ class DataObjectTests(unittest.TestCase):
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			self.assertEqual(len(r["data"]["rows"]), 1)
-			self.assertEqual(r["data"]["rows"][0][1], "/tmp/register-demo.txt")  # noqa: S108
-			self.assertEqual(r["data"]["rows"][0][2], "register_resource")
+			self.assertEqual(r["data"]["rows"][0][1], phyfile)
+			self.assertNotEqual(r["data"]["rows"][0][2], "")
+			self.assertEqual(r["data"]["rows"][0][3], "register_resource")
 
 		finally:
 			# Unregister the data object
-			r = data_objects.remove(self.rodsadmin_session, filename, 1)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			data_objects.remove(self.rodsadmin_session, filename, 1)
 
 			# Remove the resource
-			r = resources.remove(self.rodsadmin_session, "register_resource")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			resources.remove(self.rodsadmin_session, "register_resource")
 
 	def test_parallel_write(self):
 		"""Test parallel writing to data objects."""
@@ -1142,17 +1234,15 @@ class DataObjectTests(unittest.TestCase):
 					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 		finally:
 			# Close parallel write
-			r = data_objects.parallel_write_shutdown(self.rodsadmin_session, handle)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			data_objects.parallel_write_shutdown(self.rodsadmin_session, handle)
 
 			# Remove the object
-			r = data_objects.remove(
+			data_objects.remove(
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt",
 				0,
 				1,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 
 # Tests for resources operations
@@ -1318,6 +1408,60 @@ class ResourceTests(unittest.TestCase):
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 		self.assertEqual(r["data"]["exists"], False)
 
+	def test_modify_failures(self):
+		"""Test modifying resources, poorly."""
+		badresc = "badresc"
+		try:
+			# Create a unixfilesystem resource.
+			r = resources.create(
+				self.rodsadmin_session,
+				badresc,
+				"unixfilesystem",
+				self.host,
+				"/tmp/badresc_vault",  # noqa: S108
+				"",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Exercise bad modify property
+			self.assertRaises(ValueError, resources.modify, self.rodsadmin_session, badresc, "badoption", "2")
+
+			# Exercise bad modify status
+			self.assertRaises(ValueError, resources.modify, self.rodsadmin_session, badresc, "status", "nope")
+
+		finally:
+			resources.remove(self.rodsadmin_session, badresc)
+
+	def test_add_child_context(self):
+		"""Test adding child resource context."""
+		resc = 'thechild'
+		try:
+			# Create a unixfilesystem resource.
+			r = resources.create(
+				self.rodsadmin_session,
+				resc,
+				"unixfilesystem",
+				self.host,
+				"/tmp/resc_vault",  # noqa: S108
+				"",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Exercise add child with context
+			r = resources.add_child(self.rodsadmin_session, "demoResc", resc, context="neat")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Confirm
+			r = resources.stat(self.rodsadmin_session, resc)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Uncomment once parent_context is available
+			# https://github.com/irods/irods_client_http_api/issues/473
+		# self.assertEqual(r["data"]["info"]["parent_context"], "neat")
+
+		finally:
+			resources.remove_child(self.rodsadmin_session, "demoResc", resc)
+			resources.remove(self.rodsadmin_session, resc)
+
 	def test_modify_metadata(self):
 		"""Test modifying metadata on resources."""
 		# Create a unixfilesystem resource.
@@ -1327,7 +1471,7 @@ class ResourceTests(unittest.TestCase):
 			"unixfilesystem",
 			self.host,
 			"/tmp/metadata_demo_vault",  # noqa: S108
-			"",
+			"ignoreme",
 		)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
@@ -1498,6 +1642,23 @@ class QueryTests(unittest.TestCase):
 		"""Check that class initialization succeeded before each test."""
 		self.assertFalse(self._class_init_error, "Class initialization failed. Cannot continue.")
 
+	def test_bad_query_type(self):
+		"""Test with a query type that does not exist."""
+		self.assertRaises(
+			ValueError, queries.execute_genquery, self.rodsadmin_session, "SELECT ZONE_NAME", parser="bad"
+		)
+
+	def test_query_parameters(self):
+		"""Test with queries that exercise the options."""
+		# genquery
+		queries.execute_genquery(self.rodsadmin_session, "SELECT ZONE_NAME", count=1)
+		queries.execute_genquery(self.rodsadmin_session, "SELECT ZONE_NAME", zone=self.zone_name)
+		queries.execute_genquery(self.rodsadmin_session, "SELECT ZONE_NAME", parser="genquery2", sql_only=1)
+
+		# specific query
+		queries.execute_specific_query(self.rodsadmin_session, "ls", count=1)
+		queries.execute_specific_query(self.rodsadmin_session, "lsl", args="ls")
+
 	def test_create_execute_remove_specific_query(self):
 		"""Test creating, executing, and removing specific queries."""
 		try:
@@ -1536,56 +1697,83 @@ class TicketTests(unittest.TestCase):
 		"""Check that class initialization succeeded before each test."""
 		self.assertFalse(self._class_init_error, "Class initialization failed. Cannot continue.")
 
+	def test_create_failures(self):
+		"""Test ticket create failure modes."""
+		p = f"/{self.zone_name}/home/{self.rodsuser_username}"
+		# bad type
+		self.assertRaises(ValueError, tickets.create, self.rodsadmin_session, p, type_="bad")
+
+		# bad object count
+		self.assertRaises(
+			ValueError,
+			tickets.create,
+			self.rodsadmin_session,
+			p,
+			type_="write",
+			write_data_object_count=-5,
+		)
+
+		# bad byte count
+		self.assertRaises(
+			ValueError,
+			tickets.create,
+			self.rodsadmin_session,
+			p,
+			type_="write",
+			write_byte_count=-2,
+		)
+
 	def test_create_and_remove(self):
 		"""Test creating and removing tickets."""
-		# Create a write ticket.
-		ticket_type = "write"
-		ticket_path = f"/{self.zone_name}/home/{self.rodsuser_username}"
-		ticket_use_count = 2000
-		ticket_groups = "public"
-		ticket_hosts = self.host
-		r = tickets.create(
-			self.rodsuser_session,
-			ticket_path,
-			ticket_type,
-			use_count=ticket_use_count,
-			seconds_until_expiration=3600,
-			users="rods,jeb",
-			groups=ticket_groups,
-			hosts=ticket_hosts,
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		ticket_string = r["data"]["ticket"]
-		self.assertGreater(len(ticket_string), 0)
+		try:
+			# Create a write ticket.
+			ticket_type = "write"
+			ticket_path = f"/{self.zone_name}/home/{self.rodsuser_username}"
+			ticket_use_count = 2000
+			ticket_write_data_object_count = 4
+			ticket_write_byte_count = 1000
+			ticket_groups = "public"
+			ticket_hosts = self.host
+			r = tickets.create(
+				self.rodsuser_session,
+				ticket_path,
+				ticket_type,
+				use_count=ticket_use_count,
+				write_data_object_count=ticket_write_data_object_count,
+				write_byte_count=ticket_write_byte_count,
+				seconds_until_expiration=3600,
+				users="rods,jeb",
+				groups=ticket_groups,
+				hosts=ticket_hosts,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			ticket_string = r["data"]["ticket"]
+			self.assertGreater(len(ticket_string), 0)
 
-		# Show the ticket exists and has the properties we defined during creation.
-		# We can use GenQuery for this, but it does seem better to provide a convenience
-		# operation for this.
-		r = queries.execute_genquery(
-			self.rodsadmin_session,
-			"select TICKET_STRING, TICKET_TYPE, TICKET_COLL_NAME, TICKET_USES_LIMIT, "
-			"TICKET_ALLOWED_USER_NAME, TICKET_ALLOWED_GROUP_NAME, TICKET_ALLOWED_HOST",
-		)
+			# Show the ticket exists and has the properties we defined during creation.
+			# We can use GenQuery for this, but it does seem better to provide a convenience
+			# operation for this.
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				"select TICKET_STRING, TICKET_TYPE, TICKET_COLL_NAME, TICKET_USES_LIMIT, "
+				"TICKET_WRITE_FILE_LIMIT, TICKET_WRITE_BYTE_LIMIT, "
+				"TICKET_ALLOWED_USER_NAME, TICKET_ALLOWED_GROUP_NAME, TICKET_ALLOWED_HOST",
+			)
 
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertIn(ticket_string, r["data"]["rows"][0])
-		self.assertEqual(r["data"]["rows"][0][1], ticket_type)
-		self.assertEqual(r["data"]["rows"][0][2], ticket_path)
-		self.assertEqual(r["data"]["rows"][0][3], str(ticket_use_count))
-		self.assertIn(r["data"]["rows"][0][4], ["rods", "jeb"])
-		self.assertEqual(r["data"]["rows"][0][5], ticket_groups)
-		self.assertGreater(len(r["data"]["rows"][0][6]), 0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertIn(ticket_string, r["data"]["rows"][0])
+			self.assertEqual(r["data"]["rows"][0][1], ticket_type)
+			self.assertEqual(r["data"]["rows"][0][2], ticket_path)
+			self.assertEqual(r["data"]["rows"][0][3], str(ticket_use_count))
+			self.assertEqual(r["data"]["rows"][0][4], str(ticket_write_data_object_count))
+			self.assertEqual(r["data"]["rows"][0][5], str(ticket_write_byte_count))
+			self.assertIn(r["data"]["rows"][0][6], ["rods", "jeb"])
+			self.assertEqual(r["data"]["rows"][0][7], ticket_groups)
+			self.assertGreater(len(r["data"]["rows"][0][6]), 0)
 
-		# Remove the ticket.
-		r = tickets.remove(self.rodsuser_session, ticket_string)
-
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Show the ticket no longer exists.
-		r = queries.execute_genquery(self.rodsadmin_session, "select TICKET_STRING")
-
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 0)
+		finally:
+			# Remove the ticket.
+			tickets.remove(self.rodsuser_session, ticket_string)
 
 
 # Tests for user operations
@@ -1605,6 +1793,18 @@ class UserTests(unittest.TestCase):
 	def setUp(self):
 		"""Check that class initialization succeeded before each test."""
 		self.assertFalse(self._class_init_error, "Class initialization failed. Cannot continue.")
+
+	def test_create_with_bad_type(self):
+		"""Test user create with bad type."""
+		self.assertRaises(
+			ValueError, users_groups.create_user, self.rodsadmin_session, "baduser", self.zone_name, user_type="bad"
+		)
+
+	def test_set_to_bad_type(self):
+		"""Test setting user type to bad value."""
+		self.assertRaises(
+			ValueError, users_groups.set_user_type, self.rodsadmin_session, "baduser", self.zone_name, user_type="bad"
+		)
 
 	def test_create_stat_and_remove_rodsuser(self):
 		"""Test creating, querying, and removing rodsuser users."""
@@ -1629,6 +1829,14 @@ class UserTests(unittest.TestCase):
 		# Remove the user.
 		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
 		self.assertEqual(r["status_code"], 200)
+
+	def test_empty_username(self):
+		"""Test authenticate with an empty username."""
+		self.assertRaises(ValueError, authenticate, self.url_base, "", "nope")
+
+	def test_bad_password(self):
+		"""Test authenticate with a bad password."""
+		self.assertRaises(RuntimeError, authenticate, self.url_base, self.rodsadmin_username, "nope")
 
 	def test_set_password(self):
 		"""Test setting user passwords."""
@@ -1903,14 +2111,23 @@ class ZoneTests(unittest.TestCase):
 
 	def test_adding_removing_and_modifying_zones(self):
 		"""Test adding, removing, and modifying zones."""
-		# Add a remote zone to the local zone.
-		# The new zone will not have any connection information or anything else.
-		zone_name = "other_zone"
-		r = zones.add(self.rodsadmin_session, zone_name)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
 		try:
+			zone_name = "other_zone"
+
+			# Add a zone, only to remove it immediately
+			r = zones.add(self.rodsadmin_session, zone_name, connection_info="localhost:1250", comment="brief")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Remove it
+			r = zones.remove(self.rodsadmin_session, zone_name)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Add a remote zone to the local zone.
+			# The new zone will not have any connection information or anything else.
+			r = zones.add(self.rodsadmin_session, zone_name)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
 			# Show the new zone exists by executing the stat operation on it.
 			r = zones.stat(self.rodsadmin_session, zone_name)
 			self.assertEqual(r["status_code"], 200)
@@ -1952,8 +2169,7 @@ class ZoneTests(unittest.TestCase):
 
 		finally:
 			# Remove the remote zone.
-			r = zones.remove(self.rodsadmin_session, zone_name)
-			self.assertEqual(r["status_code"], 200)
+			zones.remove(self.rodsadmin_session, zone_name)
 
 
 if __name__ == "__main__":

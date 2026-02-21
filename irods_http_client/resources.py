@@ -134,7 +134,7 @@ def add_child(session: common.HTTPSession, parent_name: str, child_name: str, co
 	    session: An HTTPSession instance.
 	    parent_name: The name of the parent resource.
 	    child_name: The name of the child resource.
-	    context: Additional information for the zone.
+	    context: Additional information for the parent-child relationship.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
