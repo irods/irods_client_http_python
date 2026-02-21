@@ -769,8 +769,8 @@ def modify_replica(
 	replica_number: int = -1,
 	new_data_checksum: str = "",
 	new_data_comments: str = "",
-	new_data_create_time: int = -1,
-	new_data_expiry: int = -1,
+	new_data_create_time: str = "",
+	new_data_expiry: str = "",
 	new_data_mode: str = "",
 	new_data_modify_time: str = "",
 	new_data_path: str = "",
@@ -798,8 +798,8 @@ def modify_replica(
 	      resource_hierarchy.
 	    new_data_checksum: The new checksum to be set. Defaults to "".
 	    new_data_comments: The new comments to be set. Defaults to "".
-	    new_data_create_time: The new create time to be set. Defaults to -1.
-	    new_data_expiry: The new expiry to be set. Defaults to -1.
+	    new_data_create_time: The new create time to be set. Defaults to "".
+	    new_data_expiry: The new expiry to be set. Defaults to "".
 	    new_data_mode: The new mode to be set. Defaults to "".
 	    new_data_modify_time: The new modify time to be set. Defaults to "".
 	    new_data_path: The new path to be set. Defaults to "".
@@ -830,8 +830,8 @@ def modify_replica(
 		raise ValueError("replica_hierarchy and replica_number are mutually exclusive")
 	common.validate_instance(new_data_checksum, str)
 	common.validate_instance(new_data_comments, str)
-	common.validate_gte_minus1(new_data_create_time)
-	common.validate_gte_minus1(new_data_expiry)
+	common.validate_instance(new_data_create_time, str)
+	common.validate_instance(new_data_expiry, str)
 	common.validate_instance(new_data_mode, str)
 	common.validate_instance(new_data_modify_time, str)
 	common.validate_instance(new_data_path, str)
@@ -867,11 +867,11 @@ def modify_replica(
 		data["new-data-comments"] = new_data_comments
 		no_params = False
 
-	if new_data_create_time != -1:
+	if new_data_create_time != "":
 		data["new-data-create-time"] = new_data_create_time
 		no_params = False
 
-	if new_data_expiry != -1:
+	if new_data_expiry != "":
 		data["new-data-expiry"] = new_data_expiry
 		no_params = False
 

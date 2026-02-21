@@ -904,6 +904,58 @@ class DataObjectTests(unittest.TestCase):
 			# Remove the resource
 			r = resources.remove(self.rodsadmin_session, resc)
 
+	def test_modify_replica(self):
+		"""Test modify replica options."""
+
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/modify-replica-test.txt"
+
+		try:
+			# Create a data object
+			r = data_objects.write(self.rodsadmin_session, "some words", f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Save the physical path
+			r = queries.execute_genquery(self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'modify-replica-test.txt'")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			phypath = r["data"]["rows"][0][0]
+
+			# Save the resource id
+			r = queries.execute_genquery(self.rodsadmin_session, "SELECT RESC_ID where RESC_NAME = 'demoResc'")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			rescid = int(r["data"]["rows"][0][0])
+
+			# Modify the replica
+			r = data_objects.modify_replica(
+				self.rodsadmin_session,
+				f,
+				resource_hierarchy="demoResc",
+				new_data_checksum="not a real checksum",
+				new_data_create_time="1000",
+				new_data_expiry="3000",
+				new_data_mode="greatmode",
+				new_data_modify_time="2000",
+				new_data_path="/tmp/deleteme",  # noqa: S108
+				new_data_replica_number=5,
+				new_data_replica_status=0,
+				new_data_resource_id=rescid,
+				new_data_size=50,
+				new_data_status="warm",
+				new_data_type_name="html",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Restore the physical path so cleanup succeeds
+			r = data_objects.modify_replica(
+				self.rodsadmin_session,
+				f,
+				resource_hierarchy="demoResc",
+				new_data_path=phypath,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
+
 	def test_checksums(self):
 		"""Test checksum calculation and verification for data objects."""
 		# Create a unixfilesystem resource.
