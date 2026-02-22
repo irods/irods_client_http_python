@@ -184,278 +184,276 @@ class CollectionTests(unittest.TestCase):
 	# tests the create operation
 	def test_create(self):
 		"""Test collection creation operations and parameter validation."""
-		# clean up test collections
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test")
+		try:
+			# test param checking
+			self.assertRaises(TypeError, collections.create, self.rodsadmin_session, 0, 0)
+			self.assertRaises(
+				TypeError,
+				collections.create,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				"0",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.create,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				7,
+			)
 
-		# test param checking
-		self.assertRaises(TypeError, collections.create, self.rodsadmin_session, 0, 0)
-		self.assertRaises(
-			TypeError,
-			collections.create,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			"0",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.create,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			7,
-		)
+			# test creating new collection
+			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertTrue(response["data"]["created"])
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test creating new collection
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		self.assertTrue(response["data"]["created"])
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test creating existing collection
+			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertFalse(response["data"]["created"])
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test creating existing collection
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		self.assertFalse(response["data"]["created"])
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test invalid path
+			response = collections.create(self.rodsadmin_session, f"{self.zone_name}/home/new")
+			self.assertEqual(response["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
 
-		# test invalid path
-		response = collections.create(self.rodsadmin_session, f"{self.zone_name}/home/new")
-		self.assertEqual(
-			"{'irods_response': {'status_code': -358000, "
-			"'status_message': 'path does not exist: OBJ_PATH_DOES_NOT_EXIST'}}",
-			str(response["data"]),
-		)
+			# test create_intermediates
+			response = collections.create(
+				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=0
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
+			response = collections.create(
+				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=1
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			self.assertTrue(response["data"]["created"])
 
-		# test create_intermediates
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", 0)
-		self.assertEqual(
-			"{'irods_response': {'status_code': -358000, "
-			"'status_message': 'path does not exist: OBJ_PATH_DOES_NOT_EXIST'}}",
-			str(response["data"]),
-		)
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", 1)
-		self.assertEqual(
-			"{'created': True, 'irods_response': {'status_code': 0}}",
-			str(response["data"]),
-		)
+		finally:
+			# clean up test collections
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test")
 
 	# tests the remove operation
 	def test_remove(self):
 		"""Test collection removal operations and parameter validation."""
-		# clean up test collections
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test")
+		try:
+			# test param checking
+			self.assertRaises(TypeError, collections.remove, self.rodsadmin_session, 0, 0, 0)
+			self.assertRaises(
+				TypeError,
+				collections.remove,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				"0",
+				0,
+			)
+			self.assertRaises(
+				ValueError,
+				collections.remove,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				5,
+				0,
+			)
+			self.assertRaises(
+				TypeError,
+				collections.remove,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				0,
+				"0",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.remove,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				0,
+				5,
+			)
 
-		# test param checking
-		self.assertRaises(TypeError, collections.remove, self.rodsadmin_session, 0, 0, 0)
-		self.assertRaises(
-			TypeError,
-			collections.remove,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			"0",
-			0,
-		)
-		self.assertRaises(
-			ValueError,
-			collections.remove,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			5,
-			0,
-		)
-		self.assertRaises(
-			TypeError,
-			collections.remove,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-			"0",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.remove,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-			5,
-		)
+			# test removing collection
+			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertEqual(
+				"{'created': True, 'irods_response': {'status_code': 0}}",
+				str(response["data"]),
+			)
+			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
 
-		# test removing collection
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		self.assertEqual(
-			"{'created': True, 'irods_response': {'status_code': 0}}",
-			str(response["data"]),
-		)
-		response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
-		# test invalid paths
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/tensaitekinaaidorusama")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/aremonainainaikoremonainainai")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/binglebangledingledangle")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			# test invalid paths
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/tensaitekinaaidorusama")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/aremonainainaikoremonainainai")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/binglebangledingledangle")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/{self.rodsadmin_username}")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
 
-		# test recurse
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", 1)
-		self.assertEqual(
-			"{'created': True, 'irods_response': {'status_code': 0}}",
-			str(response["data"]),
-		)
-		response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", 0)
-		self.assertEqual(
-			"{'irods_response': {'status_code': -79000, "
-			"'status_message': 'cannot remove non-empty collection: "
-			"SYS_COLLECTION_NOT_EMPTY'}}",
-			str(response["data"]),
-		)
-		response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", 1)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test recurse
+			response = collections.create(
+				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=1
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			self.assertTrue(response["data"]["created"])
+			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=0)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], -79000)  # SYS_COLLECTION_NOT_EMPTY
+			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=1)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			# clean up test collections
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test/folder")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test")
 
 	# tests the stat operation
 	def test_stat(self):
 		"""Test collection stat operation to retrieve metadata."""
-		# clean up test collections
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+		try:
+			# test param checking
+			self.assertRaises(TypeError, collections.stat, self.rodsadmin_session, 0, "ticket")
+			self.assertRaises(
+				TypeError,
+				collections.stat,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				0,
+			)
 
-		# test param checking
-		self.assertRaises(TypeError, collections.stat, self.rodsadmin_session, 0, "ticket")
-		self.assertRaises(
-			TypeError,
-			collections.stat,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-		)
+			# test invalid paths
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/new")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
 
-		# test invalid paths
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/new")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			# test valid path
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			self.assertTrue(response["data"]["permissions"])
 
-		# test valid path
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertTrue(response["data"]["permissions"])
+		finally:
+			# clean up test collections
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
 
 	# tests the list operation
 	def test_list(self):
 		"""Test collection list operation to enumerate contents."""
-		# clean up test collections
-		collections.remove(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
-		)
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
-		collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
+		try:
+			# test param checking
+			self.assertRaises(TypeError, collections.list_collection, self.rodsadmin_session, 0, "ticket")
+			self.assertRaises(
+				TypeError,
+				collections.list_collection,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				"0",
+				"ticket",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.list_collection,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				5,
+				"ticket",
+			)
+			self.assertRaises(
+				TypeError,
+				collections.list_collection,
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}",
+				0,
+				0,
+			)
 
-		# test param checking
-		self.assertRaises(TypeError, collections.list_collection, self.rodsadmin_session, 0, "ticket")
-		self.assertRaises(
-			TypeError,
-			collections.list_collection,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			"0",
-			"ticket",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.list_collection,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			5,
-			"ticket",
-		)
-		self.assertRaises(
-			TypeError,
-			collections.list_collection,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-			0,
-		)
+			# test empty collection
+			response = collections.list_collection(
+				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
+			)
+			self.assertEqual("None", str(response["data"]["entries"]))
 
-		# test empty collection
-		response = collections.list_collection(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-		)
-		self.assertEqual("None", str(response["data"]["entries"]))
+			# test collection with one item
+			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
+			response = collections.list_collection(
+				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
+				str(response["data"]["entries"][0]),
+			)
 
-		# test collection with one item
-		collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
-		response = collections.list_collection(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-			str(response["data"]["entries"][0]),
-		)
+			# test collection with multiple items
+			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
+			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
+			response = collections.list_collection(
+				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
+				str(response["data"]["entries"][0]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
+				str(response["data"]["entries"][1]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
+				str(response["data"]["entries"][2]),
+			)
 
-		# test collection with multiple items
-		collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
-		collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
-		response = collections.list_collection(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-			str(response["data"]["entries"][0]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-			str(response["data"]["entries"][1]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-			str(response["data"]["entries"][2]),
-		)
+			# test without recursion
+			collections.create(
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
+			)
+			response = collections.list_collection(
+				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
+				str(response["data"]["entries"][0]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
+				str(response["data"]["entries"][1]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
+				str(response["data"]["entries"][2]),
+			)
+			self.assertEqual(len(response["data"]["entries"]), 3)
 
-		# test without recursion
-		collections.create(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
-		)
-		response = collections.list_collection(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-			str(response["data"]["entries"][0]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-			str(response["data"]["entries"][1]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-			str(response["data"]["entries"][2]),
-		)
-		self.assertEqual(len(response["data"]["entries"]), 3)
+			# test with recursion
+			response = collections.list_collection(
+				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", recurse=1
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
+				str(response["data"]["entries"][0]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
+				str(response["data"]["entries"][1]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
+				str(response["data"]["entries"][2]),
+			)
+			self.assertEqual(
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
+				str(response["data"]["entries"][3]),
+			)
 
-		# test with recursion
-		response = collections.list_collection(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", 1
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-			str(response["data"]["entries"][0]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-			str(response["data"]["entries"][1]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-			str(response["data"]["entries"][2]),
-		)
-		self.assertEqual(
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
-			str(response["data"]["entries"][3]),
-		)
+		finally:
+			# clean up test collections
+			collections.remove(
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
+			)
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
 
 	# tests the set permission operation
 	def test_set_permission(self):
@@ -508,260 +506,268 @@ class CollectionTests(unittest.TestCase):
 			5,
 		)
 
-		# create new collection
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+		try:
+			# create new collection
+			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test no permission
-		response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
-		self.assertEqual(response["data"]["irods_response"]["status_code"], -170000)
+			# test no permission
+			response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
+			self.assertEqual(response["data"]["irods_response"]["status_code"], -170000)
 
-		# test set permission
-		response = collections.set_permission(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/setPerms",
-			self.rodsuser_username,
-			"read",
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test set permission
+			response = collections.set_permission(
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/setPerms",
+				self.rodsuser_username,
+				"read",
+			)
+			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
 
-		# test with permission
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
-		self.assertTrue(response["data"]["permissions"])
+			# test with permission
+			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
+			self.assertTrue(response["data"]["permissions"])
 
-		# test set permission null
-		response = collections.set_permission(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/setPerms",
-			self.rodsuser_username,
-			"null",
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test set permission null
+			response = collections.set_permission(
+				self.rodsadmin_session,
+				f"/{self.zone_name}/home/setPerms",
+				self.rodsuser_username,
+				"null",
+			)
+			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
 
-		# test no permission
-		response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			# test no permission
+			response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
 
-		# remove the collection
-		response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms", 1, 1)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+		finally:
+			# remove the collection
+			collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms", recurse=1, no_trash=1)
 
 	# tests the set inheritance operation
 	def test_set_inheritance(self):
 		"""Test setting inheritance for collection permissions."""
-		# test param checking
-		self.assertRaises(TypeError, collections.set_inheritance, self.rodsadmin_session, 0, 0, 0)
-		self.assertRaises(
-			TypeError,
-			collections.set_inheritance,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			"0",
-			0,
-		)
-		self.assertRaises(
-			ValueError,
-			collections.set_inheritance,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			5,
-			0,
-		)
-		self.assertRaises(
-			TypeError,
-			collections.set_inheritance,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-			"0",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.set_inheritance,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-			5,
-		)
+		testcoll = f"/{self.zone_name}/home/{self.rodsadmin_username}/testcoll"
 
-		# control
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertFalse(response["data"]["inheritance_enabled"])
+		try:
+			collections.create(self.rodsadmin_session, testcoll)
 
-		# test enabling inheritance
-		response = collections.set_inheritance(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", 1
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test param checking
+			self.assertRaises(TypeError, collections.set_inheritance, self.rodsadmin_session, 0, 0, 0)
+			self.assertRaises(
+				TypeError,
+				collections.set_inheritance,
+				self.rodsadmin_session,
+				testcoll,
+				"0",
+				0,
+			)
+			self.assertRaises(
+				ValueError,
+				collections.set_inheritance,
+				self.rodsadmin_session,
+				testcoll,
+				5,
+				0,
+			)
+			self.assertRaises(
+				TypeError,
+				collections.set_inheritance,
+				self.rodsadmin_session,
+				testcoll,
+				0,
+				"0",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.set_inheritance,
+				self.rodsadmin_session,
+				testcoll,
+				0,
+				5,
+			)
 
-		# check if changed
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertTrue(response["data"]["inheritance_enabled"])
+			# control
+			response = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertFalse(response["data"]["inheritance_enabled"])
 
-		# test disabling inheritance
-		response = collections.set_inheritance(
-			self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", 0
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test enabling inheritance
+			response = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=1)
+			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
 
-		# check if changed
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertFalse(response["data"]["inheritance_enabled"])
+			# verify inheritance is enabled
+			response = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertTrue(response["data"]["inheritance_enabled"])
+
+			# test disabling inheritance
+			response = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=0)
+			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+
+			# verify inheritance is disabled
+			response = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertFalse(response["data"]["inheritance_enabled"])
+
+		finally:
+			collections.remove(self.rodsadmin_session, testcoll, recurse=1, no_trash=1)
 
 	# test the modify permissions operation
 	def test_modify_permissions(self):
 		"""Test modifying permissions on collections."""
+		testcoll = f"/{self.zone_name}/home/modPerms"
+
 		ops_permissions = [{"entity_name": self.rodsuser_username, "acl": "read"}]
 
 		ops_permissions_null = [{"entity_name": self.rodsuser_username, "acl": "null"}]
 
-		# test param checking
-		self.assertRaises(TypeError, collections.modify_permissions, self.rodsadmin_session, 0, ops_permissions, 0)
-		self.assertRaises(
-			TypeError,
-			collections.modify_permissions,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			5,
-			0,
-		)
-		self.assertRaises(
-			TypeError,
-			collections.modify_permissions,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_permissions,
-			"0",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.modify_permissions,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_permissions,
-			5,
-		)
+		try:
+			# create new collection
+			response = collections.create(self.rodsadmin_session, testcoll)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# create new collection
-		response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/modPerms")
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test param checking
+			self.assertRaises(TypeError, collections.modify_permissions, self.rodsadmin_session, 0, ops_permissions, 0)
+			self.assertRaises(
+				TypeError,
+				collections.modify_permissions,
+				self.rodsadmin_session,
+				testcoll,
+				5,
+				0,
+			)
+			self.assertRaises(
+				TypeError,
+				collections.modify_permissions,
+				self.rodsadmin_session,
+				testcoll,
+				ops_permissions,
+				"0",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.modify_permissions,
+				self.rodsadmin_session,
+				testcoll,
+				ops_permissions,
+				5,
+			)
 
-		# test no permissions
-		response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/modPerms")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			# test no permissions
+			response = collections.stat(self.rodsuser_session, testcoll)
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
 
-		# test set permissions
-		response = collections.modify_permissions(
-			self.rodsadmin_session, f"/{self.zone_name}/home/modPerms", ops_permissions
-		)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test set permissions
+			response = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test with permissions
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/modPerms")
-		self.assertTrue(response["data"]["permissions"])
+			# test with permissions
+			response = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertTrue(response["data"]["permissions"])
 
-		# test set permissions nuil
-		response = collections.modify_permissions(
-			self.rodsadmin_session, f"/{self.zone_name}/home/modPerms", ops_permissions_null
-		)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test set permissions nuil
+			response = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions_null)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test without permissions
-		response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/modPerms")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			# test without permissions
+			response = collections.stat(self.rodsuser_session, testcoll)
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
 
-		# remove the collection
-		response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/modPerms", 1, 1)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+		finally:
+			# remove the collection
+			collections.remove(self.rodsadmin_session, testcoll, recurse=1, no_trash=1)
 
 	# test the modify metadata operation
 	def test_modify_metadata(self):
 		"""Test modifying metadata on collections."""
+		testcoll = f"/{self.zone_name}/home/{self.rodsadmin_username}/modify_metadata_test"
+
 		ops_metadata = [{"operation": "add", "attribute": "eyeballs", "value": "itchy"}]
 
 		ops_metadata_remove = [{"operation": "remove", "attribute": "eyeballs", "value": "itchy"}]
 
-		# test param checking
-		self.assertRaises(TypeError, collections.modify_metadata, self.rodsadmin_session, 0, ops_metadata, 0)
-		self.assertRaises(
-			TypeError,
-			collections.modify_metadata,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			5,
-			0,
-		)
-		self.assertRaises(
-			TypeError,
-			collections.modify_metadata,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_metadata,
-			"0",
-		)
-		self.assertRaises(
-			ValueError,
-			collections.modify_metadata,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_metadata,
-			5,
-		)
+		try:
+			collections.create(self.rodsadmin_session, testcoll)
 
-		# test adding and removing metadata
-		response = collections.modify_metadata(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_metadata,
-		)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
-		response = collections.modify_metadata(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			ops_metadata_remove,
-		)
-		self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			# test param checking
+			self.assertRaises(TypeError, collections.modify_metadata, self.rodsadmin_session, 0, ops_metadata, 0)
+			self.assertRaises(
+				TypeError,
+				collections.modify_metadata,
+				self.rodsadmin_session,
+				testcoll,
+				5,
+				0,
+			)
+			self.assertRaises(
+				TypeError,
+				collections.modify_metadata,
+				self.rodsadmin_session,
+				testcoll,
+				ops_metadata,
+				"0",
+			)
+			self.assertRaises(
+				ValueError,
+				collections.modify_metadata,
+				self.rodsadmin_session,
+				testcoll,
+				ops_metadata,
+				5,
+			)
+
+			# test adding and removing metadata
+			response = collections.modify_metadata(
+				self.rodsadmin_session,
+				testcoll,
+				ops_metadata,
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			response = collections.modify_metadata(
+				self.rodsadmin_session,
+				testcoll,
+				ops_metadata_remove,
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			collections.remove(self.rodsadmin_session, testcoll, no_trash=1)
 
 	# tests the rename operation
 	def test_rename(self):
 		"""Test renaming collections."""
-		# test param checking
-		self.assertRaises(
-			TypeError,
-			collections.rename,
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			0,
-		)
-		self.assertRaises(TypeError, collections.rename, 0, f"/{self.zone_name}/home/pods")
+		testcolla = f"/{self.zone_name}/home/{self.rodsadmin_username}/test_rename_a"
+		testcollb = f"/{self.zone_name}/home/{self.rodsadmin_username}/test_rename_b"
 
-		# test before move
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/pods")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertTrue(response["data"]["permissions"])
+		try:
+			collections.create(self.rodsadmin_session, testcolla)
 
-		# test renaming
-		response = collections.rename(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-			f"/{self.zone_name}/home/pods",
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test param checking
+			self.assertRaises(
+				TypeError,
+				collections.rename,
+				self.rodsadmin_session,
+				testcolla,
+				0,
+			)
+			self.assertRaises(TypeError, collections.rename, 0, testcolla)
 
-		# test before move
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-		self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-		response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/pods")
-		self.assertTrue(response["data"]["permissions"])
+			# test renaming
+			response = collections.rename(
+				self.rodsadmin_session,
+				testcolla,
+				testcollb,
+			)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
 
-		# test renaming
-		response = collections.rename(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/pods",
-			f"/{self.zone_name}/home/{self.rodsadmin_username}",
-		)
-		self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			# test presence
+			response = collections.stat(self.rodsadmin_session, testcolla)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], -170000)
+			response = collections.stat(self.rodsadmin_session, testcollb)
+			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			collections.remove(self.rodsadmin_session, testcolla, no_trash=1)
+			collections.remove(self.rodsadmin_session, testcollb, no_trash=1)
 
 	# tests the touch operation
 	def test_touch(self):
@@ -922,11 +928,11 @@ class DataObjectTests(unittest.TestCase):
 
 		finally:
 			# Remove the data objects
-			r = data_objects.remove(self.rodsuser_session, f1, 0, 1)
+			r = data_objects.remove(self.rodsuser_session, f1, no_trash=1)
 
-			r = data_objects.remove(self.rodsuser_session, f2, 0, 1)
+			r = data_objects.remove(self.rodsuser_session, f2, no_trash=1)
 
-			r = data_objects.remove(self.rodsuser_session, f3, 0, 1)
+			r = data_objects.remove(self.rodsuser_session, f3, no_trash=1)
 
 			# Remove the resource
 			r = resources.remove(self.rodsadmin_session, resc)
@@ -1005,42 +1011,44 @@ class DataObjectTests(unittest.TestCase):
 
 	def test_checksums(self):
 		"""Test checksum calculation and verification for data objects."""
-		# Create a unixfilesystem resource.
-		r = resources.create(
-			self.rodsadmin_session,
-			"newresource",
-			"unixfilesystem",
-			self.host,
-			"/tmp/newresource",  # noqa: S108
-			"",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
 		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt"
-		# Create a non-empty data object
-		r = data_objects.write(
-			self.rodsadmin_session,
-			"These are the bytes being written to the object",
-			f,
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Replicate the data object
-		r = data_objects.replicate(
-			self.rodsadmin_session,
-			f,
-			dst_resource="newresource",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Show that there are two replicas
-		r = queries.execute_genquery(
-			self.rodsadmin_session, "select DATA_NAME, DATA_REPL_NUM where DATA_NAME = 'file.txt'"
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 2)
+		resc = "newresource"
 
 		try:
+			# Create a unixfilesystem resource.
+			r = resources.create(
+				self.rodsadmin_session,
+				resc,
+				"unixfilesystem",
+				self.host,
+				"/tmp/newresource",  # noqa: S108
+				"",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Create a non-empty data object
+			r = data_objects.write(
+				self.rodsadmin_session,
+				"These are the bytes being written to the object",
+				f,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Replicate the data object
+			r = data_objects.replicate(
+				self.rodsadmin_session,
+				f,
+				dst_resource=resc,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Show that there are two replicas
+			r = queries.execute_genquery(
+				self.rodsadmin_session, "select DATA_NAME, DATA_REPL_NUM where DATA_NAME = 'file.txt'"
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 2)
+
 			# Calculate a checksum for the first replica
 			r = data_objects.calculate_checksum(
 				self.rodsadmin_session,
@@ -1053,7 +1061,7 @@ class DataObjectTests(unittest.TestCase):
 			r = data_objects.calculate_checksum(
 				self.rodsadmin_session,
 				f,
-				resource="newresource",
+				resource=resc,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
@@ -1069,15 +1077,15 @@ class DataObjectTests(unittest.TestCase):
 			r = data_objects.verify_checksum(
 				self.rodsadmin_session,
 				f,
-				resource="newresource",
+				resource=resc,
 			)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 		finally:
-			# Remove the data objects
+			# Remove the data object
 			data_objects.remove(
 				self.rodsadmin_session,
-				f"/{self.zone_name}/home/{self.rodsadmin_username}/file.txt",
+				f,
 				catalog_only=0,
 				no_trash=1,
 			)
@@ -1126,7 +1134,7 @@ class DataObjectTests(unittest.TestCase):
 
 		finally:
 			# Remove the object
-			data_objects.remove(self.rodsadmin_session, f)
+			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
 
 	def test_register(self):
 		"""Test registering existing files as iRODS data objects."""
@@ -1161,7 +1169,7 @@ class DataObjectTests(unittest.TestCase):
 			phyfile = r["data"]["rows"][0][0]
 
 			# Unregister the logical path to leave the physical file on the server.
-			r = data_objects.remove(self.rodsadmin_session, filename, 1)
+			r = data_objects.remove(self.rodsadmin_session, filename, catalog_only=1)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
 			# Register the leftover local file into the catalog as a new data object.
@@ -1190,26 +1198,17 @@ class DataObjectTests(unittest.TestCase):
 
 		finally:
 			# Unregister the data object
-			data_objects.remove(self.rodsadmin_session, filename, 1)
+			data_objects.remove(self.rodsadmin_session, filename, catalog_only=1)
 
 			# Remove the resource
 			resources.remove(self.rodsadmin_session, "register_resource")
 
 	def test_parallel_write(self):
 		"""Test parallel writing to data objects."""
-		data_objects.remove(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt",
-			0,
-			1,
-		)
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt"
 
 		# Open parallel write
-		r = data_objects.parallel_write_init(
-			self.rodsadmin_session,
-			f"/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt",
-			3,
-		)
+		r = data_objects.parallel_write_init(self.rodsadmin_session, f, stream_count=3)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 		handle = r["data"]["parallel_write_handle"]
 
@@ -1217,20 +1216,20 @@ class DataObjectTests(unittest.TestCase):
 			# Write to the data object using the parallel write handle.
 			futures = []
 			with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-				for e in enumerate(["A", "B", "C"]):
+				for x in enumerate(["A", "B", "C"]):
 					count = 10
 					futures.append(
 						executor.submit(
 							data_objects.write,
 							self.rodsadmin_session,
-							bytes_=e[1] * count,
-							offset=e[0] * count,
-							stream_index=e[0],
+							bytes_=x[1] * count,
+							offset=x[0] * count,
+							stream_index=x[0],
 							parallel_write_handle=handle,
 						)
 					)
-				for f in concurrent.futures.as_completed(futures):
-					r = f.result()
+				for future in concurrent.futures.as_completed(futures):
+					r = future.result()
 					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 		finally:
 			# Close parallel write
@@ -1239,9 +1238,9 @@ class DataObjectTests(unittest.TestCase):
 			# Remove the object
 			data_objects.remove(
 				self.rodsadmin_session,
-				f"/{self.zone_name}/home/{self.rodsadmin_username}/parallel-write.txt",
-				0,
-				1,
+				f,
+				catalog_only=0,
+				no_trash=1,
 			)
 
 
@@ -1265,148 +1264,130 @@ class ResourceTests(unittest.TestCase):
 
 	def test_common_operations(self):
 		"""Test common resource operations (create, list, stat, etc.)."""
-		# TEMPORARY pre-test cleanup
-		# test is currently not passing, so cleanup occurs at the beginning to allow it
-		# to be run more than once in a row
-		resources.remove_child(self.rodsadmin_session, "test_repl", "test_ufs0")
-		resources.remove_child(self.rodsadmin_session, "test_repl", "test_ufs1")
-		resources.remove(self.rodsadmin_session, "test_ufs0")
-		resources.remove(self.rodsadmin_session, "test_ufs1")
-		resources.remove(self.rodsadmin_session, "test_repl")
-
 		resc_repl = "test_repl"
 		resc_ufs0 = "test_ufs0"
 		resc_ufs1 = "test_ufs1"
 
-		# Create three resources (replication w/ two unixfilesystem resources).
-		r = resources.create(self.rodsadmin_session, resc_repl, "replication", "", "", "")
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/test_object.txt"
 
-		# Show the replication resource was created.
-		r = resources.stat(self.rodsadmin_session, resc_repl)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(r["data"]["exists"], True)
-		self.assertIn("id", r["data"]["info"])
-		self.assertEqual(r["data"]["info"]["name"], resc_repl)
-		self.assertEqual(r["data"]["info"]["type"], "replication")
-		self.assertEqual(r["data"]["info"]["zone"], "tempZone")
-		self.assertEqual(r["data"]["info"]["host"], "EMPTY_RESC_HOST")
-		self.assertEqual(r["data"]["info"]["vault_path"], "EMPTY_RESC_PATH")
-		self.assertIn("status", r["data"]["info"])
-		self.assertIn("context", r["data"]["info"])
-		self.assertIn("comments", r["data"]["info"])
-		self.assertIn("information", r["data"]["info"])
-		self.assertIn("free_space", r["data"]["info"])
-		self.assertIn("free_space_last_modified", r["data"]["info"])
-		self.assertEqual(r["data"]["info"]["parent_id"], "")
-		self.assertIn("created", r["data"]["info"])
-		self.assertIn("last_modified", r["data"]["info"])
-		self.assertIn("last_modified_millis", r["data"]["info"])
+		try:
+			# Create replication resource.
+			r = resources.create(self.rodsadmin_session, resc_repl, "replication", "", "", "")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Capture the replication resource's id.
-		# This resource is going to be the parent of the unixfilesystem resources.
-		# This value is needed to verify the relationship.
-		resc_repl_id = r["data"]["info"]["id"]
+			# Show the replication resource was created.
+			r = resources.stat(self.rodsadmin_session, resc_repl)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(r["data"]["exists"], True)
+			self.assertIn("id", r["data"]["info"])
+			self.assertEqual(r["data"]["info"]["name"], resc_repl)
+			self.assertEqual(r["data"]["info"]["type"], "replication")
+			self.assertEqual(r["data"]["info"]["zone"], "tempZone")
+			self.assertEqual(r["data"]["info"]["host"], "EMPTY_RESC_HOST")
+			self.assertEqual(r["data"]["info"]["vault_path"], "EMPTY_RESC_PATH")
+			self.assertIn("status", r["data"]["info"])
+			self.assertIn("context", r["data"]["info"])
+			self.assertIn("comments", r["data"]["info"])
+			self.assertIn("information", r["data"]["info"])
+			self.assertIn("free_space", r["data"]["info"])
+			self.assertIn("free_space_last_modified", r["data"]["info"])
+			self.assertEqual(r["data"]["info"]["parent_id"], "")
+			self.assertIn("created", r["data"]["info"])
+			self.assertIn("last_modified", r["data"]["info"])
+			self.assertIn("last_modified_millis", r["data"]["info"])
 
-		for resc_name in [resc_ufs0, resc_ufs1]:
-			with self.subTest(f"Create and attach resource [{resc_name}] to [{resc_repl}]"):
-				vault_path = f"/tmp/{resc_name}_vault"  # noqa: S108
+			# Capture the replication resource's id.
+			# This resource is going to be the parent of the unixfilesystem resources.
+			# This value is needed to verify the relationship.
+			resc_repl_id = r["data"]["info"]["id"]
 
-				# Create a unixfilesystem resource.
-				r = resources.create(self.rodsadmin_session, resc_name, "unixfilesystem", self.host, vault_path, "")
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			for resc_name in [resc_ufs0, resc_ufs1]:
+				with self.subTest(f"Create and attach resource [{resc_name}] to [{resc_repl}]"):
+					vault_path = f"/tmp/{resc_name}_vault"  # noqa: S108
 
-				# Add the unixfilesystem resource as a child of the replication resource.
-				r = resources.add_child(self.rodsadmin_session, resc_repl, resc_name)
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					# Create a unixfilesystem resource.
+					r = resources.create(self.rodsadmin_session, resc_name, "unixfilesystem", self.host, vault_path, "")
+					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-				# Show that the resource was created and configured successfully.
-				r = resources.stat(self.rodsadmin_session, resc_name)
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-				self.assertEqual(r["data"]["exists"], True)
-				self.assertIn("id", r["data"]["info"])
-				self.assertEqual(r["data"]["info"]["name"], resc_name)
-				self.assertEqual(r["data"]["info"]["type"], "unixfilesystem")
-				self.assertEqual(r["data"]["info"]["zone"], self.zone_name)
-				self.assertEqual(r["data"]["info"]["host"], self.host)
-				self.assertEqual(r["data"]["info"]["vault_path"], vault_path)
-				self.assertIn("status", r["data"]["info"])
-				self.assertIn("context", r["data"]["info"])
-				self.assertIn("comments", r["data"]["info"])
-				self.assertIn("information", r["data"]["info"])
-				self.assertIn("free_space", r["data"]["info"])
-				self.assertIn("free_space_last_modified", r["data"]["info"])
-				self.assertEqual(r["data"]["info"]["parent_id"], resc_repl_id)
-				self.assertIn("created", r["data"]["info"])
-				self.assertIn("last_modified", r["data"]["info"])
+					# Add the unixfilesystem resource as a child of the replication resource.
+					r = resources.add_child(self.rodsadmin_session, resc_repl, resc_name)
+					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Create a data object targeting the replication resource.
-		data_object = f"/{self.zone_name}/home/{self.rodsadmin_username}/resource_obj"
-		r = data_objects.write(self.rodsadmin_session, "These are the bytes to be written", data_object, resc_repl, 0)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					# Show that the resource was created and configured successfully.
+					r = resources.stat(self.rodsadmin_session, resc_name)
+					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					self.assertEqual(r["data"]["exists"], True)
+					self.assertIn("id", r["data"]["info"])
+					self.assertEqual(r["data"]["info"]["name"], resc_name)
+					self.assertEqual(r["data"]["info"]["type"], "unixfilesystem")
+					self.assertEqual(r["data"]["info"]["zone"], self.zone_name)
+					self.assertEqual(r["data"]["info"]["host"], self.host)
+					self.assertEqual(r["data"]["info"]["vault_path"], vault_path)
+					self.assertIn("status", r["data"]["info"])
+					self.assertIn("context", r["data"]["info"])
+					self.assertIn("comments", r["data"]["info"])
+					self.assertIn("information", r["data"]["info"])
+					self.assertIn("free_space", r["data"]["info"])
+					self.assertIn("free_space_last_modified", r["data"]["info"])
+					self.assertEqual(r["data"]["info"]["parent_id"], resc_repl_id)
+					self.assertIn("created", r["data"]["info"])
+					self.assertIn("last_modified", r["data"]["info"])
 
-		# Show there are two replicas under the replication resource hierarchy.
-		r = queries.execute_genquery(
-			self.rodsadmin_session,
-			f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(data_object).name}'",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 2)
+			# Create a data object targeting the replication resource.
+			r = data_objects.write(self.rodsadmin_session, "These are the bytes to be written", f, resc_repl, offset=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		resc_tuple = (r["data"]["rows"][0][1], r["data"]["rows"][1][1])
-		self.assertIn(resc_tuple, [(resc_ufs0, resc_ufs1), (resc_ufs1, resc_ufs0)])
+			# Show there are two replicas under the replication resource hierarchy.
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 2)
 
-		# Trim a replica.
-		r = data_objects.trim(self.rodsadmin_session, data_object, 0)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			resc_tuple = (r["data"]["rows"][0][1], r["data"]["rows"][1][1])
+			self.assertIn(resc_tuple, [(resc_ufs0, resc_ufs1), (resc_ufs1, resc_ufs0)])
 
-		# Show there is only one replica under the replication resource hierarchy.
-		r = queries.execute_genquery(
-			self.rodsadmin_session,
-			f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(data_object).name}'",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 1)
+			# Trim a replica.
+			r = data_objects.trim(self.rodsadmin_session, f, replica_number=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Launch rebalance
-		r = resources.rebalance(self.rodsadmin_session, resc_repl)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show there is only one replica under the replication resource hierarchy.
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 1)
 
-		# Give the rebalance operation time to complete!
-		time.sleep(3)
+			# Launch rebalance
+			r = resources.rebalance(self.rodsadmin_session, resc_repl)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		#
-		# Clean-up
-		#
+			# Give the rebalance operation time to complete!
+			time.sleep(3)
 
-		# Remove the data object.
-		r = data_objects.remove(self.rodsadmin_session, data_object, 0, 1)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show there are two replicas under the replication resource hierarchy.
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 2)
 
-		# Remove resources.
-		for resc_name in [resc_ufs0, resc_ufs1]:
-			with self.subTest(f"Detach and remove resource [{resc_name}] from [{resc_repl}]"):
-				# Detach ufs resource from the replication resource.
-				r = resources.remove_child(self.rodsadmin_session, resc_repl, resc_name)
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		finally:
+			# Remove the data object.
+			data_objects.remove(self.rodsadmin_session, f, catalog_only=0, no_trash=1)
 
-				# Remove ufs resource.
-				r = resources.remove(self.rodsadmin_session, resc_name)
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Remove resources.
+			for resc_name in [resc_ufs0, resc_ufs1]:
+				with self.subTest(f"Detach and remove resource [{resc_name}] from [{resc_repl}]"):
+					# Detach and remove the ufs resource.
+					resources.remove_child(self.rodsadmin_session, resc_repl, resc_name)
+					resources.remove(self.rodsadmin_session, resc_name)
 
-				# Show that the resource no longer exists.
-				r = resources.stat(self.rodsadmin_session, resc_name)
-				self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-				self.assertEqual(r["data"]["exists"], False)
-
-		# Remove replication resource.
-		r = resources.remove(self.rodsadmin_session, resc_repl)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Show that the resource no longer exists.
-		r = resources.stat(self.rodsadmin_session, resc_repl)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(r["data"]["exists"], False)
+			# Remove replication resource.
+			resources.remove(self.rodsadmin_session, resc_repl)
 
 	def test_modify_failures(self):
 		"""Test modifying resources, poorly."""
@@ -1454,9 +1435,8 @@ class ResourceTests(unittest.TestCase):
 			# Confirm
 			r = resources.stat(self.rodsadmin_session, resc)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-			# Uncomment once parent_context is available
-			# https://github.com/irods/irods_client_http_api/issues/473
-		# self.assertEqual(r["data"]["info"]["parent_context"], "neat")
+			# TODO(irods_client_http_api#473): uncomment once parent_context is available
+			# self.assertEqual(r["data"]["info"]["parent_context"], "neat")
 
 		finally:
 			resources.remove_child(self.rodsadmin_session, "demoResc", resc)
@@ -1464,59 +1444,61 @@ class ResourceTests(unittest.TestCase):
 
 	def test_modify_metadata(self):
 		"""Test modifying metadata on resources."""
-		# Create a unixfilesystem resource.
-		r = resources.create(
-			self.rodsadmin_session,
-			"metadata_demo",
-			"unixfilesystem",
-			self.host,
-			"/tmp/metadata_demo_vault",  # noqa: S108
-			"ignoreme",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		resc = "metadata_resc"
 
-		operations = [{"operation": "add", "attribute": "a1", "value": "v1", "units": "u1"}]
+		try:
+			# Create a unixfilesystem resource.
+			r = resources.create(
+				self.rodsadmin_session,
+				resc,
+				"unixfilesystem",
+				self.host,
+				"/tmp/metadata_demo_vault",  # noqa: S108
+				"ignoreme",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Add the metadata to the resource
-		r = resources.modify_metadata(self.rodsadmin_session, "metadata_demo", operations)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Add the metadata to the resource
+			operations = [{"operation": "add", "attribute": "a1", "value": "v1", "units": "u1"}]
+			r = resources.modify_metadata(self.rodsadmin_session, resc, operations)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Show that the metadata is on the resource
-		r = queries.execute_genquery(
-			self.rodsadmin_session,
-			"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
-			"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(r["data"]["rows"][0][0], "metadata_demo")
+			# Show that the metadata is on the resource
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
+				"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(r["data"]["rows"][0][0], resc)
 
-		# Remove the metadata from the resource.
-		operations = [{"operation": "remove", "attribute": "a1", "value": "v1", "units": "u1"}]
+			# Remove the metadata from the resource.
+			operations = [{"operation": "remove", "attribute": "a1", "value": "v1", "units": "u1"}]
+			r = resources.modify_metadata(self.rodsadmin_session, resc, operations)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		r = resources.modify_metadata(self.rodsadmin_session, "metadata_demo", operations)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show that the metadata is no longer on the resource
+			r = queries.execute_genquery(
+				self.rodsadmin_session,
+				"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
+				"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 0)
 
-		# Show that the metadata is no longer on the resource
-		r = queries.execute_genquery(
-			self.rodsadmin_session,
-			"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
-			"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
-		)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 0)
-
-		# Remove the resource
-		r = resources.remove(self.rodsadmin_session, "metadata_demo")
+		finally:
+			# Remove the resource
+			resources.remove(self.rodsadmin_session, resc)
 
 	def test_modify_properties(self):
 		"""Test modifying resource properties."""
 		resource = "properties_demo"
 
-		# Create a new resource.
-		r = resources.create(self.rodsadmin_session, resource, "replication", "", "", "")
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
 		try:
+			# Create a new resource.
+			r = resources.create(self.rodsadmin_session, resource, "replication", "", "", "")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
 			# The list of updates to apply in sequence.
 			property_map = [
 				("name", "test_modifying_resource_properties_renamed"),
@@ -1548,7 +1530,7 @@ class ResourceTests(unittest.TestCase):
 					self.assertEqual(r["data"]["info"][p], v)
 		finally:
 			# Remove the resource
-			r = resources.remove(self.rodsadmin_session, resource)
+			resources.remove(self.rodsadmin_session, resource)
 
 
 # Tests for rule operations
@@ -1572,16 +1554,13 @@ class RuleTests(unittest.TestCase):
 	def test_list(self):
 		"""Test listing rule engine plugins."""
 		# Try listing rule engine plugins
-		r = rules.list_rule_engines(
-			self.rodsadmin_session,
-		)
-
+		r = rules.list_rule_engines(self.rodsadmin_session)
 		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 		self.assertGreater(len(r["data"]["rule_engine_plugin_instances"]), 0)
 
 	def test_execute_rule(self):
 		"""Test executing iRODS rules."""
-		test_msg = "This was run by the iRODS HTTP API test suite!"
+		test_msg = "Hello from the test suite"
 
 		# Execute rule text against the iRODS rule language.
 		r = rules.execute(
@@ -1601,27 +1580,26 @@ class RuleTests(unittest.TestCase):
 		"""Test removing delayed execution rules."""
 		rep_instance = "irods_rule_engine_plugin-irods_rule_language-instance"
 
-		# Schedule a delay rule to execute in the distant future.
-		r = rules.execute(
-			self.rodsadmin_session,
-			f'delay("<INST_NAME>{rep_instance}</INST_NAME><PLUSET>1h</PLUSET>") '
-			f'{{ writeLine("serverLog", "iRODS HTTP API"); }}',
-			rep_instance,
-		)
+		try:
+			# Schedule a delay rule to execute in the distant future.
+			r = rules.execute(
+				self.rodsadmin_session,
+				f'delay("<INST_NAME>{rep_instance}</INST_NAME><PLUSET>1h</PLUSET>") '
+				f'{{ writeLine("serverLog", "test suite"); }}',
+				rep_instance,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Find the delay rule we just created.
+			# This query assumes the test suite is running on a system where no other delay
+			# rules are being created.
+			r = queries.execute_genquery(self.rodsadmin_session, "select max(RULE_EXEC_ID)")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(len(r["data"]["rows"]), 1)
 
-		# Find the delay rule we just created.
-		# This query assumes the test suite is running on a system where no other delay
-		# rules are being created.
-		r = queries.execute_genquery(self.rodsadmin_session, "select max(RULE_EXEC_ID)")
-
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		self.assertEqual(len(r["data"]["rows"]), 1)
-
-		# Remove the delay rule.
-		r = rules.remove_delay_rule(self.rodsadmin_session, int(r["data"]["rows"][0][0]))
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		finally:
+			# Remove the delay rule.
+			rules.remove_delay_rule(self.rodsadmin_session, int(r["data"]["rows"][0][0]))
 
 
 # Tests for query operations
@@ -1663,20 +1641,19 @@ class QueryTests(unittest.TestCase):
 		"""Test creating, executing, and removing specific queries."""
 		try:
 			# As rodsadmin, create a specific query
-
 			name = "get_users_count"
 			sql = "select count(*) from r_user_main"
 			r = queries.add_specific_query(self.rodsadmin_session, name=name, sql=sql)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-			# Switch to rodsuser and execute it
+			# Execute as rodsuser
 			r = queries.execute_specific_query(self.rodsuser_session, name=name)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 			self.assertEqual(r["data"]["rows"][0][0], "3")
 
 		finally:
-			# Switch to rodsadmin and remove it
-			r = queries.remove_specific_query(self.rodsadmin_session, name=name)
+			# Remove as rodsadmin
+			queries.remove_specific_query(self.rodsadmin_session, name=name)
 
 
 # Tests for tickets operations
@@ -1700,6 +1677,7 @@ class TicketTests(unittest.TestCase):
 	def test_create_failures(self):
 		"""Test ticket create failure modes."""
 		p = f"/{self.zone_name}/home/{self.rodsuser_username}"
+
 		# bad type
 		self.assertRaises(ValueError, tickets.create, self.rodsadmin_session, p, type_="bad")
 
@@ -1806,29 +1784,9 @@ class UserTests(unittest.TestCase):
 			ValueError, users_groups.set_user_type, self.rodsadmin_session, "baduser", self.zone_name, user_type="bad"
 		)
 
-	def test_create_stat_and_remove_rodsuser(self):
-		"""Test creating, querying, and removing rodsuser users."""
-		new_username = "test_user_rodsuser"
-		user_type = "rodsuser"
-
-		# Create a new user.
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
-
-		# Stat the user.
-		r = users_groups.stat(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], True)
-		self.assertIn("id", stat_info)
-		self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
-		self.assertEqual(stat_info["type"], user_type)
-
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
+	def test_bad_connection(self):
+		"""Test authenticate with a bad hostname."""
+		self.assertRaises(RuntimeError, authenticate, "example.org", "bad", "bad")
 
 	def test_empty_username(self):
 		"""Test authenticate with an empty username."""
@@ -1843,171 +1801,133 @@ class UserTests(unittest.TestCase):
 		new_username = "test_user_rodsuser"
 		user_type = "rodsuser"
 
-		# Create a new user.
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
+		try:
+			# Create a new user.
+			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
+			self.assertEqual(r["status_code"], 200)
 
-		new_password = "new_password"  # noqa: S105
-		# Set a new password
-		r = users_groups.set_password(self.rodsadmin_session, new_username, self.zone_name, new_password)
-		self.assertEqual(r["status_code"], 200)
+			# Set a new password
+			new_password = "new_password"  # noqa: S105
+			r = users_groups.set_password(self.rodsadmin_session, new_username, self.zone_name, new_password)
+			self.assertEqual(r["status_code"], 200)
 
-		# Try to get a token for the user
-		session = authenticate(self.url_base, new_username, new_password)
-		self.assertIsInstance(session.token, str)
+			# Try to get a token for the user
+			session = authenticate(self.url_base, new_username, new_password)
+			self.assertEqual(r["status_code"], 200)
+			self.assertIsInstance(session.token, str)
 
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
+		finally:
+			# Remove the user.
+			users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
 
-	def test_create_stat_and_remove_rodsadmin(self):
-		"""Test creating, querying, and removing rodsadmin users."""
-		new_username = "test_user_rodsadmin"
-		user_type = "rodsadmin"
+	def test_create_stat_and_remove_threetypes(self):
+		"""Test creation and removal of three types of users."""
+		new_username = "testuser"
+		user_types = ["rodsadmin", "groupadmin", "rodsuser"]
 
-		# Create a new user.
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
+		for t in user_types:
+			with self.subTest(f"Testing for [{t}]"):
+				try:
+					# Create a new user.
+					r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, t)
+					self.assertEqual(r["status_code"], 200)
 
-		# Stat the user.
-		r = users_groups.stat(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
+					# Stat the user.
+					r = users_groups.stat(self.rodsadmin_session, new_username, self.zone_name)
+					self.assertEqual(r["status_code"], 200)
+					stat_info = r["data"]
+					self.assertEqual(stat_info["irods_response"]["status_code"], 0)
+					self.assertEqual(stat_info["exists"], True)
+					self.assertIn("id", stat_info)
+					self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
+					self.assertEqual(stat_info["type"], t)
 
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], True)
-		self.assertIn("id", stat_info)
-		self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
-		self.assertEqual(stat_info["type"], user_type)
-
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-
-	def test_create_stat_and_remove_groupadmin(self):
-		"""Test creating, querying, and removing groupadmin users."""
-		new_username = "test_user_groupadmin"
-		user_type = "groupadmin"
-
-		# Create a new user.
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
-
-		# Stat the user.
-		r = users_groups.stat(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], True)
-		self.assertIn("id", stat_info)
-		self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
-		self.assertEqual(stat_info["type"], user_type)
-
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
+				finally:
+					# Remove the user.
+					users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
 
 	def test_add_remove_user_to_and_from_group(self):
 		"""Test adding and removing users from groups."""
-		# Create a new group.
-		new_group = "test_group"
-		r = users_groups.create_group(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		try:
+			# Create a new group.
+			new_group = "test_group"
+			r = users_groups.create_group(self.rodsadmin_session, new_group)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Stat the group.
-		r = users_groups.stat(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
+			# Stat the group.
+			r = users_groups.stat(self.rodsadmin_session, new_group)
+			self.assertEqual(r["status_code"], 200)
+			stat_info = r["data"]
+			self.assertEqual(stat_info["irods_response"]["status_code"], 0)
+			self.assertEqual(stat_info["exists"], True)
+			self.assertIn("id", stat_info)
+			self.assertEqual(stat_info["type"], "rodsgroup")
 
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], True)
-		self.assertIn("id", stat_info)
-		self.assertEqual(stat_info["type"], "rodsgroup")
+			# Create a new user.
+			new_username = "test_user_rodsuser"
+			user_type = "rodsuser"
+			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Create a new user.
-		new_username = "test_user_rodsuser"
-		user_type = "rodsuser"
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
+			# Add user to group.
+			r = users_groups.add_to_group(self.rodsadmin_session, new_username, self.zone_name, new_group)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Add user to group.
-		r = users_groups.add_to_group(self.rodsadmin_session, new_username, self.zone_name, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show that the user is a member of the group.
+			r = users_groups.is_member_of_group(self.rodsadmin_session, new_group, new_username, self.zone_name)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			self.assertEqual(r["data"]["is_member"], True)
 
-		# Show that the user is a member of the group.
-		r = users_groups.is_member_of_group(self.rodsadmin_session, new_group, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-		self.assertEqual(result["is_member"], True)
+		finally:
+			# Remove user from group.
+			users_groups.remove_from_group(self.rodsadmin_session, new_username, self.zone_name, new_group)
 
-		# Remove user from group.
-		r = users_groups.remove_from_group(self.rodsadmin_session, new_username, self.zone_name, new_group)
+			# Remove the user.
+			users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
 
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-
-		# Remove group.
-		r = users_groups.remove_group(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		# Show that the group no longer exists.
-		r = users_groups.stat(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], False)
+			# Remove group.
+			users_groups.remove_group(self.rodsadmin_session, new_group)
 
 	def test_only_a_rodsadmin_can_change_the_type_of_a_user(self):
 		"""Test that only rodsadmin users can change user type."""
-		# Create a new user.
-		new_username = "test_user_rodsuser"
-		user_type = "rodsuser"
-		r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		try:
+			# Create a new user.
+			new_username = "test_user_rodsuser"
+			user_type = "rodsuser"
+			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Show that a rodsadmin can change the type of the new user.
-		new_user_type = "groupadmin"
-		r = users_groups.set_user_type(self.rodsadmin_session, new_username, self.zone_name, new_user_type)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			# Show that a rodsadmin can change the type of the new user.
+			new_user_type = "groupadmin"
+			r = users_groups.set_user_type(self.rodsadmin_session, new_username, self.zone_name, new_user_type)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
 
-		# Show that a non-admin cannot change the type of the new user.
-		r = users_groups.set_user_type(self.rodsuser_session, new_user_type, self.zone_name, new_user_type)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], -13000)
+			# Show that a non-admin cannot change the type of the new user.
+			r = users_groups.set_user_type(self.rodsuser_session, new_user_type, self.zone_name, new_user_type)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -13000)
 
-		# Show that the user type matches the type set by the rodsadmin.
-		r = users_groups.stat(self.rodsuser_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
+			# Show that the user type matches the type set by the rodsadmin.
+			r = users_groups.stat(self.rodsuser_session, new_username, self.zone_name)
+			self.assertEqual(r["status_code"], 200)
+			stat_info = r["data"]
+			self.assertEqual(stat_info["irods_response"]["status_code"], 0)
+			self.assertEqual(stat_info["exists"], True)
+			self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
+			self.assertEqual(stat_info["type"], new_user_type)
 
-		stat_info = r["data"]
-		self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-		self.assertEqual(stat_info["exists"], True)
-		self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
-		self.assertEqual(stat_info["type"], new_user_type)
-
-		# Remove the user.
-		r = users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		finally:
+			# Remove the user.
+			users_groups.remove_user(self.rodsadmin_session, new_username, self.zone_name)
 
 	def test_listing_all_users_in_zone(self):
 		"""Test listing all users in the zone."""
-		r = users_groups.users(
-			self.rodsadmin_session,
-		)
+		r = users_groups.users(self.rodsadmin_session)
 		self.assertEqual(r["status_code"], 200)
 		result = r["data"]
 		self.assertEqual(result["irods_response"]["status_code"], 0)
@@ -2016,24 +1936,26 @@ class UserTests(unittest.TestCase):
 
 	def test_listing_all_groups_in_zone(self):
 		"""Test listing all groups in the zone."""
-		# Create a new group.
-		new_group = "test_group"
-		r = users_groups.create_group(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-		# Get all groups.
-		r = users_groups.groups(
-			self.rodsadmin_session,
-		)
-		self.assertEqual(r["status_code"], 200)
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-		self.assertIn("public", result["groups"])
-		self.assertIn(new_group, result["groups"])
-		# Remove the new group.
-		r = users_groups.remove_group(self.rodsadmin_session, new_group)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		try:
+			# Create a new group.
+			new_group = "test_group"
+			r = users_groups.create_group(self.rodsadmin_session, new_group)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Get all groups.
+			r = users_groups.groups(
+				self.rodsadmin_session,
+			)
+			self.assertEqual(r["status_code"], 200)
+			result = r["data"]
+			self.assertEqual(result["irods_response"]["status_code"], 0)
+			self.assertIn("public", result["groups"])
+			self.assertIn(new_group, result["groups"])
+
+		finally:
+			# Remove the new group.
+			users_groups.remove_group(self.rodsadmin_session, new_group)
 
 	def test_modifying_metadata_atomically(self):
 		"""Test atomically modifying user metadata."""
@@ -2070,7 +1992,6 @@ class UserTests(unittest.TestCase):
 			"META_USER_ATTR_VALUE = 'v1' and META_USER_ATTR_UNITS = 'u1'",
 		)
 		self.assertEqual(r["status_code"], 200)
-
 		result = r["data"]
 		self.assertEqual(result["irods_response"]["status_code"], 0)
 		self.assertEqual(len(result["rows"]), 0)

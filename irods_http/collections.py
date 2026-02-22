@@ -48,7 +48,7 @@ def remove(session: IRODSHTTPSession, lpath: str, recurse: int = 0, no_trash: in
 	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to be removed.
 	    recurse: Set to 1 to remove contents of the collection, otherwise set to 0. Defaults to 0.
-	    no_trash: Set to 1 to move the collection to trash, 0 to permanently remove. Defaults to 0.
+	    no_trash: Set to 1 to permanently remove, 0 to move to trash.  Defaults to 0.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
