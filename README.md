@@ -9,34 +9,27 @@ Documentation for the endpoint operations can be found [here](https://github.com
 This wrapper is available via pip:
 
 ```
-pip install irods-http-client
+pip install irods-http
 ```
 
 ## Usage
 To use the wrapper, follow the steps listed below.
 
 ```py
-from irods_http_client import IRODSHTTPClient
+import irods_http
 
-# Create an instance of the wrapper with the base url of the iRODS server to
-# be accessed. <host>, <port>, and <version> are placeholders, and need
-# to be replaced by appropriate values.
-api = IRODSHTTPClient('http://<host>:<port>/irods-http-api/<version>')
+# Placeholder values needed for irods_http.authenticate()
+url_base = "http://<host>:<port>/irods-http-api/<version>"
+username = "<username>"
+password = "<password>"
 
-# Most endpoint operations require a user to be authenticated in order to
-# be executed. Authenticate with a username and password, and store the
-# token received.
-token = api.authenticate('<username>', '<password>')
+# Create an IRODSHTTPSession to an iRODS HTTP API server
+session = irods_http.authenticate(url_base, username, password)
 
-# When calling authenticate for the first time on a new instance, the token
-# will be automatically set. To change the token to use operations as a
-# different user, use `setToken()`.
-api.setToken(token)
+# Use the session for all other operations
+response = irods_http.collections.create(session, '/<zone_name>/home/<username>/new_collection')
 
-# Once a token is set, the rest of the operations can be used.
-response = api.collections.create('/<zone_name>/home/<username>/new_collection')
-
-# After executing the operation, the iRODS response data can be accessed like this.
+# Check the resopnse for errors
 if response['status_code'] != 200:
     # Handle HTTP error.
 
@@ -44,7 +37,7 @@ if response['data']['irods_response']['status_code'] < 0:
     # Handle iRODS error.
 ```
 
-The data returned by the wrapper will be in this format:
+The response dict will have this format:
 ```py
 {
     'status_code': <integer>,
@@ -53,7 +46,8 @@ The data returned by the wrapper will be in this format:
 ```
 where `status_code` is the HTTP status code from the response, and `data` is the result of the iRODS operation.
 
-If there is data returned by the iRODS server, it will contain a dictionary called `irods_response`, which has an additional `status_code` indicating the result of the operation on the servers side, as well as any other expected data if the operation was successful.
+`response['data']` will contain a dict named `irods_response`, which will contain the `status_code` returned by the iRODS Server as well as any other expected properties.
+
 ```py
 {
     'irods_response': {
@@ -63,4 +57,6 @@ If there is data returned by the iRODS server, it will contain a dictionary call
 }
 ```
 
-More information regarding iRODS response data is available [here](https://github.com/irods/irods_client_http_api/blob/main/API.md).
+When calling `data_objects.read()`, the `response['data']` will contain the raw bytes instead of a dict.
+
+More information regarding iRODS HTTP API response data is available [here](https://github.com/irods/irods_client_http_api/blob/main/API.md).

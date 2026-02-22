@@ -1,10 +1,11 @@
 [project]
-name = "irods-http-client"
+name = "irods-http"
 version = "0.1.0"
 authors = [
   { name="iRODS Consortium", email="info@irods.org" },
 ]
 description = "A Python wrapper for the iRODS HTTP API"
+dependencies = ["requests"]
 readme = "README.md"
 requires-python = ">=3.9"
 license = "BSD-3-Clause"

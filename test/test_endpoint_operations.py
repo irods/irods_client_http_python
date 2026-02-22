@@ -13,7 +13,7 @@ import unittest
 
 import config
 
-from irods_http_client import (
+from irods_http import (
 	authenticate,
 	collections,
 	common,

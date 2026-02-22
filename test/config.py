@@ -1,4 +1,4 @@
-"""Test configuration and settings for iRODS HTTP client tests."""
+"""Test configuration and settings for iRODS HTTP client library tests."""
 
 import logging
 

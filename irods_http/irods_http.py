@@ -1,11 +1,35 @@
-"""Main client module for iRODS HTTP API interactions."""
+"""Main module for iRODS HTTP API interactions."""
 
 import requests
 
-from irods_http_client import common
+from irods_http import common
 
 
-def authenticate(url_base: str, username: str, password: str) -> str:
+class IRODSHTTPSession:
+	"""
+	Encapsulates HTTP session details for iRODS HTTP API.
+
+	This class binds together the base URL and authentication token that are
+	always used together in API calls.
+
+	Attributes:
+	    url_base: The base URL for the iRODS HTTP API.
+	    token: The authentication token for the API.
+	"""
+
+	def __init__(self, url_base: str, token: str):
+		"""
+		Initialize IRODSHTTPSession with URL and token.
+
+		Args:
+		    url_base: The base URL for the iRODS HTTP API.
+		    token: The authentication token for the API.
+		"""
+		self.url_base = url_base
+		self.token = token
+
+
+def authenticate(url_base: str, username: str, password: str) -> IRODSHTTPSession:
 	"""
 	Authenticate using basic authentication credentials.
 
@@ -18,7 +42,7 @@ def authenticate(url_base: str, username: str, password: str) -> str:
 	    password: The password for authentication. Must be a string.
 
 	Returns:
-	    A token string that can be used for subsequent authenticated requests.
+	    An IRODSHTTPSession containing a token string that can be used for subsequent authenticated requests.
 
 	Raises:
 	    TypeError: If username or password are not strings.
@@ -40,7 +64,7 @@ def authenticate(url_base: str, username: str, password: str) -> str:
 
 		# Check for success status code (2xx)
 		if 200 <= r.status_code < 300:  # noqa: PLR2004
-			return common.HTTPSession(url_base, r.text)
+			return IRODSHTTPSession(url_base, r.text)
 
 		# Handle error status codes
 		error_msg = f"Authentication failed with status {r.status_code}"
@@ -52,12 +76,12 @@ def authenticate(url_base: str, username: str, password: str) -> str:
 		raise RuntimeError(f"Authentication request failed: {e!s}") from e
 
 
-def get_server_info(session: common.HTTPSession):
+def get_server_info(session: IRODSHTTPSession):
 	"""
 	Get general information about the iRODS server.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.

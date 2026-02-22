@@ -3,10 +3,11 @@
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
 def create(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	type_: str = "read",
 	use_count: int = -1,
@@ -21,7 +22,7 @@ def create(
 	Create a new ticket for a collection or data object.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    lpath: Absolute logical path to a data object or collection.
 	    type_: Read or write. Defaults to read.
 	    use_count: Number of times the ticket can be used.
@@ -77,12 +78,12 @@ def create(
 	return common.process_response(r)
 
 
-def remove(session: common.HTTPSession, name: str):
+def remove(session: IRODSHTTPSession, name: str):
 	"""
 	Remove an existing ticket.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The ticket to be removed.
 
 	Returns:

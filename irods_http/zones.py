@@ -3,14 +3,15 @@
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def add(session: common.HTTPSession, name: str, connection_info: str = "", comment: str = ""):
+def add(session: IRODSHTTPSession, name: str, connection_info: str = "", comment: str = ""):
 	"""
 	Add a remote zone to the local zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the zone to be added.
 	    connection_info: The host and port to connect to. If included, must be in the format <host>:<port>.
 	    comment: The comment to attach to the zone.
@@ -39,12 +40,12 @@ def add(session: common.HTTPSession, name: str, connection_info: str = "", comme
 	return common.process_response(r)
 
 
-def remove(session: common.HTTPSession, name: str):
+def remove(session: IRODSHTTPSession, name: str):
 	"""
 	Remove a remote zone from the local zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The zone to be removed.
 
 	Returns:
@@ -64,12 +65,12 @@ def remove(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def modify(session: common.HTTPSession, name: str, property_: str, value: str):
+def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 	"""
 	Modify properties of a remote zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the zone to be modified.
 	    property_: The property to be modified. Can be set to 'name', 'connection_info', or 'comment'.
 	              The value for 'connection_info' must be in the format <host>:<port>.
@@ -94,12 +95,12 @@ def modify(session: common.HTTPSession, name: str, property_: str, value: str):
 	return common.process_response(r)
 
 
-def report(session: common.HTTPSession):
+def report(session: IRODSHTTPSession):
 	"""
 	Return information about the iRODS zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -116,12 +117,12 @@ def report(session: common.HTTPSession):
 	return common.process_response(r)
 
 
-def stat(session: common.HTTPSession, name: str):
+def stat(session: IRODSHTTPSession, name: str):
 	"""
 	Return information about a named iRODS zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the zone.
 
 	Returns:

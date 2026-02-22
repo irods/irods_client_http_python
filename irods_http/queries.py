@@ -3,10 +3,11 @@
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
 def execute_genquery(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	query: str,
 	offset: int = 0,
 	count: int = -1,
@@ -20,7 +21,7 @@ def execute_genquery(
 	Execute a GenQuery string and returns the results.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    query: The query being executed.
 	    offset: Number of rows to skip. Defaults to 0.
 	    count: Number of rows to return. Default set by administrator.
@@ -79,7 +80,7 @@ def execute_genquery(
 
 
 def execute_specific_query(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	name: str,
 	args: str = "",
 	args_delimiter: str = ",",
@@ -90,7 +91,7 @@ def execute_specific_query(
 	Execute a specific query and returns the results.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the query to be executed.
 	    args: The arguments to be passed into the query.
 	    args_delimiter: The delimiter to be used to parse the args. Defaults to ','.
@@ -128,12 +129,12 @@ def execute_specific_query(
 	return common.process_response(r)
 
 
-def add_specific_query(session: common.HTTPSession, name: str, sql: str):
+def add_specific_query(session: IRODSHTTPSession, name: str, sql: str):
 	"""
 	Add a SpecificQuery to the iRODS zone.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the query to be added.
 	    sql: The SQL attached to the query.
 
@@ -154,12 +155,12 @@ def add_specific_query(session: common.HTTPSession, name: str, sql: str):
 	return common.process_response(r)
 
 
-def remove_specific_query(session: common.HTTPSession, name: str):
+def remove_specific_query(session: IRODSHTTPSession, name: str):
 	"""
 	Remove a SpecificQuery from the iRODS zone.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the SpecificQuery to be removed.
 
 	Returns:

@@ -3,14 +3,15 @@
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def list_rule_engines(session: common.HTTPSession):
+def list_rule_engines(session: IRODSHTTPSession):
 	"""
 	List available rule engine plugin instances.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -26,12 +27,12 @@ def list_rule_engines(session: common.HTTPSession):
 	return common.process_response(r)
 
 
-def execute(session: common.HTTPSession, rule_text: str, rep_instance: str = ""):
+def execute(session: IRODSHTTPSession, rule_text: str, rep_instance: str = ""):
 	"""
 	Execute rule code.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    rule_text: The rule code to execute.
 	    rep_instance: The rule engine plugin to run the rule-text against.
 
@@ -56,12 +57,12 @@ def execute(session: common.HTTPSession, rule_text: str, rep_instance: str = "")
 	return common.process_response(r)
 
 
-def remove_delay_rule(session: common.HTTPSession, rule_id: int):
+def remove_delay_rule(session: IRODSHTTPSession, rule_id: int):
 	"""
 	Remove a delay rule from the catalog.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    rule_id: The id of the delay rule to be removed.
 
 	Returns:

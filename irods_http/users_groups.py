@@ -5,14 +5,15 @@ import json
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def create_user(session: common.HTTPSession, name: str, zone: str, user_type: str = "rodsuser"):
+def create_user(session: IRODSHTTPSession, name: str, zone: str, user_type: str = "rodsuser"):
 	"""
 	Create a new user. Requires rodsadmin or groupadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to be created.
 	    zone: The zone for the user to be created.
 	    user_type: Can be rodsuser, groupadmin, or rodsadmin. Defaults to rodsuser.
@@ -41,12 +42,12 @@ def create_user(session: common.HTTPSession, name: str, zone: str, user_type: st
 	return common.process_response(r)
 
 
-def remove_user(session: common.HTTPSession, name: str, zone: str):
+def remove_user(session: IRODSHTTPSession, name: str, zone: str):
 	"""
 	Remove a user. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to be removed.
 	    zone: The zone for the user to be removed.
 
@@ -68,12 +69,12 @@ def remove_user(session: common.HTTPSession, name: str, zone: str):
 	return common.process_response(r)
 
 
-def set_password(session: common.HTTPSession, name: str, zone: str, new_password: str = ""):
+def set_password(session: IRODSHTTPSession, name: str, zone: str, new_password: str = ""):
 	"""
 	Change a users password. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to have their password changed.
 	    zone: The zone for the user to have their password changed.
 	    new_password: The new password to set for the user.
@@ -102,12 +103,12 @@ def set_password(session: common.HTTPSession, name: str, zone: str, new_password
 	return common.process_response(r)
 
 
-def set_user_type(session: common.HTTPSession, name: str, zone: str, user_type: str):
+def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: str):
 	"""
 	Change a users type. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to have their type updated.
 	    zone: The zone for the user to have their type updated.
 	    user_type: Can be rodsuser, groupadmin, or rodsadmin.
@@ -141,12 +142,12 @@ def set_user_type(session: common.HTTPSession, name: str, zone: str, user_type: 
 	return common.process_response(r)
 
 
-def create_group(session: common.HTTPSession, name: str):
+def create_group(session: IRODSHTTPSession, name: str):
 	"""
 	Create a new group. Requires rodsadmin or groupadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the group to be created.
 
 	Returns:
@@ -166,12 +167,12 @@ def create_group(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def remove_group(session: common.HTTPSession, name: str):
+def remove_group(session: IRODSHTTPSession, name: str):
 	"""
 	Remove a group. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the group to be removed.
 
 	Returns:
@@ -191,12 +192,12 @@ def remove_group(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def add_to_group(session: common.HTTPSession, user: str, zone: str, group: str = ""):
+def add_to_group(session: IRODSHTTPSession, user: str, zone: str, group: str = ""):
 	"""
 	Add a user to a group. Requires rodsadmin or groupadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    user: The user to be added to the group.
 	    zone: The zone for the user to be added to the group.
 	    group: The group for the user to be added to.
@@ -220,12 +221,12 @@ def add_to_group(session: common.HTTPSession, user: str, zone: str, group: str =
 	return common.process_response(r)
 
 
-def remove_from_group(session: common.HTTPSession, user: str, zone: str, group: str):
+def remove_from_group(session: IRODSHTTPSession, user: str, zone: str, group: str):
 	"""
 	Remove a user from a group. Requires rodsadmin or groupadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    user: The user to be removed from the group.
 	    zone: The zone for the user to be removed from the group.
 	    group: The group for the user to be removed from.
@@ -249,12 +250,12 @@ def remove_from_group(session: common.HTTPSession, user: str, zone: str, group: 
 	return common.process_response(r)
 
 
-def users(session: common.HTTPSession):
+def users(session: IRODSHTTPSession):
 	"""
 	List all users in the zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -268,12 +269,12 @@ def users(session: common.HTTPSession):
 	return common.process_response(r)
 
 
-def groups(session: common.HTTPSession):
+def groups(session: IRODSHTTPSession):
 	"""
 	List all groups in the zone. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -289,12 +290,12 @@ def groups(session: common.HTTPSession):
 	return common.process_response(r)
 
 
-def is_member_of_group(session: common.HTTPSession, group: str, user: str, zone: str):
+def is_member_of_group(session: IRODSHTTPSession, group: str, user: str, zone: str):
 	"""
 	Return whether a user is a member of a group or not.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    group: The group being checked.
 	    user: The user being checked.
 	    zone: The zone for the user being checked.
@@ -323,12 +324,12 @@ def is_member_of_group(session: common.HTTPSession, group: str, user: str, zone:
 	return common.process_response(r)
 
 
-def stat(session: common.HTTPSession, name: str, zone: str = ""):
+def stat(session: IRODSHTTPSession, name: str, zone: str = ""):
 	"""
 	Return information about a user or group.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the user or group to be accessed.
 	    zone: The zone of the user to be accessed. Not required for groups.
 
@@ -350,12 +351,12 @@ def stat(session: common.HTTPSession, name: str, zone: str = ""):
 	return common.process_response(r)
 
 
-def modify_metadata(session: common.HTTPSession, name: str, operations: list):
+def modify_metadata(session: IRODSHTTPSession, name: str, operations: list):
 	"""
 	Modify the metadata for a user or group. Requires rodsadmin privileges.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The user or group to be modified.
 	    operations: The operations to be carried out.
 

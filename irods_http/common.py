@@ -1,30 +1,6 @@
 """Common utility functions for iRODS HTTP client operations."""
 
 
-class HTTPSession:
-	"""
-	Encapsulates HTTP session details for iRODS HTTP API.
-
-	This class binds together the base URL and authentication token that are
-	always used together in API calls.
-
-	Attributes:
-	    url_base: The base URL for the iRODS HTTP API.
-	    token: The authentication token for the API.
-	"""
-
-	def __init__(self, url_base: str, token: str):
-		"""
-		Initialize HTTPSession with URL and token.
-
-		Args:
-		    url_base: The base URL for the iRODS HTTP API.
-		    token: The authentication token for the API.
-		"""
-		self.url_base = url_base
-		self.token = token
-
-
 def process_response(r):
 	"""
 	Process an HTTP response and return standardized response dict.

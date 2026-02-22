@@ -5,10 +5,11 @@ import json
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
 def touch(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	no_create: int = 0,
 	replica_number: int = -1,
@@ -20,7 +21,7 @@ def touch(
 	Update mtime for an existing data object or create a new one.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object being touched.
 	    no_create: Set to 1 to prevent creating a new object, otherwise set to 0. Defaults to 0.
 	    replica_number: The replica number of the target replica. Defaults to -1.
@@ -65,12 +66,12 @@ def touch(
 	return common.process_response(r)
 
 
-def remove(session: common.HTTPSession, lpath: str, catalog_only: int = 0, no_trash: int = 0, admin: int = 0) -> dict:
+def remove(session: IRODSHTTPSession, lpath: str, catalog_only: int = 0, no_trash: int = 0, admin: int = 0) -> dict:
 	"""
 	Remove an existing data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to be removed.
 	    catalog_only: Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
 	    no_trash: Set to 1 to move the data object to trash, 0 to permanently remove. Defaults to 0.
@@ -104,7 +105,7 @@ def remove(session: common.HTTPSession, lpath: str, catalog_only: int = 0, no_tr
 
 
 def calculate_checksum(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	resource: str = "",
 	replica_number: int = -1,
@@ -116,7 +117,7 @@ def calculate_checksum(
 	Calculate the checksum for a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have its checksum calculated.
 	    resource: The resource holding the existing replica. Defaults to "".
 	    replica_number: The replica number of the target replica. Defaults to -1.
@@ -160,7 +161,7 @@ def calculate_checksum(
 
 
 def verify_checksum(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	resource: str = "",
 	replica_number: int = -1,
@@ -171,7 +172,7 @@ def verify_checksum(
 	Verify the checksum for a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have its checksum verified.
 	    resource: The resource holding the existing replica. Defaults to "".
 	    replica_number: The replica number of the target replica. Defaults to -1.
@@ -211,12 +212,12 @@ def verify_checksum(
 	return common.process_response(r)
 
 
-def stat(session: common.HTTPSession, lpath: str, ticket: str = "") -> dict:
+def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	"""
 	Give information about a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object being accessed.
 	    ticket: Ticket to be enabled before the operation. Defaults to an empty string.
 
@@ -238,12 +239,12 @@ def stat(session: common.HTTPSession, lpath: str, ticket: str = "") -> dict:
 	return common.process_response(r)
 
 
-def rename(session: common.HTTPSession, old_lpath: str, new_lpath: str) -> dict:
+def rename(session: IRODSHTTPSession, old_lpath: str, new_lpath: str) -> dict:
 	"""
 	Rename or move a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    old_lpath: The current absolute logical path of the data object.
 	    new_lpath: The absolute logical path of the destination for the data object.
 
@@ -267,7 +268,7 @@ def rename(session: common.HTTPSession, old_lpath: str, new_lpath: str) -> dict:
 
 
 def copy(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	src_lpath: str,
 	dst_lpath: str,
 	src_resource: str = "",
@@ -278,7 +279,7 @@ def copy(
 	Copy a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    src_lpath: The absolute logical path of the source data object.
 	    dst_lpath: The absolute logical path of the destination.
 	    src_resource: The name of the source resource. Defaults to "".
@@ -319,7 +320,7 @@ def copy(
 
 
 def replicate(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	src_resource: str = "",
 	dst_resource: str = "",
@@ -329,7 +330,7 @@ def replicate(
 	Replicates a data object from one resource to another.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to be replicated.
 	    src_resource: The name of the source resource. Defaults to "".
 	    dst_resource: The name of the destination resource. Defaults to "".
@@ -362,12 +363,12 @@ def replicate(
 	return common.process_response(r)
 
 
-def trim(session: common.HTTPSession, lpath: str, replica_number: int, catalog_only: int = 0, admin: int = 0) -> dict:
+def trim(session: IRODSHTTPSession, lpath: str, replica_number: int, catalog_only: int = 0, admin: int = 0) -> dict:
 	"""
 	Trims an existing replica or removes its catalog entry.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The  absolute logical path of the data object to be trimmed.
 	    replica_number: The replica number of the target replica.
 	    catalog_only: Set to 1 to remove only the catalog entry, otherwise set to 0. Defaults to 0.
@@ -401,7 +402,7 @@ def trim(session: common.HTTPSession, lpath: str, replica_number: int, catalog_o
 
 
 def register(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	ppath: str,
 	resource: str,
@@ -413,7 +414,7 @@ def register(
 	Register a data object/replica into the catalog.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to be registered.
 	    ppath: The absolute physical path of the data object to be registered.
 	    resource: The resource that will own the replica.
@@ -455,12 +456,12 @@ def register(
 	return common.process_response(r)
 
 
-def read(session: common.HTTPSession, lpath: str, offset: int = 0, count: int = -1, ticket: str = "") -> dict:
+def read(session: IRODSHTTPSession, lpath: str, offset: int = 0, count: int = -1, ticket: str = "") -> dict:
 	"""
 	Read bytes from a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to be read from.
 	    offset: The number of bytes to skip. Defaults to 0.
 	    count: The number of bytes to read. Defaults to -1.
@@ -495,7 +496,7 @@ def read(session: common.HTTPSession, lpath: str, offset: int = 0, count: int = 
 
 
 def write(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	bytes_,
 	lpath: str = "",
 	resource: str = "",
@@ -509,7 +510,7 @@ def write(
 	Write bytes to a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    bytes_: The bytes to be written.
 	    lpath: The absolute logical path of the data object to be written to. Defaults to "".
 	    resource: The root resource to write to. Defaults to "".
@@ -567,7 +568,7 @@ def write(
 
 
 def parallel_write_init(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	stream_count: int,
 	truncate: int = 1,
@@ -578,7 +579,7 @@ def parallel_write_init(
 	Initialize server-side state for parallel writing.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to be initialized for parallel write.
 	    stream_count: The number of streams to open.
 	    truncate: Set to 1 to truncate the data object before writing, otherwise set to 0. Defaults to 1.
@@ -616,12 +617,12 @@ def parallel_write_init(
 	return common.process_response(r)
 
 
-def parallel_write_shutdown(session: common.HTTPSession, parallel_write_handle: str) -> dict:
+def parallel_write_shutdown(session: IRODSHTTPSession, parallel_write_handle: str) -> dict:
 	"""
 	Shuts down the parallel write state in the server.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    parallel_write_handle: Handle obtained from parallel_write_init.
 
 	Returns:
@@ -645,12 +646,12 @@ def parallel_write_shutdown(session: common.HTTPSession, parallel_write_handle: 
 	return common.process_response(r)
 
 
-def modify_metadata(session: common.HTTPSession, lpath: str, operations: list, admin: int = 0) -> dict:
+def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: list, admin: int = 0) -> dict:
 	"""
 	Modify the metadata for a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have its inheritance set.
 	    operations: Dictionary containing the operations to carry out. Should contain the
 	      operation, attribute, value, and optionally units.
@@ -682,12 +683,12 @@ def modify_metadata(session: common.HTTPSession, lpath: str, operations: list, a
 	return common.process_response(r)
 
 
-def set_permission(session: common.HTTPSession, lpath: str, entity_name: str, permission: str, admin: int = 0) -> dict:
+def set_permission(session: IRODSHTTPSession, lpath: str, entity_name: str, permission: str, admin: int = 0) -> dict:
 	"""
 	Set the permission of a user for a given data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have a permission set.
 	    entity_name: The name of the user or group having its permission set.
 	    permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
@@ -725,12 +726,12 @@ def set_permission(session: common.HTTPSession, lpath: str, entity_name: str, pe
 	return common.process_response(r)
 
 
-def modify_permissions(session: common.HTTPSession, lpath: str, operations: list, admin: int = 0) -> dict:
+def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: list, admin: int = 0) -> dict:
 	"""
 	Modify permissions for multiple users or groups for a data object.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have its permissions modified.
 	    operations: Dictionary containing the operations to carry out. Should contain names
 	      and permissions for all operations.
@@ -763,7 +764,7 @@ def modify_permissions(session: common.HTTPSession, lpath: str, operations: list
 
 
 def modify_replica(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	resource_hierarchy: str = "",
 	replica_number: int = -1,
@@ -790,7 +791,7 @@ def modify_replica(
 	Misuse can lead to catalog inconsistencies and unexpected behavior.
 
 	Args:
-	    session: common.HTTPSession object containing base URL and authentication token.
+	    session: IRODSHTTPSession object containing base URL and authentication token.
 	    lpath: The absolute logical path of the data object to have a replica modified.
 	    resource_hierarchy: The hierarchy containing the resource to be modified. Defaults to "".
 	      Mutually exclusive with replica_number.

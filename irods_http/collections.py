@@ -5,14 +5,15 @@ import json
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def create(session: common.HTTPSession, lpath: str, create_intermediates: int = 0) -> dict:
+def create(session: IRODSHTTPSession, lpath: str, create_intermediates: int = 0) -> dict:
 	"""
 	Create a new collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to be created.
 	    create_intermediates: Set to 1 to create intermediates, otherwise set to 0. Defaults to 0.
 
@@ -39,12 +40,12 @@ def create(session: common.HTTPSession, lpath: str, create_intermediates: int = 
 	return common.process_response(r)
 
 
-def remove(session: common.HTTPSession, lpath: str, recurse: int = 0, no_trash: int = 0) -> dict:
+def remove(session: IRODSHTTPSession, lpath: str, recurse: int = 0, no_trash: int = 0) -> dict:
 	"""
 	Remove an existing collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to be removed.
 	    recurse: Set to 1 to remove contents of the collection, otherwise set to 0. Defaults to 0.
 	    no_trash: Set to 1 to move the collection to trash, 0 to permanently remove. Defaults to 0.
@@ -74,12 +75,12 @@ def remove(session: common.HTTPSession, lpath: str, recurse: int = 0, no_trash: 
 	return common.process_response(r)
 
 
-def stat(session: common.HTTPSession, lpath: str, ticket: str = "") -> dict:
+def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	"""
 	Give information about a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection being accessed.
 	    ticket: Ticket to be enabled before the operation. Defaults to an empty string.
 
@@ -101,12 +102,12 @@ def stat(session: common.HTTPSession, lpath: str, ticket: str = "") -> dict:
 	return common.process_response(r)
 
 
-def list_collection(session: common.HTTPSession, lpath: str, recurse: int = 0, ticket: str = "") -> dict:
+def list_collection(session: IRODSHTTPSession, lpath: str, recurse: int = 0, ticket: str = "") -> dict:
 	"""
 	Show the contents of a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to have its contents listed.
 	    recurse: Set to 1 to list the contents of objects in the collection,
 	      otherwise set to 0. Defaults to 0.
@@ -132,7 +133,7 @@ def list_collection(session: common.HTTPSession, lpath: str, recurse: int = 0, t
 
 
 def set_permission(
-	session: common.HTTPSession,
+	session: IRODSHTTPSession,
 	lpath: str,
 	entity_name: str,
 	permission: str,
@@ -142,7 +143,7 @@ def set_permission(
 	Set the permission of a user for a given collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to have a permission set.
 	    entity_name: The name of the user or group having its permission set.
 	    permission: The permission level being set. Either 'null', 'read', 'write', or 'own'.
@@ -180,12 +181,12 @@ def set_permission(
 	return common.process_response(r)
 
 
-def set_inheritance(session: common.HTTPSession, lpath: str, enable: int, admin: int = 0) -> dict:
+def set_inheritance(session: IRODSHTTPSession, lpath: str, enable: int, admin: int = 0) -> dict:
 	"""
 	Set the inheritance for a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to have its inheritance set.
 	    enable: Set to 1 to enable inheritance, or 0 to disable.
 	    admin: Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
@@ -215,12 +216,12 @@ def set_inheritance(session: common.HTTPSession, lpath: str, enable: int, admin:
 	return common.process_response(r)
 
 
-def modify_permissions(session: common.HTTPSession, lpath: str, operations: dict, admin: int = 0) -> dict:
+def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: dict, admin: int = 0) -> dict:
 	"""
 	Modify permissions for multiple users or groups for a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to have its permissions modified.
 	    operations: Dictionary containing the operations to carry out. Should contain names
 	      and permissions for all operations.
@@ -252,12 +253,12 @@ def modify_permissions(session: common.HTTPSession, lpath: str, operations: dict
 	return common.process_response(r)
 
 
-def modify_metadata(session: common.HTTPSession, lpath: str, operations: dict, admin: int = 0) -> dict:
+def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: dict, admin: int = 0) -> dict:
 	"""
 	Modify the metadata for a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection to have its metadata modified.
 	    operations: Dictionary containing the operations to carry out. Should contain the
 	      operation, attribute, value, and optionally units.
@@ -289,12 +290,12 @@ def modify_metadata(session: common.HTTPSession, lpath: str, operations: dict, a
 	return common.process_response(r)
 
 
-def rename(session: common.HTTPSession, old_lpath: str, new_lpath: str) -> dict:
+def rename(session: IRODSHTTPSession, old_lpath: str, new_lpath: str) -> dict:
 	"""
 	Rename or move a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    old_lpath: The current absolute logical path of the collection.
 	    new_lpath: The absolute logical path of the destination for the collection.
 
@@ -317,12 +318,12 @@ def rename(session: common.HTTPSession, old_lpath: str, new_lpath: str) -> dict:
 	return common.process_response(r)
 
 
-def touch(session: common.HTTPSession, lpath: str, seconds_since_epoch: int = -1, reference: str = "") -> dict:
+def touch(session: IRODSHTTPSession, lpath: str, seconds_since_epoch: int = -1, reference: str = "") -> dict:
 	"""
 	Update mtime for a collection.
 
 	Args:
-	    session: common.HTTPSession object containing the base URL and authentication token.
+	    session: IRODSHTTPSession object containing the base URL and authentication token.
 	    lpath: The absolute logical path of the collection being touched.
 	    seconds_since_epoch: The value to set mtime to, defaults to -1 as a flag.
 	    reference: The absolute logical path of the collection to use as a reference for mtime.

@@ -1,1 +1,1 @@
-"""iRODS HTTP client test module."""
+"""iRODS HTTP client library test module."""

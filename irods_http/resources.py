@@ -5,14 +5,15 @@ import json
 import requests
 
 from . import common
+from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def create(session: common.HTTPSession, name: str, type_: str, host: str, vault_path: str, context: str):
+def create(session: IRODSHTTPSession, name: str, type_: str, host: str, vault_path: str, context: str):
 	"""
 	Create a new resource.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be created.
 	    type_: The type of the resource to be created.
 	    host: The host of the resource to be created. May or may not be required depending
@@ -51,12 +52,12 @@ def create(session: common.HTTPSession, name: str, type_: str, host: str, vault_
 	return common.process_response(r)
 
 
-def remove(session: common.HTTPSession, name: str):
+def remove(session: IRODSHTTPSession, name: str):
 	"""
 	Remove an existing resource.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be removed.
 
 	Returns:
@@ -76,12 +77,12 @@ def remove(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def modify(session: common.HTTPSession, name: str, property_: str, value: str):
+def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 	"""
 	Modify a property for a resource.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be modified.
 	    property_: The property to be modified.
 	    value: The new value to be set.
@@ -126,12 +127,12 @@ def modify(session: common.HTTPSession, name: str, property_: str, value: str):
 	return common.process_response(r)
 
 
-def add_child(session: common.HTTPSession, parent_name: str, child_name: str, context: str = ""):
+def add_child(session: IRODSHTTPSession, parent_name: str, child_name: str, context: str = ""):
 	"""
 	Create a parent-child relationship between two resources.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    parent_name: The name of the parent resource.
 	    child_name: The name of the child resource.
 	    context: Additional information for the parent-child relationship.
@@ -158,12 +159,12 @@ def add_child(session: common.HTTPSession, parent_name: str, child_name: str, co
 	return common.process_response(r)
 
 
-def remove_child(session: common.HTTPSession, parent_name: str, child_name: str):
+def remove_child(session: IRODSHTTPSession, parent_name: str, child_name: str):
 	"""
 	Remove a parent-child relationship between two resources.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    parent_name: The name of the parent resource.
 	    child_name: The name of the child resource.
 
@@ -189,12 +190,12 @@ def remove_child(session: common.HTTPSession, parent_name: str, child_name: str)
 	return common.process_response(r)
 
 
-def rebalance(session: common.HTTPSession, name: str):
+def rebalance(session: IRODSHTTPSession, name: str):
 	"""
 	Rebalance a resource hierarchy.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be rebalanced.
 
 	Returns:
@@ -214,12 +215,12 @@ def rebalance(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def stat(session: common.HTTPSession, name: str):
+def stat(session: IRODSHTTPSession, name: str):
 	"""
 	Retrieve information for a resource.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be accessed.
 
 	Returns:
@@ -239,12 +240,12 @@ def stat(session: common.HTTPSession, name: str):
 	return common.process_response(r)
 
 
-def modify_metadata(session: common.HTTPSession, name: str, operations: dict, admin: int = 0):
+def modify_metadata(session: IRODSHTTPSession, name: str, operations: dict, admin: int = 0):
 	"""
 	Modify the metadata for a resource.
 
 	Args:
-	    session: An HTTPSession instance.
+	    session: An IRODSHTTPSession instance.
 	    name: The absolute logical path of the resource to have its metadata modified.
 	    operations: Dictionary containing the operations to carry out. Should contain the
 	      operation, attribute, value, and optionally units.
