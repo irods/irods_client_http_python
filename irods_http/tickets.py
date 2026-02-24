@@ -9,7 +9,7 @@ from .irods_http import IRODSHTTPSession  # noqa: TC001
 def create(
 	session: IRODSHTTPSession,
 	lpath: str,
-	type_: str = "read",
+	type: str = "read",  # noqa: A002
 	use_count: int = -1,
 	write_data_object_count: int = -1,
 	write_byte_count: int = -1,
@@ -24,7 +24,7 @@ def create(
 	Args:
 	    session: An IRODSHTTPSession instance.
 	    lpath: Absolute logical path to a data object or collection.
-	    type_: Read or write. Defaults to read.
+	    type: Read or write. Defaults to read.
 	    use_count: Number of times the ticket can be used.
 	    write_data_object_count: Max number of writes that can be performed.
 	    write_byte_count: Max number of bytes that can be written.
@@ -38,11 +38,11 @@ def create(
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 
 	Raises:
-	    ValueError: If type_ is not 'read' or 'write'.
+	    ValueError: If type is not 'read' or 'write'.
 	"""
 	common.validate_instance(lpath, str)
-	common.validate_instance(type_, str)
-	if type_ not in ["read", "write"]:
+	common.validate_instance(type, str)
+	if type not in ["read", "write"]:
 		raise ValueError("type must be either read or write")
 	common.validate_gte_minus1(use_count)
 	common.validate_gte_minus1(write_data_object_count)
@@ -52,7 +52,7 @@ def create(
 	common.validate_instance(groups, str)
 	common.validate_instance(hosts, str)
 
-	data = {"op": "create", "lpath": lpath, "type": type_}
+	data = {"op": "create", "lpath": lpath, "type": type}
 
 	if use_count != -1:
 		data["use-count"] = use_count

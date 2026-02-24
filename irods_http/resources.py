@@ -8,14 +8,14 @@ from . import common
 from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def create(session: IRODSHTTPSession, name: str, type_: str, host: str, vault_path: str, context: str):
+def create(session: IRODSHTTPSession, name: str, type: str, host: str, vault_path: str, context: str):  # noqa: A002
 	"""
 	Create a new resource.
 
 	Args:
 	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be created.
-	    type_: The type of the resource to be created.
+	    type: The type of the resource to be created.
 	    host: The host of the resource to be created. May or may not be required depending
 	      on the resource type.
 	    vault_path: Path to the storage vault for the resource. May or may not be required
@@ -27,12 +27,12 @@ def create(session: IRODSHTTPSession, name: str, type_: str, host: str, vault_pa
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 	"""
 	common.validate_instance(name, str)
-	common.validate_instance(type_, str)
+	common.validate_instance(type, str)
 	common.validate_instance(host, str)
 	common.validate_instance(vault_path, str)
 	common.validate_instance(context, str)
 
-	data = {"op": "create", "name": name, "type": type_}
+	data = {"op": "create", "name": name, "type": type}
 
 	if host != "":
 		data["host"] = host
@@ -67,14 +67,14 @@ def remove(session: IRODSHTTPSession, name: str):
 	return common.process_response(r)
 
 
-def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
+def modify(session: IRODSHTTPSession, name: str, property: str, value: str):  # noqa: A002
 	"""
 	Modify a property for a resource.
 
 	Args:
 	    session: An IRODSHTTPSession instance.
 	    name: The name of the resource to be modified.
-	    property_: The property to be modified.
+	    property: The property to be modified.
 	    value: The new value to be set.
 
 	Returns:
@@ -82,11 +82,11 @@ def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 
 	Raises:
-	    ValueError: If property_ is not a valid resource property.
+	    ValueError: If property is not a valid resource property.
 	"""
 	common.validate_instance(name, str)
-	common.validate_instance(property_, str)
-	if property_ not in [
+	common.validate_instance(property, str)
+	if property not in [
 		"name",
 		"type",
 		"host",
@@ -103,10 +103,10 @@ def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 			"\n - status\n - free_space\n - comments\n - information"
 		)
 	common.validate_instance(value, str)
-	if (property_ == "status") and (value not in ["up", "down"]):
+	if (property == "status") and (value not in ["up", "down"]):
 		raise ValueError("status must be either 'up' or 'down'")
 
-	data = {"op": "modify", "name": name, "property": property_, "value": value}
+	data = {"op": "modify", "name": name, "property": property, "value": value}
 
 	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

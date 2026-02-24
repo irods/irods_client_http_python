@@ -100,7 +100,7 @@ def calculate_checksum(
 	resource: str = "",
 	replica_number: int = -1,
 	force: int = 0,
-	all_: int = 0,
+	all: int = 0,  # noqa: A002
 	admin: int = 0,
 ) -> dict:
 	"""
@@ -112,7 +112,7 @@ def calculate_checksum(
 	    resource: The resource holding the existing replica. Defaults to "".
 	    replica_number: The replica number of the target replica. Defaults to -1.
 	    force: Set to 1 to replace the existing checksum, otherwise set to 0. Defaults to 0.
-	    all_: Set to 1 to calculate the checksum for all replicas, otherwise set to 0. Defaults to 0.
+	    all: Set to 1 to calculate the checksum for all replicas, otherwise set to 0. Defaults to 0.
 	    admin: Set to 1 to run this operation as an admin, otherwise set to 0. Defaults to 0.
 
 	Returns:
@@ -124,14 +124,14 @@ def calculate_checksum(
 	common.validate_instance(resource, str)
 	common.validate_gte_minus1(replica_number)
 	common.validate_0_or_1(force)
-	common.validate_0_or_1(all_)
+	common.validate_0_or_1(all)
 	common.validate_0_or_1(admin)
 
 	data = {
 		"op": "calculate_checksum",
 		"lpath": lpath,
 		"force": force,
-		"all": all_,
+		"all": all,
 		"admin": admin,
 	}
 
@@ -443,7 +443,7 @@ def read(session: IRODSHTTPSession, lpath: str, offset: int = 0, count: int = -1
 
 def write(
 	session: IRODSHTTPSession,
-	bytes_,
+	bytes,  # noqa: A002
 	lpath: str = "",
 	resource: str = "",
 	offset: int = 0,
@@ -458,7 +458,7 @@ def write(
 
 	Args:
 	    session: IRODSHTTPSession object containing base URL and authentication token.
-	    bytes_: The bytes to be written.
+	    bytes: The bytes to be written.
 	    lpath: The absolute logical path of the data object to be written to. Defaults to "".
 	    resource: The root resource to write to. Defaults to "".
 	    offset: The number of bytes to skip. Defaults to 0.
@@ -477,8 +477,8 @@ def write(
 	    ValueError: If bytes length is less than 0.
 	"""
 	common.validate_not_none(session.token)
-	if type(bytes_) not in [bytes, str]:
-		raise TypeError("type(bytes_) must be 'bytes' or 'str'")
+	if type(bytes) not in [bytes, str]:
+		raise TypeError("type(bytes) must be 'bytes' or 'str'")
 	common.validate_instance(lpath, str)
 	common.validate_instance(resource, str)
 	common.validate_gte_zero(offset)
@@ -493,7 +493,7 @@ def write(
 		"offset": offset,
 		"truncate": truncate,
 		"append": append,
-		"bytes": bytes_,
+		"bytes": bytes,
 	}
 
 	if parallel_write_handle != "":

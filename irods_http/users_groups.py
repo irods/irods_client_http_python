@@ -8,7 +8,7 @@ from . import common
 from .irods_http import IRODSHTTPSession  # noqa: TC001
 
 
-def create_user(session: IRODSHTTPSession, name: str, zone: str, user_type: str = "rodsuser"):
+def create_user(session: IRODSHTTPSession, name: str, zone: str, type: str = "rodsuser"):  # noqa: A002
 	"""
 	Create a new user. Requires rodsadmin or groupadmin privileges.
 
@@ -16,22 +16,22 @@ def create_user(session: IRODSHTTPSession, name: str, zone: str, user_type: str 
 	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to be created.
 	    zone: The zone for the user to be created.
-	    user_type: Can be rodsuser, groupadmin, or rodsadmin. Defaults to rodsuser.
+	    type: Can be rodsuser, groupadmin, or rodsadmin. Defaults to rodsuser.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 
 	Raises:
-	    ValueError: If user_type is not 'rodsuser', 'groupadmin', or 'rodsadmin'.
+	    ValueError: If type is not 'rodsuser', 'groupadmin', or 'rodsadmin'.
 	"""
 	common.validate_instance(name, str)
 	common.validate_instance(zone, str)
-	common.validate_instance(user_type, str)
-	if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
-		raise ValueError("user_type must be set to rodsuser, groupadmin, or rodsadmin.")
+	common.validate_instance(type, str)
+	if type not in ["rodsuser", "groupadmin", "rodsadmin"]:
+		raise ValueError("type must be set to rodsuser, groupadmin, or rodsadmin.")
 
-	data = {"op": "create_user", "name": name, "zone": zone, "user-type": user_type}
+	data = {"op": "create_user", "name": name, "zone": zone, "user-type": type}
 
 	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
@@ -88,7 +88,7 @@ def set_password(session: IRODSHTTPSession, name: str, zone: str, new_password: 
 	return common.process_response(r)
 
 
-def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: str):
+def set_user_type(session: IRODSHTTPSession, name: str, zone: str, type: str):  # noqa: A002
 	"""
 	Change a users type. Requires rodsadmin privileges.
 
@@ -96,7 +96,7 @@ def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: st
 	    session: An IRODSHTTPSession instance.
 	    name: The name of the user to have their type updated.
 	    zone: The zone for the user to have their type updated.
-	    user_type: Can be rodsuser, groupadmin, or rodsadmin.
+	    type: Can be rodsuser, groupadmin, or rodsadmin.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -107,15 +107,15 @@ def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: st
 	"""
 	common.validate_instance(name, str)
 	common.validate_instance(zone, str)
-	common.validate_instance(user_type, str)
-	if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
-		raise ValueError("user_type must be set to rodsuser, groupadmin, or rodsadmin.")
+	common.validate_instance(type, str)
+	if type not in ["rodsuser", "groupadmin", "rodsadmin"]:
+		raise ValueError("type must be set to rodsuser, groupadmin, or rodsadmin.")
 
 	data = {
 		"op": "set_user_type",
 		"name": name,
 		"zone": zone,
-		"new-user-type": user_type,
+		"new-user-type": type,
 	}
 
 	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113

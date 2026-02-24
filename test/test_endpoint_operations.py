@@ -353,10 +353,10 @@ class CollectionTests(unittest.TestCase):
 		"""Test collection list operation to enumerate contents."""
 		try:
 			# test param checking
-			self.assertRaises(TypeError, collections.list_collection, self.rodsadmin_session, 0, "ticket")
+			self.assertRaises(TypeError, collections.list, self.rodsadmin_session, 0, "ticket")
 			self.assertRaises(
 				TypeError,
-				collections.list_collection,
+				collections.list,
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}",
 				"0",
@@ -364,7 +364,7 @@ class CollectionTests(unittest.TestCase):
 			)
 			self.assertRaises(
 				ValueError,
-				collections.list_collection,
+				collections.list,
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}",
 				5,
@@ -372,7 +372,7 @@ class CollectionTests(unittest.TestCase):
 			)
 			self.assertRaises(
 				TypeError,
-				collections.list_collection,
+				collections.list,
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}",
 				0,
@@ -380,16 +380,12 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test empty collection
-			response = collections.list_collection(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-			)
+			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual("None", str(response["data"]["entries"]))
 
 			# test collection with one item
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
-			response = collections.list_collection(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-			)
+			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
 				str(response["data"]["entries"][0]),
@@ -398,9 +394,7 @@ class CollectionTests(unittest.TestCase):
 			# test collection with multiple items
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
-			response = collections.list_collection(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-			)
+			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
 				str(response["data"]["entries"][0]),
@@ -419,9 +413,7 @@ class CollectionTests(unittest.TestCase):
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
 			)
-			response = collections.list_collection(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}"
-			)
+			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
 				str(response["data"]["entries"][0]),
@@ -437,7 +429,7 @@ class CollectionTests(unittest.TestCase):
 			self.assertEqual(len(response["data"]["entries"]), 3)
 
 			# test with recursion
-			response = collections.list_collection(
+			response = collections.list(
 				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", recurse=1
 			)
 			self.assertEqual(
@@ -1047,7 +1039,7 @@ class DataObjectTests(unittest.TestCase):
 						executor.submit(
 							data_objects.write,
 							self.anonymous_session,
-							bytes_=x[1] * count,
+							bytes=x[1] * count,
 							offset=x[0] * count,
 							stream_index=x[0],
 							parallel_write_handle=handle,
@@ -1356,7 +1348,7 @@ class DataObjectTests(unittest.TestCase):
 						executor.submit(
 							data_objects.write,
 							self.rodsadmin_session,
-							bytes_=x[1] * count,
+							bytes=x[1] * count,
 							offset=x[0] * count,
 							stream_index=x[0],
 							parallel_write_handle=handle,
@@ -1813,7 +1805,7 @@ class TicketTests(unittest.TestCase):
 		p = f"/{self.zone_name}/home/{self.rodsuser_username}"
 
 		# bad type
-		self.assertRaises(ValueError, tickets.create, self.rodsadmin_session, p, type_="bad")
+		self.assertRaises(ValueError, tickets.create, self.rodsadmin_session, p, type="bad")
 
 		# bad object count
 		self.assertRaises(
@@ -1821,7 +1813,7 @@ class TicketTests(unittest.TestCase):
 			tickets.create,
 			self.rodsadmin_session,
 			p,
-			type_="write",
+			type="write",
 			write_data_object_count=-5,
 		)
 
@@ -1831,7 +1823,7 @@ class TicketTests(unittest.TestCase):
 			tickets.create,
 			self.rodsadmin_session,
 			p,
-			type_="write",
+			type="write",
 			write_byte_count=-2,
 		)
 
@@ -1909,13 +1901,13 @@ class UserTests(unittest.TestCase):
 	def test_create_with_bad_type(self):
 		"""Test user create with bad type."""
 		self.assertRaises(
-			ValueError, users_groups.create_user, self.rodsadmin_session, "baduser", self.zone_name, user_type="bad"
+			ValueError, users_groups.create_user, self.rodsadmin_session, "baduser", self.zone_name, type="bad"
 		)
 
 	def test_set_to_bad_type(self):
 		"""Test setting user type to bad value."""
 		self.assertRaises(
-			ValueError, users_groups.set_user_type, self.rodsadmin_session, "baduser", self.zone_name, user_type="bad"
+			ValueError, users_groups.set_user_type, self.rodsadmin_session, "baduser", self.zone_name, type="bad"
 		)
 
 	def test_bad_connection(self):

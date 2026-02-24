@@ -1,5 +1,6 @@
 """Collection operations for iRODS HTTP API."""
 
+import builtins
 import json
 
 import requests
@@ -88,7 +89,7 @@ def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	return common.process_response(r)
 
 
-def list_collection(session: IRODSHTTPSession, lpath: str, recurse: int = 0, ticket: str = "") -> dict:
+def list(session: IRODSHTTPSession, lpath: str, recurse: int = 0, ticket: str = "") -> dict:  # noqa: A001
 	"""
 	Show the contents of a collection.
 
@@ -205,7 +206,7 @@ def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: dict, 
 	"""
 	common.validate_not_none(session.token)
 	common.validate_instance(lpath, str)
-	common.validate_instance(operations, list)
+	common.validate_instance(operations, builtins.list)
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
@@ -237,7 +238,7 @@ def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: dict, adm
 	"""
 	common.validate_not_none(session.token)
 	common.validate_instance(lpath, str)
-	common.validate_instance(operations, list)
+	common.validate_instance(operations, builtins.list)
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
