@@ -91,3 +91,17 @@ def validate_gte_minus1(x):
 	validate_instance(x, int)
 	if not x >= -1:
 		raise ValueError(f"{x} must be >= 0, or flag value of -1")
+
+
+def assert_success(cls, response):
+	"""
+	Validate HTTP and iRODS status codes are successes.
+
+	Args:
+	    cls: The unittest.TestCase class
+	    response: The response from the iRODS HTTP API request
+	"""
+	# HTTP status code
+	cls.assertEqual(response["status_code"], 200)
+	# iRODS status code
+	cls.assertEqual(response["data"]["irods_response"]["status_code"], 0)

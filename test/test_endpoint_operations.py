@@ -215,29 +215,29 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test creating new collection
-			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-			self.assertTrue(response["data"]["created"])
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			common.assert_success(self, r)
+			self.assertTrue(r["data"]["created"])
 
 			# test creating existing collection
-			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-			self.assertFalse(response["data"]["created"])
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			common.assert_success(self, r)
+			self.assertFalse(r["data"]["created"])
 
 			# test invalid path
-			response = collections.create(self.rodsadmin_session, f"{self.zone_name}/home/new")
-			self.assertEqual(response["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
+			r = collections.create(self.rodsadmin_session, f"{self.zone_name}/home/new")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
 
 			# test create_intermediates
-			response = collections.create(
+			r = collections.create(
 				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=0
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
-			response = collections.create(
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -358000)  # OBJ_PATH_DOES_NOT_EXIST
+			r = collections.create(
 				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=1
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
-			self.assertTrue(response["data"]["created"])
+			common.assert_success(self, r)
+			self.assertTrue(r["data"]["created"])
 
 		finally:
 			# clean up test collections
@@ -285,34 +285,32 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test removing collection
-			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-			self.assertEqual(
-				"{'created': True, 'irods_response': {'status_code': 0}}",
-				str(response["data"]),
-			)
-			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			r = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			common.assert_success(self, r)
+			self.assertTrue(r["data"]["created"])
+			r = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			common.assert_success(self, r)
 
 			# test invalid paths
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/tensaitekinaaidorusama")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/aremonainainaikoremonainainai")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/binglebangledingledangle")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-			response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/{self.rodsadmin_username}")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/tensaitekinaaidorusama")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/aremonainainaikoremonainainai")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/binglebangledingledangle")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
+			r = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/{self.rodsadmin_username}")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
 
 			# test recurse
-			response = collections.create(
+			r = collections.create(
 				self.rodsadmin_session, f"/{self.zone_name}/home/test/folder", create_intermediates=1
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
-			self.assertTrue(response["data"]["created"])
-			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=0)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], -79000)  # SYS_COLLECTION_NOT_EMPTY
-			response = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=1)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
+			self.assertTrue(r["data"]["created"])
+			r = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=0)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -79000)  # SYS_COLLECTION_NOT_EMPTY
+			r = collections.remove(self.rodsadmin_session, f"/{self.zone_name}/home/test", recurse=1)
+			common.assert_success(self, r)
 
 		finally:
 			# clean up test collections
@@ -335,14 +333,14 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test invalid paths
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/new")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
-			response = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/new")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/new")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
+			r = collections.stat(self.rodsadmin_session, f"{self.zone_name}/home/new")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
 
 			# test valid path
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-			self.assertTrue(response["data"]["permissions"])
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			self.assertTrue(r["data"]["permissions"])
 
 		finally:
 			# clean up test collections
@@ -380,32 +378,32 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test empty collection
-			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
-			self.assertEqual("None", str(response["data"]["entries"]))
+			r = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			self.assertEqual("None", str(r["data"]["entries"]))
 
 			# test collection with one item
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia")
-			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			r = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-				str(response["data"]["entries"][0]),
+				str(r["data"]["entries"][0]),
 			)
 
 			# test collection with multiple items
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/albania")
 			collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia")
-			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			r = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-				str(response["data"]["entries"][0]),
+				str(r["data"]["entries"][0]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-				str(response["data"]["entries"][1]),
+				str(r["data"]["entries"][1]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-				str(response["data"]["entries"][2]),
+				str(r["data"]["entries"][2]),
 			)
 
 			# test without recursion
@@ -413,40 +411,38 @@ class CollectionTests(unittest.TestCase):
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
 			)
-			response = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
+			r = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}")
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-				str(response["data"]["entries"][0]),
+				str(r["data"]["entries"][0]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-				str(response["data"]["entries"][1]),
+				str(r["data"]["entries"][1]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-				str(response["data"]["entries"][2]),
+				str(r["data"]["entries"][2]),
 			)
-			self.assertEqual(len(response["data"]["entries"]), 3)
+			self.assertEqual(len(r["data"]["entries"]), 3)
 
 			# test with recursion
-			response = collections.list(
-				self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", recurse=1
-			)
+			r = collections.list(self.rodsadmin_session, f"/{self.zone_name}/home/{self.rodsadmin_username}", recurse=1)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/albania",
-				str(response["data"]["entries"][0]),
+				str(r["data"]["entries"][0]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/bosnia",
-				str(response["data"]["entries"][1]),
+				str(r["data"]["entries"][1]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia",
-				str(response["data"]["entries"][2]),
+				str(r["data"]["entries"][2]),
 			)
 			self.assertEqual(
 				f"/{self.zone_name}/home/{self.rodsadmin_username}/croatia/zagreb",
-				str(response["data"]["entries"][3]),
+				str(r["data"]["entries"][3]),
 			)
 
 		finally:
@@ -512,38 +508,38 @@ class CollectionTests(unittest.TestCase):
 
 		try:
 			# create new collection
-			response = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.create(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
+			common.assert_success(self, r)
 
 			# test no permission
-			response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
-			self.assertEqual(response["data"]["irods_response"]["status_code"], -170000)
+			r = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -170000)
 
 			# test set permission
-			response = collections.set_permission(
+			r = collections.set_permission(
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/setPerms",
 				self.rodsuser_username,
 				"read",
 			)
-			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			common.assert_success(self, r)
 
 			# test with permission
-			response = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
-			self.assertTrue(response["data"]["permissions"])
+			r = collections.stat(self.rodsadmin_session, f"/{self.zone_name}/home/setPerms")
+			self.assertTrue(r["data"]["permissions"])
 
 			# test set permission null
-			response = collections.set_permission(
+			r = collections.set_permission(
 				self.rodsadmin_session,
 				f"/{self.zone_name}/home/setPerms",
 				self.rodsuser_username,
 				"null",
 			)
-			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			common.assert_success(self, r)
 
 			# test no permission
-			response = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			r = collections.stat(self.rodsuser_session, f"/{self.zone_name}/home/setPerms")
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
 
 		finally:
 			# remove the collection
@@ -593,24 +589,24 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# control
-			response = collections.stat(self.rodsadmin_session, testcoll)
-			self.assertFalse(response["data"]["inheritance_enabled"])
+			r = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertFalse(r["data"]["inheritance_enabled"])
 
 			# test enabling inheritance
-			response = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=1)
-			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			r = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=1)
+			common.assert_success(self, r)
 
 			# verify inheritance is enabled
-			response = collections.stat(self.rodsadmin_session, testcoll)
-			self.assertTrue(response["data"]["inheritance_enabled"])
+			r = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertTrue(r["data"]["inheritance_enabled"])
 
 			# test disabling inheritance
-			response = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=0)
-			self.assertEqual("{'irods_response': {'status_code': 0}}", str(response["data"]))
+			r = collections.set_inheritance(self.rodsadmin_session, testcoll, enable=0)
+			common.assert_success(self, r)
 
 			# verify inheritance is disabled
-			response = collections.stat(self.rodsadmin_session, testcoll)
-			self.assertFalse(response["data"]["inheritance_enabled"])
+			r = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertFalse(r["data"]["inheritance_enabled"])
 
 		finally:
 			collections.remove(self.rodsadmin_session, testcoll, recurse=1, no_trash=1)
@@ -626,8 +622,8 @@ class CollectionTests(unittest.TestCase):
 
 		try:
 			# create new collection
-			response = collections.create(self.rodsadmin_session, testcoll)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.create(self.rodsadmin_session, testcoll)
+			common.assert_success(self, r)
 
 			# test param checking
 			self.assertRaises(TypeError, collections.modify_permissions, self.rodsadmin_session, 0, ops_permissions, 0)
@@ -657,24 +653,24 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test no permissions
-			response = collections.stat(self.rodsuser_session, testcoll)
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			r = collections.stat(self.rodsuser_session, testcoll)
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
 
 			# test set permissions
-			response = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions)
+			common.assert_success(self, r)
 
 			# test with permissions
-			response = collections.stat(self.rodsadmin_session, testcoll)
-			self.assertTrue(response["data"]["permissions"])
+			r = collections.stat(self.rodsadmin_session, testcoll)
+			self.assertTrue(r["data"]["permissions"])
 
 			# test set permissions nuil
-			response = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions_null)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.modify_permissions(self.rodsadmin_session, testcoll, ops_permissions_null)
+			common.assert_success(self, r)
 
 			# test without permissions
-			response = collections.stat(self.rodsuser_session, testcoll)
-			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(response["data"]))
+			r = collections.stat(self.rodsuser_session, testcoll)
+			self.assertEqual("{'irods_response': {'status_code': -170000}}", str(r["data"]))
 
 		finally:
 			# remove the collection
@@ -720,18 +716,18 @@ class CollectionTests(unittest.TestCase):
 			)
 
 			# test adding and removing metadata
-			response = collections.modify_metadata(
+			r = collections.modify_metadata(
 				self.rodsadmin_session,
 				testcoll,
 				ops_metadata,
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
-			response = collections.modify_metadata(
+			common.assert_success(self, r)
+			r = collections.modify_metadata(
 				self.rodsadmin_session,
 				testcoll,
 				ops_metadata_remove,
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			collections.remove(self.rodsadmin_session, testcoll, no_trash=1)
@@ -756,18 +752,18 @@ class CollectionTests(unittest.TestCase):
 			self.assertRaises(TypeError, collections.rename, 0, testcolla)
 
 			# test renaming
-			response = collections.rename(
+			r = collections.rename(
 				self.rodsadmin_session,
 				testcolla,
 				testcollb,
 			)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# test presence
-			response = collections.stat(self.rodsadmin_session, testcolla)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], -170000)
-			response = collections.stat(self.rodsadmin_session, testcollb)
-			self.assertEqual(response["data"]["irods_response"]["status_code"], 0)
+			r = collections.stat(self.rodsadmin_session, testcolla)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -170000)
+			r = collections.stat(self.rodsadmin_session, testcollb)
+			common.assert_success(self, r)
 
 		finally:
 			collections.remove(self.rodsadmin_session, testcolla, no_trash=1)
@@ -818,7 +814,7 @@ class DataObjectTests(unittest.TestCase):
 			# Exercise an empty write
 			f = f"/{self.zone_name}/home/{self.rodsuser_username}/empty_write.txt"
 			r = data_objects.write(self.rodsuser_session, "", f)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			data_objects.remove(self.rodsuser_session, f, no_trash=1)
@@ -840,11 +836,11 @@ class DataObjectTests(unittest.TestCase):
 				"/tmp/resource",  # noqa: S108
 				"",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Create a non-empty data object
 			r = data_objects.write(self.rodsuser_session, "These are the bytes being written to the object", f1)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Read the data object
 			r = data_objects.read(self.rodsuser_session, f1, offset=6, count=13)
@@ -858,11 +854,11 @@ class DataObjectTests(unittest.TestCase):
 				f1,
 				operations=[{'operation': 'add', 'attribute': 'a', 'value': 'v', 'units': 'u'}],
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Modify the replica
 			r = data_objects.modify_replica(self.rodsadmin_session, f1, replica_number=0, new_data_comments="awesome")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Replicate the data object
 			r = data_objects.replicate(
@@ -871,33 +867,33 @@ class DataObjectTests(unittest.TestCase):
 				src_resource="demoResc",
 				dst_resource=resc,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that there are two replicas
 			r = queries.execute_genquery(
 				self.rodsuser_session,
 				f"select DATA_NAME, DATA_REPL_NUM where DATA_NAME = '{f1.rsplit('/', maxsplit=1)[-1]}'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 2)
 
 			# Trim the data object
 			r = data_objects.trim(self.rodsuser_session, f1, replica_number=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Rename the data object
 			r = data_objects.rename(self.rodsuser_session, f1, f2)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Copy the data object
 			r = data_objects.copy(self.rodsuser_session, f2, f3)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Copy the data object again with parameters
 			r = data_objects.copy(
 				self.rodsuser_session, f2, f3, src_resource=resc, dst_resource="demoResc", overwrite=1
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Exercise a bad permission
 			self.assertRaises(ValueError, data_objects.set_permission, self.rodsuser_session, f3, "rods", "bad")
@@ -909,11 +905,11 @@ class DataObjectTests(unittest.TestCase):
 				"rods",
 				"read",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Confirm that the permission has been set
 			r = data_objects.stat(self.rodsuser_session, f3)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertIn(
 				{
 					"name": "rods",
@@ -928,7 +924,7 @@ class DataObjectTests(unittest.TestCase):
 			r = data_objects.modify_permissions(
 				self.rodsuser_session, f3, operations=[{'entity_name': 'rods', 'acl': 'write'}]
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			# Remove the data objects
@@ -949,7 +945,7 @@ class DataObjectTests(unittest.TestCase):
 			# Create a data object
 			content = "hello anonymous"
 			r = data_objects.write(self.rodsadmin_session, content, f)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Create a ticket for read
 			r = tickets.create(
@@ -957,7 +953,7 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				"read",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			ticket_string = r["data"]["ticket"]
 			self.assertGreater(len(ticket_string), 0)
 
@@ -990,13 +986,13 @@ class DataObjectTests(unittest.TestCase):
 				"write",
 				write_data_object_count=4,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			ticket_string = r["data"]["ticket"]
 			self.assertGreater(len(ticket_string), 0)
 
 			# Create a small data object via anonymous ticket
 			r = data_objects.write(self.anonymous_session, "writing", f, ticket=ticket_string)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			# Add own permission, for the removal
@@ -1021,13 +1017,13 @@ class DataObjectTests(unittest.TestCase):
 				"write",
 				write_data_object_count=4,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			ticket_string = r["data"]["ticket"]
 			self.assertGreater(len(ticket_string), 0)
 
 			# Open parallel write via anonymous ticket
 			r = data_objects.parallel_write_init(self.anonymous_session, f, stream_count=3, ticket=ticket_string)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			handle = r["data"]["parallel_write_handle"]
 
 			# Write to the data object using the parallel write handle
@@ -1047,11 +1043,11 @@ class DataObjectTests(unittest.TestCase):
 					)
 				for future in concurrent.futures.as_completed(futures):
 					r = future.result()
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 
 			# Close parallel write
 			r = data_objects.parallel_write_shutdown(self.anonymous_session, handle)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			# Add own permission, for the removal
@@ -1070,18 +1066,18 @@ class DataObjectTests(unittest.TestCase):
 		try:
 			# Create a data object
 			r = data_objects.write(self.rodsadmin_session, "some words", f)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Save the physical path
 			r = queries.execute_genquery(
 				self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'modify-replica-test.txt'"
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			phypath = r["data"]["rows"][0][0]
 
 			# Save the resource id
 			r = queries.execute_genquery(self.rodsadmin_session, "SELECT RESC_ID where RESC_NAME = 'demoResc'")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			rescid = int(r["data"]["rows"][0][0])
 
 			# Exercise modify replica error, incompatible params
@@ -1121,7 +1117,7 @@ class DataObjectTests(unittest.TestCase):
 				new_data_type_name="html",
 				new_data_version=3,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Restore the physical path so cleanup succeeds
 			r = data_objects.modify_replica(
@@ -1130,7 +1126,7 @@ class DataObjectTests(unittest.TestCase):
 				resource_hierarchy="demoResc",
 				new_data_path=phypath,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
@@ -1150,7 +1146,7 @@ class DataObjectTests(unittest.TestCase):
 				"/tmp/newresource",  # noqa: S108
 				"",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Create a non-empty data object
 			r = data_objects.write(
@@ -1158,7 +1154,7 @@ class DataObjectTests(unittest.TestCase):
 				"These are the bytes being written to the object",
 				f,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Replicate the data object
 			r = data_objects.replicate(
@@ -1166,13 +1162,13 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				dst_resource=resc,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that there are two replicas
 			r = queries.execute_genquery(
 				self.rodsadmin_session, "select DATA_NAME, DATA_REPL_NUM where DATA_NAME = 'file.txt'"
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 2)
 
 			# Calculate a checksum for the first replica
@@ -1181,7 +1177,7 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				replica_number=0,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Calculate a checksum for the second replica
 			r = data_objects.calculate_checksum(
@@ -1189,7 +1185,7 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				resource=resc,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Verify checksum on first replica
 			r = data_objects.verify_checksum(
@@ -1197,7 +1193,7 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				replica_number=0,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Verify checksum on second replica
 			r = data_objects.verify_checksum(
@@ -1205,7 +1201,7 @@ class DataObjectTests(unittest.TestCase):
 				f,
 				resource=resc,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			# Remove the data object
@@ -1226,7 +1222,7 @@ class DataObjectTests(unittest.TestCase):
 		try:
 			# Test touching non existant data object with no_create
 			r = data_objects.touch(self.rodsadmin_session, f, no_create=1)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that the object has not been created
 			r = data_objects.stat(self.rodsadmin_session, f)
@@ -1234,29 +1230,29 @@ class DataObjectTests(unittest.TestCase):
 
 			# Test touching non existant object without no_create
 			r = data_objects.touch(self.rodsadmin_session, f, no_create=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that the object has been created
 			r = data_objects.stat(self.rodsadmin_session, f)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Test touching existing object without no_create
 			r = data_objects.touch(self.rodsadmin_session, f, no_create=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Test parameter options
 			r = data_objects.touch(self.rodsadmin_session, f, seconds_since_epoch=5000)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			r = data_objects.stat(self.rodsadmin_session, f)
 			self.assertEqual(r["data"]["modified_at"], 5000)
 
 			r = data_objects.touch(self.rodsadmin_session, f, replica_number=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			r = data_objects.touch(self.rodsadmin_session, f, leaf_resources="demoResc")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			r = data_objects.touch(self.rodsadmin_session, f, reference=f)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 		finally:
 			# Remove the object
@@ -1280,23 +1276,23 @@ class DataObjectTests(unittest.TestCase):
 				"/tmp/register_resource",  # noqa: S108
 				"",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Create a non-empty data object.
 			content = "bytes in the server"
 			r = data_objects.write(self.rodsadmin_session, content, filename)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Query and save the physical path on the server.
 			r = queries.execute_genquery(
 				self.rodsadmin_session, "SELECT DATA_PATH where DATA_NAME = 'register-demo.txt'"
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			phyfile = r["data"]["rows"][0][0]
 
 			# Unregister the logical path to leave the physical file on the server.
 			r = data_objects.remove(self.rodsadmin_session, filename, catalog_only=1)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Register the leftover local file into the catalog as a new data object.
 			# We know we're registering a new data object because the "as-additional-replica"
@@ -1309,14 +1305,14 @@ class DataObjectTests(unittest.TestCase):
 				data_size=len(content),
 				checksum=1,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show a new data object exists with the expected replica information.
 			r = queries.execute_genquery(
 				self.rodsadmin_session,
 				"select DATA_NAME, DATA_PATH, DATA_CHECKSUM, RESC_NAME where DATA_NAME = 'register-demo.txt'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 1)
 			self.assertEqual(r["data"]["rows"][0][1], phyfile)
 			self.assertNotEqual(r["data"]["rows"][0][2], "")
@@ -1335,7 +1331,7 @@ class DataObjectTests(unittest.TestCase):
 
 		# Open parallel write
 		r = data_objects.parallel_write_init(self.rodsadmin_session, f, stream_count=3)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		common.assert_success(self, r)
 		handle = r["data"]["parallel_write_handle"]
 
 		try:
@@ -1356,7 +1352,7 @@ class DataObjectTests(unittest.TestCase):
 					)
 				for future in concurrent.futures.as_completed(futures):
 					r = future.result()
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 		finally:
 			# Close parallel write
 			data_objects.parallel_write_shutdown(self.rodsadmin_session, handle)
@@ -1399,11 +1395,11 @@ class ResourceTests(unittest.TestCase):
 		try:
 			# Create replication resource.
 			r = resources.create(self.rodsadmin_session, resc_repl, "replication", "", "", "")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show the replication resource was created.
 			r = resources.stat(self.rodsadmin_session, resc_repl)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(r["data"]["exists"], True)
 			self.assertIn("id", r["data"]["info"])
 			self.assertEqual(r["data"]["info"]["name"], resc_repl)
@@ -1433,15 +1429,15 @@ class ResourceTests(unittest.TestCase):
 
 					# Create a unixfilesystem resource.
 					r = resources.create(self.rodsadmin_session, resc_name, "unixfilesystem", self.host, vault_path, "")
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 
 					# Add the unixfilesystem resource as a child of the replication resource.
 					r = resources.add_child(self.rodsadmin_session, resc_repl, resc_name)
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 
 					# Show that the resource was created and configured successfully.
 					r = resources.stat(self.rodsadmin_session, resc_name)
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 					self.assertEqual(r["data"]["exists"], True)
 					self.assertIn("id", r["data"]["info"])
 					self.assertEqual(r["data"]["info"]["name"], resc_name)
@@ -1461,14 +1457,14 @@ class ResourceTests(unittest.TestCase):
 
 			# Create a data object targeting the replication resource.
 			r = data_objects.write(self.rodsadmin_session, "These are the bytes to be written", f, resc_repl, offset=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show there are two replicas under the replication resource hierarchy.
 			r = queries.execute_genquery(
 				self.rodsadmin_session,
 				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 2)
 
 			resc_tuple = (r["data"]["rows"][0][1], r["data"]["rows"][1][1])
@@ -1476,19 +1472,19 @@ class ResourceTests(unittest.TestCase):
 
 			# Trim a replica.
 			r = data_objects.trim(self.rodsadmin_session, f, replica_number=0)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show there is only one replica under the replication resource hierarchy.
 			r = queries.execute_genquery(
 				self.rodsadmin_session,
 				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 1)
 
 			# Launch rebalance
 			r = resources.rebalance(self.rodsadmin_session, resc_repl)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Give the rebalance operation time to complete!
 			time.sleep(3)
@@ -1498,7 +1494,7 @@ class ResourceTests(unittest.TestCase):
 				self.rodsadmin_session,
 				f"select DATA_NAME, RESC_NAME where DATA_NAME = '{pathlib.Path(f).name}'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 2)
 
 		finally:
@@ -1528,7 +1524,7 @@ class ResourceTests(unittest.TestCase):
 				"/tmp/badresc_vault",  # noqa: S108
 				"",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Exercise bad modify property
 			self.assertRaises(ValueError, resources.modify, self.rodsadmin_session, badresc, "badoption", "2")
@@ -1552,15 +1548,15 @@ class ResourceTests(unittest.TestCase):
 				"/tmp/resc_vault",  # noqa: S108
 				"",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Exercise add child with context
 			r = resources.add_child(self.rodsadmin_session, "demoResc", resc, context="neat")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Confirm
 			r = resources.stat(self.rodsadmin_session, resc)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			# TODO(irods_client_http_api#473): uncomment once parent_context is available
 			# self.assertEqual(r["data"]["info"]["parent_context"], "neat")
 
@@ -1582,12 +1578,12 @@ class ResourceTests(unittest.TestCase):
 				"/tmp/metadata_demo_vault",  # noqa: S108
 				"ignoreme",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Add the metadata to the resource
 			operations = [{"operation": "add", "attribute": "a1", "value": "v1", "units": "u1"}]
 			r = resources.modify_metadata(self.rodsadmin_session, resc, operations)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that the metadata is on the resource
 			r = queries.execute_genquery(
@@ -1595,13 +1591,13 @@ class ResourceTests(unittest.TestCase):
 				"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
 				"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(r["data"]["rows"][0][0], resc)
 
 			# Remove the metadata from the resource.
 			operations = [{"operation": "remove", "attribute": "a1", "value": "v1", "units": "u1"}]
 			r = resources.modify_metadata(self.rodsadmin_session, resc, operations)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that the metadata is no longer on the resource
 			r = queries.execute_genquery(
@@ -1609,7 +1605,7 @@ class ResourceTests(unittest.TestCase):
 				"select RESC_NAME where META_RESC_ATTR_NAME = 'a1' and "
 				"META_RESC_ATTR_VALUE = 'v1' and META_RESC_ATTR_UNITS = 'u1'",
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 0)
 
 		finally:
@@ -1623,7 +1619,7 @@ class ResourceTests(unittest.TestCase):
 		try:
 			# Create a new resource.
 			r = resources.create(self.rodsadmin_session, resource, "replication", "", "", "")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# The list of updates to apply in sequence.
 			property_map = [
@@ -1652,7 +1648,7 @@ class ResourceTests(unittest.TestCase):
 
 					# Show the property was modified.
 					r = resources.stat(self.rodsadmin_session, resource)
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 					self.assertEqual(r["data"]["info"][p], v)
 		finally:
 			# Remove the resource
@@ -1681,7 +1677,7 @@ class RuleTests(unittest.TestCase):
 		"""Test listing rule engine plugins."""
 		# Try listing rule engine plugins
 		r = rules.list_rule_engines(self.rodsadmin_session)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		common.assert_success(self, r)
 		self.assertGreater(len(r["data"]["rule_engine_plugin_instances"]), 0)
 
 	def test_execute_rule(self):
@@ -1694,8 +1690,7 @@ class RuleTests(unittest.TestCase):
 			f'writeLine("stdout", "{test_msg}")',
 			"irods_rule_engine_plugin-irods_rule_language-instance",
 		)
-
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		common.assert_success(self, r)
 		self.assertEqual(r["data"]["stderr"], None)
 
 		# The REP always appends a newline character to the result. While we could trim the result,
@@ -1714,13 +1709,13 @@ class RuleTests(unittest.TestCase):
 				f'{{ writeLine("serverLog", "test suite"); }}',
 				rep_instance,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Find the delay rule we just created.
 			# This query assumes the test suite is running on a system where no other delay
 			# rules are being created.
 			r = queries.execute_genquery(self.rodsadmin_session, "select max(RULE_EXEC_ID)")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(len(r["data"]["rows"]), 1)
 
 		finally:
@@ -1770,11 +1765,11 @@ class QueryTests(unittest.TestCase):
 			name = "get_users_count"
 			sql = "select count(*) from r_user_main"
 			r = queries.add_specific_query(self.rodsadmin_session, name=name, sql=sql)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Execute as rodsuser
 			r = queries.execute_specific_query(self.rodsuser_session, name=name)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(r["data"]["rows"][0][0], "4")
 
 		finally:
@@ -1850,7 +1845,7 @@ class TicketTests(unittest.TestCase):
 				groups=ticket_groups,
 				hosts=ticket_hosts,
 			)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			ticket_string = r["data"]["ticket"]
 			self.assertGreater(len(ticket_string), 0)
 
@@ -1864,7 +1859,7 @@ class TicketTests(unittest.TestCase):
 				"TICKET_ALLOWED_USER_NAME, TICKET_ALLOWED_GROUP_NAME, TICKET_ALLOWED_HOST",
 			)
 
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertIn(ticket_string, r["data"]["rows"][0])
 			self.assertEqual(r["data"]["rows"][0][1], ticket_type)
 			self.assertEqual(r["data"]["rows"][0][2], ticket_path)
@@ -1930,16 +1925,16 @@ class UserTests(unittest.TestCase):
 		try:
 			# Create a new user.
 			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-			self.assertEqual(r["status_code"], 200)
+			common.assert_success(self, r)
 
 			# Set a new password
 			new_password = "new_password"  # noqa: S105
 			r = users_groups.set_password(self.rodsadmin_session, new_username, self.zone_name, new_password)
-			self.assertEqual(r["status_code"], 200)
+			common.assert_success(self, r)
 
 			# Try to get a token for the user
 			session = authenticate(self.url_base, new_username, new_password)
-			self.assertEqual(r["status_code"], 200)
+			common.assert_success(self, r)
 			self.assertIsInstance(session.token, str)
 
 		finally:
@@ -1979,7 +1974,7 @@ class UserTests(unittest.TestCase):
 			new_group = "test_group"
 			r = users_groups.create_group(self.rodsadmin_session, new_group)
 			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Stat the group.
 			r = users_groups.stat(self.rodsadmin_session, new_group)
@@ -1994,17 +1989,15 @@ class UserTests(unittest.TestCase):
 			new_username = "test_user_rodsuser"
 			user_type = "rodsuser"
 			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Add user to group.
 			r = users_groups.add_to_group(self.rodsadmin_session, new_username, self.zone_name, new_group)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that the user is a member of the group.
 			r = users_groups.is_member_of_group(self.rodsadmin_session, new_group, new_username, self.zone_name)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 			self.assertEqual(r["data"]["is_member"], True)
 
 		finally:
@@ -2024,28 +2017,24 @@ class UserTests(unittest.TestCase):
 			new_username = "test_user_rodsuser"
 			user_type = "rodsuser"
 			r = users_groups.create_user(self.rodsadmin_session, new_username, self.zone_name, user_type)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that a rodsadmin can change the type of the new user.
 			new_user_type = "groupadmin"
 			r = users_groups.set_user_type(self.rodsadmin_session, new_username, self.zone_name, new_user_type)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show that a non-admin cannot change the type of the new user.
 			r = users_groups.set_user_type(self.rodsuser_session, new_user_type, self.zone_name, new_user_type)
 			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], -13000)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], -13000)  # SYS_NO_API_PRIV
 
 			# Show that the user type matches the type set by the rodsadmin.
 			r = users_groups.stat(self.rodsuser_session, new_username, self.zone_name)
-			self.assertEqual(r["status_code"], 200)
-			stat_info = r["data"]
-			self.assertEqual(stat_info["irods_response"]["status_code"], 0)
-			self.assertEqual(stat_info["exists"], True)
-			self.assertEqual(stat_info["local_unique_name"], f"{new_username}#{self.zone_name}")
-			self.assertEqual(stat_info["type"], new_user_type)
+			common.assert_success(self, r)
+			self.assertEqual(r["data"]["exists"], True)
+			self.assertEqual(r["data"]["local_unique_name"], f"{new_username}#{self.zone_name}")
+			self.assertEqual(r["data"]["type"], new_user_type)
 
 		finally:
 			# Remove the user.
@@ -2054,11 +2043,9 @@ class UserTests(unittest.TestCase):
 	def test_listing_all_users_in_zone(self):
 		"""Test listing all users in the zone."""
 		r = users_groups.users(self.rodsadmin_session)
-		self.assertEqual(r["status_code"], 200)
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-		self.assertIn({"name": self.rodsadmin_username, "zone": self.zone_name}, result["users"])
-		self.assertIn({"name": self.rodsuser_username, "zone": self.zone_name}, result["users"])
+		common.assert_success(self, r)
+		self.assertIn({"name": self.rodsadmin_username, "zone": self.zone_name}, r["data"]["users"])
+		self.assertIn({"name": self.rodsuser_username, "zone": self.zone_name}, r["data"]["users"])
 
 	def test_listing_all_groups_in_zone(self):
 		"""Test listing all groups in the zone."""
@@ -2066,18 +2053,15 @@ class UserTests(unittest.TestCase):
 			# Create a new group.
 			new_group = "test_group"
 			r = users_groups.create_group(self.rodsadmin_session, new_group)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Get all groups.
 			r = users_groups.groups(
 				self.rodsadmin_session,
 			)
-			self.assertEqual(r["status_code"], 200)
-			result = r["data"]
-			self.assertEqual(result["irods_response"]["status_code"], 0)
-			self.assertIn("public", result["groups"])
-			self.assertIn(new_group, result["groups"])
+			common.assert_success(self, r)
+			self.assertIn("public", r["data"]["groups"])
+			self.assertIn(new_group, r["data"]["groups"])
 
 		finally:
 			# Remove the new group.
@@ -2090,8 +2074,7 @@ class UserTests(unittest.TestCase):
 		# Add metadata to the user.
 		ops = [{"operation": "add", "attribute": "a1", "value": "v1", "units": "u1"}]
 		r = users_groups.modify_metadata(self.rodsadmin_session, username, ops)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		common.assert_success(self, r)
 
 		# Show the metadata exists on the user.
 		r = queries.execute_genquery(
@@ -2099,17 +2082,13 @@ class UserTests(unittest.TestCase):
 			"select USER_NAME where META_USER_ATTR_NAME = 'a1' and "
 			"META_USER_ATTR_VALUE = 'v1' and META_USER_ATTR_UNITS = 'u1'",
 		)
-		self.assertEqual(r["status_code"], 200)
-
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-		self.assertEqual(result["rows"][0][0], username)
+		common.assert_success(self, r)
+		self.assertEqual(r["data"]["rows"][0][0], username)
 
 		# Remove the metadata from the user.
 		ops = [{"operation": "remove", "attribute": "a1", "value": "v1", "units": "u1"}]
 		r = users_groups.modify_metadata(self.rodsadmin_session, username, ops)
-		self.assertEqual(r["status_code"], 200)
-		self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+		common.assert_success(self, r)
 
 		# Show the metadata no longer exists on the user.
 		r = queries.execute_genquery(
@@ -2117,10 +2096,8 @@ class UserTests(unittest.TestCase):
 			"select USER_NAME where META_USER_ATTR_NAME = 'a1' and "
 			"META_USER_ATTR_VALUE = 'v1' and META_USER_ATTR_UNITS = 'u1'",
 		)
-		self.assertEqual(r["status_code"], 200)
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-		self.assertEqual(len(result["rows"]), 0)
+		common.assert_success(self, r)
+		self.assertEqual(len(r["data"]["rows"]), 0)
 
 
 # Tests for zone operations
@@ -2146,15 +2123,10 @@ class ZoneTests(unittest.TestCase):
 		r = zones.report(
 			self.rodsadmin_session,
 		)
-		self.assertEqual(r["status_code"], 200)
-
-		result = r["data"]
-		self.assertEqual(result["irods_response"]["status_code"], 0)
-
-		zone_report = result["zone_report"]
-		self.assertIn("zones", zone_report)
-		self.assertGreaterEqual(len(zone_report["zones"]), 1)
-		self.assertIn("schema_version", zone_report["zones"][0]["servers"][0]["server_config"])
+		common.assert_success(self, r)
+		self.assertIn("zones", r["data"]["zone_report"])
+		self.assertGreaterEqual(len(r["data"]["zone_report"]["zones"]), 1)
+		self.assertIn("schema_version", r["data"]["zone_report"]["zones"][0]["servers"][0]["server_config"])
 
 	def test_adding_removing_and_modifying_zones(self):
 		"""Test adding, removing, and modifying zones."""
@@ -2163,29 +2135,25 @@ class ZoneTests(unittest.TestCase):
 
 			# Add a zone, only to remove it immediately
 			r = zones.add(self.rodsadmin_session, zone_name, connection_info="localhost:1250", comment="brief")
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Remove it
 			r = zones.remove(self.rodsadmin_session, zone_name)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Add a remote zone to the local zone.
 			# The new zone will not have any connection information or anything else.
 			r = zones.add(self.rodsadmin_session, zone_name)
-			self.assertEqual(r["status_code"], 200)
-			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			common.assert_success(self, r)
 
 			# Show the new zone exists by executing the stat operation on it.
 			r = zones.stat(self.rodsadmin_session, zone_name)
-			self.assertEqual(r["status_code"], 200)
-
-			result = r["data"]
-			self.assertEqual(result["irods_response"]["status_code"], 0)
-			self.assertEqual(result["exists"], True)
-			self.assertEqual(result["info"]["name"], zone_name)
-			self.assertEqual(result["info"]["type"], "remote")
-			self.assertEqual(result["info"]["connection_info"], "")
-			self.assertEqual(result["info"]["comment"], "")
+			common.assert_success(self, r)
+			self.assertEqual(r["data"]["exists"], True)
+			self.assertEqual(r["data"]["info"]["name"], zone_name)
+			self.assertEqual(r["data"]["info"]["type"], "remote")
+			self.assertEqual(r["data"]["info"]["connection_info"], "")
+			self.assertEqual(r["data"]["info"]["comment"], "")
 
 			# The properties to update.
 			property_map = [
@@ -2198,8 +2166,7 @@ class ZoneTests(unittest.TestCase):
 			for p, v in property_map:
 				with self.subTest(f"Setting property [{p}] to value [{v}]"):
 					r = zones.modify(self.rodsadmin_session, zone_name, p, v)
-					self.assertEqual(r["status_code"], 200)
-					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+					common.assert_success(self, r)
 
 					# Capture the new name of the zone following its renaming.
 					if p == "name":
@@ -2207,12 +2174,9 @@ class ZoneTests(unittest.TestCase):
 
 					# Show the new zone was modified successfully.
 					r = zones.stat(self.rodsadmin_session, zone_name)
-					self.assertEqual(r["status_code"], 200)
-
-					result = r["data"]
-					self.assertEqual(result["irods_response"]["status_code"], 0)
-					self.assertEqual(result["exists"], True)
-					self.assertEqual(result["info"][p], v)
+					common.assert_success(self, r)
+					self.assertEqual(r["data"]["exists"], True)
+					self.assertEqual(r["data"]["info"][p], v)
 
 		finally:
 			# Remove the remote zone.
