@@ -52,10 +52,6 @@ def execute_genquery(
 	common.validate_0_or_1(sql_only)
 	common.validate_instance(zone, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {
 		"op": "execute_genquery",
 		"query": query,
@@ -75,7 +71,7 @@ def execute_genquery(
 	else:
 		params["sql-only"] = sql_only
 
-	r = requests.get(session.url_base + "/query", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/query", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -108,10 +104,6 @@ def execute_specific_query(
 	common.validate_gte_zero(offset)
 	common.validate_gte_minus1(count)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {
 		"op": "execute_specific_query",
 		"name": name,
@@ -125,7 +117,7 @@ def execute_specific_query(
 	if args != "":
 		params["args"] = args
 
-	r = requests.get(session.url_base + "/query", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/query", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -145,13 +137,9 @@ def add_specific_query(session: IRODSHTTPSession, name: str, sql: str):
 	common.validate_instance(name, str)
 	common.validate_instance(sql, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	data = {"op": "add_specific_query", "name": name, "sql": sql}
 
-	r = requests.post(session.url_base + "/query", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/query", headers=session.get_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -169,11 +157,7 @@ def remove_specific_query(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	data = {"op": "remove_specific_query", "name": name}
 
-	r = requests.post(session.url_base + "/query", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/query", headers=session.get_headers, data=data)  # noqa: S113
 	return common.process_response(r)

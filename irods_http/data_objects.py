@@ -43,11 +43,6 @@ def touch(
 	common.validate_gte_minus1(seconds_since_epoch)
 	common.validate_instance(reference, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "touch", "lpath": lpath, "no-create": no_create}
 
 	if seconds_since_epoch != -1:
@@ -62,7 +57,7 @@ def touch(
 	if reference != "":
 		data["reference"] = reference
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -87,11 +82,6 @@ def remove(session: IRODSHTTPSession, lpath: str, catalog_only: int = 0, no_tras
 	common.validate_0_or_1(no_trash)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "remove",
 		"lpath": lpath,
@@ -100,7 +90,7 @@ def remove(session: IRODSHTTPSession, lpath: str, catalog_only: int = 0, no_tras
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -137,11 +127,6 @@ def calculate_checksum(
 	common.validate_0_or_1(all_)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "calculate_checksum",
 		"lpath": lpath,
@@ -156,7 +141,7 @@ def calculate_checksum(
 	if replica_number != -1:
 		data["replica-number"] = replica_number
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -190,11 +175,6 @@ def verify_checksum(
 	common.validate_0_or_1(compute_checksums)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "calculate_checksum",
 		"lpath": lpath,
@@ -208,7 +188,7 @@ def verify_checksum(
 	if replica_number != -1:
 		data["replica-number"] = replica_number
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -229,13 +209,9 @@ def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	common.validate_instance(lpath, str)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {"op": "stat", "lpath": lpath, "ticket": ticket}
 
-	r = requests.get(session.url_base + "/data-objects", params=params, headers=headers)  # noqa: S113
+	r = requests.get(session.url_base + "/data-objects", params=params, headers=session.get_headers)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -256,14 +232,9 @@ def rename(session: IRODSHTTPSession, old_lpath: str, new_lpath: str) -> dict:
 	common.validate_instance(old_lpath, str)
 	common.validate_instance(new_lpath, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "rename", "old-lpath": old_lpath, "new-lpath": new_lpath}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -297,11 +268,6 @@ def copy(
 	common.validate_instance(dst_resource, str)
 	common.validate_0_or_1(overwrite)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "copy",
 		"src-lpath": src_lpath,
@@ -315,7 +281,7 @@ def copy(
 	if dst_resource != "":
 		data["dst-resource"] = dst_resource
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -346,11 +312,6 @@ def replicate(
 	common.validate_instance(dst_resource, str)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "replicate", "lpath": lpath, "admin": admin}
 
 	if src_resource != "":
@@ -359,7 +320,7 @@ def replicate(
 	if dst_resource != "":
 		data["dst-resource"] = dst_resource
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -384,11 +345,6 @@ def trim(session: IRODSHTTPSession, lpath: str, replica_number: int, catalog_onl
 	common.validate_0_or_1(catalog_only)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "trim",
 		"lpath": lpath,
@@ -397,7 +353,7 @@ def trim(session: IRODSHTTPSession, lpath: str, replica_number: int, catalog_onl
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -435,11 +391,6 @@ def register(
 	common.validate_gte_minus1(data_size)
 	common.validate_0_or_1(checksum)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "register",
 		"lpath": lpath,
@@ -452,7 +403,7 @@ def register(
 	if data_size != -1:
 		data["data-size"] = data_size
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -477,11 +428,6 @@ def read(session: IRODSHTTPSession, lpath: str, offset: int = 0, count: int = -1
 	common.validate_gte_minus1(count)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	params = {"op": "read", "lpath": lpath, "offset": offset}
 
 	if count != -1:
@@ -490,7 +436,7 @@ def read(session: IRODSHTTPSession, lpath: str, offset: int = 0, count: int = -1
 	if ticket != "":
 		params["ticket"] = ticket
 
-	r = requests.get(session.url_base + "/data-objects", params=params, headers=headers)  # noqa: S113
+	r = requests.get(session.url_base + "/data-objects", params=params, headers=session.get_headers)  # noqa: S113
 	# this is the only payload that is different from common.process_response()
 	return {'status_code': r.status_code, 'data': r.content}
 
@@ -542,11 +488,6 @@ def write(
 	common.validate_gte_minus1(stream_index)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "write",
 		"offset": offset,
@@ -569,7 +510,7 @@ def write(
 	if ticket != "":
 		data["ticket"] = ticket
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -603,11 +544,6 @@ def parallel_write_init(
 	common.validate_0_or_1(append)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "parallel_write_init",
 		"lpath": lpath,
@@ -619,7 +555,7 @@ def parallel_write_init(
 	if ticket != "":
 		data["ticket"] = ticket
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -638,17 +574,12 @@ def parallel_write_shutdown(session: IRODSHTTPSession, parallel_write_handle: st
 	common.validate_not_none(session.token)
 	common.validate_instance(parallel_write_handle, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "parallel_write_shutdown",
 		"parallel-write-handle": parallel_write_handle,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -673,11 +604,6 @@ def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: list, adm
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_metadata",
 		"lpath": lpath,
@@ -685,7 +611,7 @@ def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: list, adm
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -715,11 +641,6 @@ def set_permission(session: IRODSHTTPSession, lpath: str, entity_name: str, perm
 		raise ValueError("permission must be either 'null', 'read', 'write', or 'own'")
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "set_permission",
 		"lpath": lpath,
@@ -728,7 +649,7 @@ def set_permission(session: IRODSHTTPSession, lpath: str, entity_name: str, perm
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -753,11 +674,6 @@ def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: list, 
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_permissions",
 		"lpath": lpath,
@@ -765,7 +681,7 @@ def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: list, 
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -850,11 +766,6 @@ def modify_replica(
 	common.validate_instance(new_data_type_name, str)
 	common.validate_gte_minus1(new_data_version)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "modify_replica", "lpath": lpath}
 
 	if resource_hierarchy != "":
@@ -925,5 +836,5 @@ def modify_replica(
 	if no_params:
 		raise RuntimeError("At least one new data parameter must be given.")
 
-	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/data-objects", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

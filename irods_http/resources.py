@@ -32,11 +32,6 @@ def create(session: IRODSHTTPSession, name: str, type_: str, host: str, vault_pa
 	common.validate_instance(vault_path, str)
 	common.validate_instance(context, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "create", "name": name, "type": type_}
 
 	if host != "":
@@ -48,7 +43,7 @@ def create(session: IRODSHTTPSession, name: str, type_: str, host: str, vault_pa
 	if context != "":
 		data["context"] = context
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -66,14 +61,9 @@ def remove(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove", "name": name}
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -116,14 +106,9 @@ def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 	if (property_ == "status") and (value not in ["up", "down"]):
 		raise ValueError("status must be either 'up' or 'down'")
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "modify", "name": name, "property": property_, "value": value}
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -145,17 +130,12 @@ def add_child(session: IRODSHTTPSession, parent_name: str, child_name: str, cont
 	common.validate_instance(child_name, str)
 	common.validate_instance(context, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "add_child", "parent-name": parent_name, "child-name": child_name}
 
 	if context != "":
 		data["context"] = context
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -175,18 +155,13 @@ def remove_child(session: IRODSHTTPSession, parent_name: str, child_name: str):
 	common.validate_instance(parent_name, str)
 	common.validate_instance(child_name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "remove_child",
 		"parent-name": parent_name,
 		"child-name": child_name,
 	}
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -204,14 +179,9 @@ def rebalance(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "rebalance", "name": name}
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -229,14 +199,9 @@ def stat(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	params = {"op": "stat", "name": name}
 
-	r = requests.get(session.url_base + "/resources", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/resources", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -260,11 +225,6 @@ def modify_metadata(session: IRODSHTTPSession, name: str, operations: dict, admi
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_metadata",
 		"name": name,
@@ -272,5 +232,5 @@ def modify_metadata(session: IRODSHTTPSession, name: str, operations: dict, admi
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/resources", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/resources", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

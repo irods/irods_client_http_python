@@ -31,14 +31,9 @@ def create_user(session: IRODSHTTPSession, name: str, zone: str, user_type: str 
 	if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
 		raise ValueError("user_type must be set to rodsuser, groupadmin, or rodsadmin.")
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "create_user", "name": name, "zone": zone, "user-type": user_type}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -58,14 +53,9 @@ def remove_user(session: IRODSHTTPSession, name: str, zone: str):
 	common.validate_instance(name, str)
 	common.validate_instance(zone, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove_user", "name": name, "zone": zone}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -87,11 +77,6 @@ def set_password(session: IRODSHTTPSession, name: str, zone: str, new_password: 
 	common.validate_instance(zone, str)
 	common.validate_instance(new_password, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "set_password",
 		"name": name,
@@ -99,7 +84,7 @@ def set_password(session: IRODSHTTPSession, name: str, zone: str, new_password: 
 		"new-password": new_password,
 	}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -126,11 +111,6 @@ def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: st
 	if user_type not in ["rodsuser", "groupadmin", "rodsadmin"]:
 		raise ValueError("user_type must be set to rodsuser, groupadmin, or rodsadmin.")
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "set_user_type",
 		"name": name,
@@ -138,7 +118,7 @@ def set_user_type(session: IRODSHTTPSession, name: str, zone: str, user_type: st
 		"new-user-type": user_type,
 	}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -156,14 +136,9 @@ def create_group(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "create_group", "name": name}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -181,14 +156,9 @@ def remove_group(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove_group", "name": name}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -210,14 +180,9 @@ def add_to_group(session: IRODSHTTPSession, user: str, zone: str, group: str = "
 	common.validate_instance(zone, str)
 	common.validate_instance(group, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "add_to_group", "user": user, "zone": zone, "group": group}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -239,14 +204,9 @@ def remove_from_group(session: IRODSHTTPSession, user: str, zone: str, group: st
 	common.validate_instance(zone, str)
 	common.validate_instance(group, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove_from_group", "user": user, "zone": zone, "group": group}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -261,11 +221,9 @@ def users(session: IRODSHTTPSession):
 	    A dict containing the HTTP status code and iRODS response.
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 	"""
-	headers = {"Authorization": "Bearer " + session.token}
-
 	params = {"op": "users"}
 
-	r = requests.get(session.url_base + "/users-groups", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/users-groups", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -280,13 +238,9 @@ def groups(session: IRODSHTTPSession):
 	    A dict containing the HTTP status code and iRODS response.
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 	"""
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {"op": "groups"}
 
-	r = requests.get(session.url_base + "/users-groups", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/users-groups", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -308,11 +262,6 @@ def is_member_of_group(session: IRODSHTTPSession, group: str, user: str, zone: s
 	common.validate_instance(user, str)
 	common.validate_instance(zone, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	params = {
 		"op": "is_member_of_group",
 		"group": group,
@@ -320,7 +269,7 @@ def is_member_of_group(session: IRODSHTTPSession, group: str, user: str, zone: s
 		"zone": zone,
 	}
 
-	r = requests.get(session.url_base + "/users-groups", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/users-groups", headers=session.post_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -340,14 +289,12 @@ def stat(session: IRODSHTTPSession, name: str, zone: str = ""):
 	common.validate_instance(name, str)
 	common.validate_instance(zone, str)
 
-	headers = {"Authorization": "Bearer " + session.token}
-
 	params = {"op": "stat", "name": name}
 
 	if zone != "":
 		params["zone"] = zone
 
-	r = requests.get(session.url_base + "/users-groups", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/users-groups", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -368,16 +315,11 @@ def modify_metadata(session: IRODSHTTPSession, name: str, operations: list):
 	common.validate_instance(operations, list)
 	common.validate_instance(operations[0], dict)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_metadata",
 		"name": name,
 		"operations": json.dumps(operations),
 	}
 
-	r = requests.post(session.url_base + "/users-groups", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/users-groups", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

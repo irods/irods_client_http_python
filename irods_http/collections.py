@@ -25,18 +25,13 @@ def create(session: IRODSHTTPSession, lpath: str, create_intermediates: int = 0)
 	common.validate_instance(lpath, str)
 	common.validate_0_or_1(create_intermediates)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "create",
 		"lpath": lpath,
 		"create-intermediates": create_intermediates,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -59,11 +54,6 @@ def remove(session: IRODSHTTPSession, lpath: str, recurse: int = 0, no_trash: in
 	common.validate_0_or_1(recurse)
 	common.validate_0_or_1(no_trash)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "remove",
 		"lpath": lpath,
@@ -71,7 +61,7 @@ def remove(session: IRODSHTTPSession, lpath: str, recurse: int = 0, no_trash: in
 		"no-trash": no_trash,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -92,13 +82,9 @@ def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	common.validate_instance(lpath, str)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {"op": "stat", "lpath": lpath, "ticket": ticket}
 
-	r = requests.get(session.url_base + "/collections", params=params, headers=headers)  # noqa: S113
+	r = requests.get(session.url_base + "/collections", params=params, headers=session.get_headers)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -122,13 +108,9 @@ def list_collection(session: IRODSHTTPSession, lpath: str, recurse: int = 0, tic
 	common.validate_0_or_1(recurse)
 	common.validate_instance(ticket, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-	}
-
 	params = {"op": "list", "lpath": lpath, "recurse": recurse, "ticket": ticket}
 
-	r = requests.get(session.url_base + "/collections", params=params, headers=headers)  # noqa: S113
+	r = requests.get(session.url_base + "/collections", params=params, headers=session.get_headers)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -164,11 +146,6 @@ def set_permission(
 		raise ValueError("permission must be either 'null', 'read', 'write', or 'own'")
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "set_permission",
 		"lpath": lpath,
@@ -177,7 +154,7 @@ def set_permission(
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -200,11 +177,6 @@ def set_inheritance(session: IRODSHTTPSession, lpath: str, enable: int, admin: i
 	common.validate_0_or_1(enable)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "set_inheritance",
 		"lpath": lpath,
@@ -212,7 +184,7 @@ def set_inheritance(session: IRODSHTTPSession, lpath: str, enable: int, admin: i
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -237,11 +209,6 @@ def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: dict, 
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_permissions",
 		"lpath": lpath,
@@ -249,7 +216,7 @@ def modify_permissions(session: IRODSHTTPSession, lpath: str, operations: dict, 
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -274,11 +241,6 @@ def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: dict, adm
 	common.validate_instance(operations[0], dict)
 	common.validate_0_or_1(admin)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {
 		"op": "modify_metadata",
 		"lpath": lpath,
@@ -286,7 +248,7 @@ def modify_metadata(session: IRODSHTTPSession, lpath: str, operations: dict, adm
 		"admin": admin,
 	}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -307,14 +269,9 @@ def rename(session: IRODSHTTPSession, old_lpath: str, new_lpath: str) -> dict:
 	common.validate_instance(old_lpath, str)
 	common.validate_instance(new_lpath, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "rename", "old-lpath": old_lpath, "new-lpath": new_lpath}
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -337,11 +294,6 @@ def touch(session: IRODSHTTPSession, lpath: str, seconds_since_epoch: int = -1, 
 	common.validate_gte_minus1(seconds_since_epoch)
 	common.validate_instance(reference, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "touch", "lpath": lpath}
 
 	if seconds_since_epoch != -1:
@@ -350,5 +302,5 @@ def touch(session: IRODSHTTPSession, lpath: str, seconds_since_epoch: int = -1, 
 	if reference != "":
 		data["reference"] = reference
 
-	r = requests.post(session.url_base + "/collections", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/collections", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

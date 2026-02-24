@@ -24,11 +24,6 @@ def add(session: IRODSHTTPSession, name: str, connection_info: str = "", comment
 	common.validate_instance(connection_info, str)
 	common.validate_instance(comment, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "add", "name": name}
 
 	if connection_info != "":
@@ -36,7 +31,7 @@ def add(session: IRODSHTTPSession, name: str, connection_info: str = "", comment
 	if comment != "":
 		data["comment"] = comment
 
-	r = requests.post(session.url_base + "/zones", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/zones", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -54,14 +49,9 @@ def remove(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove", "name": name}
 
-	r = requests.post(session.url_base + "/zones", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/zones", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -84,14 +74,9 @@ def modify(session: IRODSHTTPSession, name: str, property_: str, value: str):
 	common.validate_instance(property_, str)
 	common.validate_instance(value, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "modify", "name": name, "property": property_, "value": value}
 
-	r = requests.post(session.url_base + "/zones", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/zones", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -106,14 +91,9 @@ def report(session: IRODSHTTPSession):
 	    A dict containing the HTTP status code and iRODS response.
 	    The iRODS response is only valid if no error occurred during HTTP communication.
 	"""
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	params = {"op": "report"}
 
-	r = requests.get(session.url_base + "/zones", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/zones", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -131,12 +111,7 @@ def stat(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	params = {"op": "stat", "name": name}
 
-	r = requests.get(session.url_base + "/zones", headers=headers, params=params)  # noqa: S113
+	r = requests.get(session.url_base + "/zones", headers=session.get_headers, params=params)  # noqa: S113
 	return common.process_response(r)

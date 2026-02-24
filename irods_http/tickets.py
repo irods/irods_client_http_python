@@ -52,11 +52,6 @@ def create(
 	common.validate_instance(groups, str)
 	common.validate_instance(hosts, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "create", "lpath": lpath, "type": type_}
 
 	if use_count != -1:
@@ -74,7 +69,7 @@ def create(
 	if hosts != "":
 		data["hosts"] = hosts
 
-	r = requests.post(session.url_base + "/tickets", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/tickets", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)
 
 
@@ -92,12 +87,7 @@ def remove(session: IRODSHTTPSession, name: str):
 	"""
 	common.validate_instance(name, str)
 
-	headers = {
-		"Authorization": "Bearer " + session.token,
-		"Content-Type": "application/x-www-form-urlencoded",
-	}
-
 	data = {"op": "remove", "name": name}
 
-	r = requests.post(session.url_base + "/tickets", headers=headers, data=data)  # noqa: S113
+	r = requests.post(session.url_base + "/tickets", headers=session.post_headers, data=data)  # noqa: S113
 	return common.process_response(r)

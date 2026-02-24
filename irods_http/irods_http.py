@@ -28,6 +28,15 @@ class IRODSHTTPSession:
 		self.url_base = url_base
 		self.token = token
 
+		self.get_headers = {
+			"Authorization": "Bearer " + self.token,
+		}
+
+		self.post_headers = {
+			"Authorization": "Bearer " + self.token,
+			"Content-Type": "application/x-www-form-urlencoded",
+		}
+
 
 def authenticate(url_base: str, username: str, password: str) -> IRODSHTTPSession:
 	"""
