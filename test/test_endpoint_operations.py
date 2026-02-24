@@ -114,6 +114,17 @@ def setup_class(cls, opts):
 		cls.logger.debug("Failed to authenticate as rodsuser [%].", cls.rodsuser_username)
 		return
 
+	# Authenticate as the anonymous user and store the session.
+	cls.anonymous_username = "anonymous"
+
+	try:
+		users_groups.create_user(cls.rodsadmin_session, cls.anonymous_username, cls.zone_name, "rodsuser")
+		cls.anonymous_session = authenticate(cls.url_base, cls.anonymous_username, "")
+	except RuntimeError:
+		cls._class_init_error = True
+		cls.logger.debug("Failed to authenticate as anonymous.")
+		return
+
 	cls.logger.debug("Class setup complete.")
 
 
@@ -130,6 +141,7 @@ def tear_down_class(cls):
 		return
 
 	users_groups.remove_user(cls.rodsadmin_session, cls.rodsuser_username, cls.zone_name)
+	users_groups.remove_user(cls.rodsadmin_session, cls.anonymous_username, cls.zone_name)
 
 
 # Tests for library
@@ -937,6 +949,128 @@ class DataObjectTests(unittest.TestCase):
 			# Remove the resource
 			r = resources.remove(self.rodsadmin_session, resc)
 
+	def test_read_with_ticket(self):
+		"""Test the read operation via anonymous ticket."""
+		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/anon-test1.txt"
+
+		try:
+			# Create a data object
+			content = "hello anonymous"
+			r = data_objects.write(self.rodsadmin_session, content, f)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Create a ticket for read
+			r = tickets.create(
+				self.rodsadmin_session,
+				f,
+				"read",
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			ticket_string = r["data"]["ticket"]
+			self.assertGreater(len(ticket_string), 0)
+
+			# Stat with the ticket
+			r = data_objects.stat(self.anonymous_session, f, ticket=ticket_string)
+			common.assert_success(self, r)
+
+			# Read the data object via anonymous ticket
+			r = data_objects.read(self.anonymous_session, f, ticket=ticket_string)
+			self.assertEqual(r["status_code"], 200)
+			self.assertEqual(r["data"], bytes(content, 'utf-8'))
+
+		finally:
+			# Remove the data object
+			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
+
+			# Remove the ticket
+			tickets.remove(self.rodsadmin_session, ticket_string)
+
+	def test_small_write_with_ticket(self):
+		"""Test the small write operation via anonmymous ticket."""
+		c = f"/{self.zone_name}/home/{self.rodsadmin_username}"
+		f = f"{c}/anon-test2.txt"
+
+		try:
+			# Create a ticket for writing a small data object
+			r = tickets.create(
+				self.rodsadmin_session,
+				c,
+				"write",
+				write_data_object_count=4,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			ticket_string = r["data"]["ticket"]
+			self.assertGreater(len(ticket_string), 0)
+
+			# Create a small data object via anonymous ticket
+			r = data_objects.write(self.anonymous_session, "writing", f, ticket=ticket_string)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			# Add own permission, for the removal
+			data_objects.set_permission(self.rodsadmin_session, f, "rods", "own", admin=1)
+
+			# Remove the data object
+			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
+
+			# Remove the ticket
+			tickets.remove(self.rodsadmin_session, ticket_string)
+
+	def test_large_write_with_ticket(self):
+		"""Test the small write operation via anonmymous ticket."""
+		c = f"/{self.zone_name}/home/{self.rodsadmin_username}"
+		f = f"{c}/anon-test3.txt"
+
+		try:
+			# Create a ticket for writing a large data object
+			r = tickets.create(
+				self.rodsadmin_session,
+				c,
+				"write",
+				write_data_object_count=4,
+			)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			ticket_string = r["data"]["ticket"]
+			self.assertGreater(len(ticket_string), 0)
+
+			# Open parallel write via anonymous ticket
+			r = data_objects.parallel_write_init(self.anonymous_session, f, stream_count=3, ticket=ticket_string)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+			handle = r["data"]["parallel_write_handle"]
+
+			# Write to the data object using the parallel write handle
+			futures = []
+			with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+				for x in enumerate(["A", "B", "C"]):
+					count = 10
+					futures.append(
+						executor.submit(
+							data_objects.write,
+							self.anonymous_session,
+							bytes_=x[1] * count,
+							offset=x[0] * count,
+							stream_index=x[0],
+							parallel_write_handle=handle,
+						)
+					)
+				for future in concurrent.futures.as_completed(futures):
+					r = future.result()
+					self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+			# Close parallel write
+			r = data_objects.parallel_write_shutdown(self.anonymous_session, handle)
+			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
+
+		finally:
+			# Add own permission, for the removal
+			data_objects.set_permission(self.rodsadmin_session, f, "rods", "own", admin=1)
+
+			# Remove the data object
+			data_objects.remove(self.rodsadmin_session, f, no_trash=1)
+
+			# Remove the ticket
+			tickets.remove(self.rodsadmin_session, ticket_string)
+
 	def test_modify_replica(self):
 		"""Test modify replica options."""
 		f = f"/{self.zone_name}/home/{self.rodsadmin_username}/modify-replica-test.txt"
@@ -1649,7 +1783,7 @@ class QueryTests(unittest.TestCase):
 			# Execute as rodsuser
 			r = queries.execute_specific_query(self.rodsuser_session, name=name)
 			self.assertEqual(r["data"]["irods_response"]["status_code"], 0)
-			self.assertEqual(r["data"]["rows"][0][0], "3")
+			self.assertEqual(r["data"]["rows"][0][0], "4")
 
 		finally:
 			# Remove as rodsadmin

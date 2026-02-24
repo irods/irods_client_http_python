@@ -505,6 +505,7 @@ def write(
 	append: int = 0,
 	parallel_write_handle: str = "",
 	stream_index: int = -1,
+	ticket: str = "",
 ) -> dict:
 	"""
 	Write bytes to a data object.
@@ -519,6 +520,7 @@ def write(
 	    append: Set to 1 to append bytes to the data objectm otherwise set to 0. Defaults to 0.
 	    parallel_write_handle: The handle to be used when writing in parallel. Defaults to "".
 	    stream_index: The stream to use when writing in parallel. Defaults to -1.
+	    ticket: Ticket to be enabled before the operation. Defaults to an empty string.
 
 	Returns:
 	    A dict containing the HTTP status code and iRODS response.
@@ -538,6 +540,7 @@ def write(
 	common.validate_0_or_1(append)
 	common.validate_instance(parallel_write_handle, str)
 	common.validate_gte_minus1(stream_index)
+	common.validate_instance(ticket, str)
 
 	headers = {
 		"Authorization": "Bearer " + session.token,
@@ -562,6 +565,9 @@ def write(
 
 	if stream_index != -1:
 		data["stream-index"] = stream_index
+
+	if ticket != "":
+		data["ticket"] = ticket
 
 	r = requests.post(session.url_base + "/data-objects", headers=headers, data=data)  # noqa: S113
 	return common.process_response(r)
