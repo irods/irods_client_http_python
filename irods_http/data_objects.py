@@ -209,7 +209,10 @@ def stat(session: IRODSHTTPSession, lpath: str, ticket: str = "") -> dict:
 	common.validate_instance(lpath, str)
 	common.validate_instance(ticket, str)
 
-	params = {"op": "stat", "lpath": lpath, "ticket": ticket}
+	params = {"op": "stat", "lpath": lpath}
+
+	if ticket != "":
+		params["ticket"] = ticket
 
 	r = requests.get(session.url_base + "/data-objects", params=params, headers=session.get_headers)  # noqa: S113
 	return common.process_response(r)
